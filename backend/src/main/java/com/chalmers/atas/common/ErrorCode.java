@@ -1,10 +1,19 @@
 package com.chalmers.atas.common;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
+@RequiredArgsConstructor
 public enum ErrorCode {
+
+    // Alphabetical
+    EMAIL_TAKEN("EMAIL_TAKEN", "Email already taken", HttpStatus.BAD_REQUEST),
+    INVALID_REFRESH_TOKEN("INVALID_REFRESH_TOKEN", "Invalid refresh token", HttpStatus.BAD_REQUEST),
+    REFRESH_TOKEN_EXPIRED("REFRESH_TOKEN_EXPIRED", "Refresh token expired", HttpStatus.BAD_REQUEST),
+    REFRESH_TOKEN_REVOKED("REFRESH_TOKEN_REVOKED", "Refresh token revoked", HttpStatus.BAD_REQUEST),
+    REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", "Refresh token not found", HttpStatus.NOT_FOUND),
 
     // Basic HTTP errors
     UNAUTHORIZED("UNAUTHORIZED", "Invalid credentials", HttpStatus.UNAUTHORIZED),
@@ -16,12 +25,6 @@ public enum ErrorCode {
     private final String code;
     private final String message;
     private final HttpStatus status;
-
-    ErrorCode(String code, String message, HttpStatus status) {
-        this.code = code;
-        this.message = message;
-        this.status = status;
-    }
 
     public static ErrorCode fromHttpStatus(HttpStatus status) {
         return switch (status) {
