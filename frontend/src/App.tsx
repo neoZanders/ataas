@@ -1,14 +1,14 @@
-
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CourseResponsibleMainPage } from "./Components/CourseResponsibleMainPage";
 
 function App() {
-
-  return (
-    <>
-    
-      return <h1 className="text-3xl text-sm text-red-400 font-bold">Hello Tailwind v4</h1>;
-    </>
-  )
+    return (
+        <Router>
+            <Routes>
+                <Route path="*" element={<CourseResponsibleMainPage />} />
+            </Routes>
+        </Router>
+    );
 }
 
-export default App
+export default App;
