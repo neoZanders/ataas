@@ -33,7 +33,7 @@ body:
   - type: checkboxes
     id: feature-label
     attributes:
-      label: Checkbox for issue labeling
+      label: Label
       options:
         - label: I have labeled this issue (e.g. frontend, backend, algorithm)
           required: true
