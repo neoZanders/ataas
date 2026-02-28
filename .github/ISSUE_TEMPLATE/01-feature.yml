@@ -1,0 +1,31 @@
+name: Feature issue
+description: Create a feature issue
+title: "[FEAT]: <short description>"
+projects: neoZanders/1
+
+body:
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Description
+      description: Describe the feature
+    validations:
+      required: true
+      
+  - type: textarea
+    id: DoD
+    attributes:
+      label: Definition of done (Acceptance criteria)
+      description: Describe the desirable outcome of the feature
+      placeholder: |
+        e.g.:
+        Frontend should be able to call:
+
+        - `POST /api/courses/{courseId}/schedule`
+        - `GET /api/courses/{courseId}/schedule`
+        
+        with corresponding functionality:
+        
+        - `Run algorithm should create a schedule when first called`
+    validations:
+      required: true
