@@ -29,6 +29,7 @@ body:
         - `Run algorithm should create a schedule when first called`
     validations:
       required: true
+      
   - type: checkboxes
     id: feature-label
     attributes:
