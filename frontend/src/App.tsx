@@ -1,11 +1,16 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import { CourseResponsibleMainPage } from "./Components/CourseResponsibleMainPage";
+import {CourseResponsibleTAListPage} from "./Components/CourseResponsibleTAListPage.tsx";
 
 function App() {
     return (
         <Router>
             <Routes>
-                <Route path="*" element={<CourseResponsibleMainPage />} />
+                <Route path="/" element={<Navigate to="/calendar" replace />} />
+
+                <Route path="/calendar" element={<CourseResponsibleMainPage />} />
+
+                <Route path="/talist" element={<CourseResponsibleTAListPage />} />
             </Routes>
         </Router>
     );
