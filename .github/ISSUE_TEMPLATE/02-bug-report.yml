@@ -15,7 +15,8 @@ body:
     id: details
     attributes:
       label: Details
-      description: Provide all relevant information:
+      description: | 
+        Provide all relevant information:
         - Steps to reproduce
         - Expected behavior
         - Actual behavior
