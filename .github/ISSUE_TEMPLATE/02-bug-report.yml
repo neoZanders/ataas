@@ -1,0 +1,49 @@
+
+name: Bug Report
+description: Create a bug report
+title: [BUG]: <short description>
+labels: bug
+projects: neoZanders/1
+
+body:
+  - type: input
+    id: bug-description
+    attributes:
+      label: Description
+      description: A brief description of the bug
+      
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Provide all relevant information:
+        - Steps to reproduce
+        - Expected behavior
+        - Actual behavior
+      placeholder: |
+        **Steps to Reproduce:**
+        1. Go to...
+        2. Click on...
+        3. See the error...
+
+        **Expected Behaviour:**  
+        Describe what should have happened.
+
+        **Actual Behaviour:**  
+        Describe what happened instead, including error messages or codes.
+      value: |
+        **Steps to Reproduce:**
+        1. 
+        2. 
+        3. 
+
+        **Expected Behaviour:**  
+
+        **Actual Behaviour:**  
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, browser, and app version details.
+      placeholder: "e.g., Windows 10, Chrome 114, App v2.3.1"
