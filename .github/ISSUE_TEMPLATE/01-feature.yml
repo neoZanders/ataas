@@ -29,3 +29,9 @@ body:
         - `Run algorithm should create a schedule when first called`
     validations:
       required: true
+  - type: checkboxes
+    id: feature-label
+    attributes:
+      options:
+        - label: I have labeled this issue (e.g. frontend, backend, algorithm)
+          required: true
