@@ -1,0 +1,27 @@
+---
+name: Bug Report
+description: Create a bug report
+labels: bug
+projects: neoZanders/1
+---
+
+## Description
+A clear and concise description of what the bug is.
+
+## Steps to Reproduce
+1. 
+2. 
+3. 
+
+## Expected Behavior
+What you expected to happen.
+
+## Actual Behavior
+What actually happened.
+
+## Screenshots
+If applicable, add screenshots to help explain your problem.
+
+## Additional Context
+- What is your OS? 
+- What browser did you use?
