@@ -1,7 +1,6 @@
-
 name: Bug Report
 description: Create a bug report
-title: [BUG]: <short description>
+title: "[BUG]: <short description>"
 labels: bug
 projects: neoZanders/1
 
