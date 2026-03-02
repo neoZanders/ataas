@@ -10,6 +10,7 @@ import {
     Rows3,
     CirclePlus
 } from "lucide-react";
+import {useAuth} from "./AuthContext.tsx";
 
 type SidebarItem = {
     id: string;
@@ -22,23 +23,31 @@ type SidebarItem = {
 
 function SideTabNav() {
     const location = useLocation();
+    const { user } = useAuth();
+    const base =
+        user?.userType === "CR" ? "/cr"
+            : user?.userType === "TA" ? "/ta"
+                : "";
 
-    const items: SidebarItem[] = [
-        { id: "add course", label: "Add Course", to: "/addcourse", icon: <CirclePlus size={24} /> },
-        { id: "courses", label: "Courses", to: "/courses", icon: <BookOpen size={24} /> },
-        { id: "ta list", label: "TA list", to: "/talist", icon: <Users size={24} /> },
-        { id: "calendar", label: "Calendar", to: "/calendar", icon: <CalendarDays size={24} /> },
-        { id: "constraints", label: "Constraints", to: "/constraints", icon: <Rows3 size={24} /> },
-        { id: "announcements", label: "Announcements", to: "/announcements", icon: <Megaphone size={24} /> , badgeCount: 25},
-        { id: "requests", label: "Requests", to: "/requests", icon: <CalendarSync size={24} />, badgeCount: 10 },
-    ];
+    const items: SidebarItem[] = user?.userType === "CR"
+        ? [
+            { id: "add course", label: "Add Course", to: `${base}/addcourse`, icon: <CirclePlus size={24} />},
+            { id: "courses", label: "Courses", to: `${base}/courses`, icon: <BookOpen size={24} /> },
+            { id: "calendar", label: "Calendar", to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
+            { id: "ta list", label: "TA list", to: `${base}/talist`, icon: <Users size={24} /> },
+            { id: "constraints", label: "Constraints", to: `${base}/constraints`, icon: <Rows3 size={24} />},
+            { id: "announcements", label: "Announcements", to: `${base}/announcements`, icon: <Megaphone size={24} /> , badgeCount: 25},
+            { id: "requests", label: "Requests", to: "/requests", icon: <CalendarSync size={24} />, badgeCount: 10 },
+        ]
+        : user?.userType === "TA"
+            ? [
+                { id: "calendar", label: "Calendar", to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
+                { id: "constraints", label: "Constraints", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
+            ]
+            : [];
 
-    const isActive = (item: SidebarItem) => {
-        if (item.pattern) {
-            return !!matchPath({ path: item.pattern, end: true }, location.pathname);
-        }
-        return location.pathname === item.to;
-    };
+    const isActive = (item: SidebarItem) =>
+        !!matchPath({ path: item.to, end: false }, location.pathname);
 
     const isAccountActive = () =>
         location.pathname === "/account" || location.pathname === "/profile";
