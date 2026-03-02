@@ -48,7 +48,6 @@ public class RefreshToken {
             Instant createdAt
     ) {
         RefreshToken refreshToken = new RefreshToken();
-        refreshToken.tokenId = UUID.randomUUID();
         refreshToken.user = user;
         refreshToken.tokenHash = tokenHash;
         refreshToken.expiresAt = expiresAt;
