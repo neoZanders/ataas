@@ -13,7 +13,7 @@ export function CourseResponsibleMainPage() {
                     Run Algorithm
                 </button>
                 </div>
-                <Calendar />
+                <Calendar/>
             </main>
         </div>
     );
