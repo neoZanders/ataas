@@ -51,6 +51,22 @@ public class Result<T> {
         }
     }
 
+    public Result<Void> then(Consumer<? super T> action) {
+        if (success) {
+            action.accept(data);
+            return Result.ok();
+        } else {
+            return Result.error(error);
+        }
+    }
+
+    public Result<T> peek(Consumer<? super T> action) {
+        if (success) {
+            action.accept(data);
+        }
+        return this;
+    }
+
     public T orError() {
         if (success) {
             return data;
