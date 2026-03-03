@@ -9,11 +9,14 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     // Alphabetical
+    COURSE_NOT_FOUND("COURSE_NOT_FOUND", "Course not found", HttpStatus.NOT_FOUND),
     EMAIL_TAKEN("EMAIL_TAKEN", "Email already taken", HttpStatus.BAD_REQUEST),
+    INVALID_COURSE_CODE("INVALID_COURSE_CODE", "Course code format invalid", HttpStatus.BAD_REQUEST),
     INVALID_REFRESH_TOKEN("INVALID_REFRESH_TOKEN", "Invalid refresh token", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_EXPIRED("REFRESH_TOKEN_EXPIRED", "Refresh token expired", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_REVOKED("REFRESH_TOKEN_REVOKED", "Refresh token revoked", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", "Refresh token not found", HttpStatus.NOT_FOUND),
+    USER_NOT_COURSE_RESPONSIBLE("USER_NOT_COURSE_RESPONSIBLE", "User is not course responsible for this course", HttpStatus.FORBIDDEN),
 
     // Basic HTTP errors
     UNAUTHORIZED("UNAUTHORIZED", "Invalid credentials", HttpStatus.UNAUTHORIZED),

@@ -18,4 +18,10 @@ public class TransactionalResult<T> extends Result<T> {
         return new TransactionalResult<>(false, null, error);
     }
 
+    public static <T> TransactionalResult<T> from(Result<T> result) {
+        if (result.isSuccess()) {
+            return TransactionalResult.ok(result.getData());
+        }
+        return TransactionalResult.rollbackFor(result.getError());
+    }
 }
