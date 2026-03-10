@@ -53,7 +53,7 @@ public class AuthApplicationService {
         try {
             userRepository.save(
                     User.of(
-                            request.getEmail(),
+                            request.getEmail().toLowerCase(),
                             passwordEncoder.encode(request.getPassword()),
                             request.getName(),
                             request.getUserType()
