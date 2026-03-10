@@ -9,7 +9,7 @@ public class TA {
 
     private final String id;    //Identity
     private final String name;  //Identity
-    private final Set<String> availableSlots;    //Availability     "Monday15", "Tuesday12" etc
+    private final Set<String> availableSlots;    //Availability     "5/3Monday15", "5/4Tuesday12" etc
     private final int maxHoursPerLp;        //Workload limit
     private final Set<String> preferredDayTime;        //Preferred day
     private int totalAssignedHours;         //Current state
