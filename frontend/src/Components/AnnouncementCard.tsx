@@ -36,7 +36,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
                     <h3 className="text-lg font-semibold text-slate-900">{announcement.title}</h3>
                     <p className="text-xs text-slate-500">{formatDate(announcement.createdAt)}</p>
                 </div>
-                {showExpandButton ? (
+                {showExpandButton && (
                     <button
                         type="button"
                         className="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:cursor-pointer"
@@ -44,7 +44,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
                     >
                         {expanded ? "Minimize" : "Expand"}
                     </button>
-                ) : null}
+                )}
             </div>
 
             <div className="mt-3 text-sm text-slate-700">
