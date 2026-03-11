@@ -1,6 +1,4 @@
-import {
-    Plus
-} from "lucide-react";
+import { Plus } from "lucide-react";
 import SideTabNav from "./SideTabNav";
 import { AddAnnouncementPopUp } from "./AddAnnouncementPopUp";
 import { AnnouncementCard } from "./AnnouncementCard";
@@ -20,8 +18,8 @@ const mockData: Announcement[] = [
         id: "1",
         title: "Discord link",
         body: "**We have a Discord server** please join here [Discord Link](https://www.youtube.com/watch?v=iik25wqIuFo&list=RDiik25wqIuFo&start_radio=1)",
-        sendByEmail: false,
-        createdAt: "2026-03-09T12:12:54Z"
+        sendByEmail: true,
+        createdAt: "2026-03-09T12:12:57Z"
     },
     {
         id: "2",
