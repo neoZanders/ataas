@@ -7,7 +7,7 @@ import { ProfilePage } from "./Components/ProfilePage";
 import { CourseResponsibleMainPage } from "./Components/CourseResponsibleMainPage";
 import { CourseResponsibleTAListPage } from "./Components/CourseResponsibleTAListPage";
 import { CourseResponsibleAnnouncementPage } from "./Components/CourseResponsibleAnnouncementPage.tsx";
-import {TAMainPage} from "./Components/TAMainPage.tsx";
+import { TAMainPage } from "./Components/TAMainPage.tsx";
 
 function RootRedirect() {
     const { user, isAuthReady } = useAuth();
