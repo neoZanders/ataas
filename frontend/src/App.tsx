@@ -6,7 +6,8 @@ import { SignUpPage } from "./Components/SignUpPage";
 import { ProfilePage } from "./Components/ProfilePage";
 import { CourseResponsibleMainPage } from "./Components/CourseResponsibleMainPage";
 import { CourseResponsibleTAListPage } from "./Components/CourseResponsibleTAListPage";
-import {TAMainPage} from "./Components/TAMainPage.tsx";
+import { CourseResponsibleAnnouncementPage } from "./Components/CourseResponsibleAnnouncementPage.tsx";
+import { TAMainPage } from "./Components/TAMainPage.tsx";
 
 function RootRedirect() {
     const { user, isAuthReady } = useAuth();
@@ -28,6 +29,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactElement }) {
         ? <Navigate to="/cr/calendar" replace />
         : <Navigate to="/ta/calendar" replace />;
 }
+
 
 function App() {
     return (
@@ -75,6 +77,14 @@ function App() {
                         element={
                             <RoleRoute allow={["CR"]}>
                                 <CourseResponsibleTAListPage />
+                            </RoleRoute>
+                        }
+                    />
+                    <Route
+                        path="cr/announcements"
+                        element={
+                            <RoleRoute allow={["CR"]}>
+                                <CourseResponsibleAnnouncementPage/>
                             </RoleRoute>
                         }
                     />
