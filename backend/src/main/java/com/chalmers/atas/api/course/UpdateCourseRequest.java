@@ -1,17 +1,12 @@
 package com.chalmers.atas.api.course;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @NoArgsConstructor
-public class CreateCourseRequest {
-    @NotBlank
-    private String courseCode;
+public class UpdateCourseRequest {
 
     private String description;
 
@@ -20,10 +15,4 @@ public class CreateCourseRequest {
 
     @NotNull
     private Boolean canTACreateAnnouncements;
-
-    @NotNull
-    private LocalDate startDate;
-
-    @NotNull
-    private LocalDate endDate;
 }
