@@ -5,6 +5,7 @@ import com.chalmers.atas.domain.course.Course;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -15,16 +16,28 @@ public class CourseResponse {
 
     private String courseCode;
 
-    private UserResponse cr;
+    private UserResponse owner;
 
     private Course.CourseStatus status;
+
+    private boolean canTASeeAllSchedules;
+
+    private boolean canTACreateAnnouncements;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
 
     public static CourseResponse of(Course course) {
         return new CourseResponse(
                 course.getCourseId(),
                 course.getCourseCode(),
-                UserResponse.of(course.getCr()),
-                course.getCourseStatus()
+                UserResponse.of(course.getOwner()),
+                course.getCourseStatus(),
+                course.isCanTASeeAllSchedules(),
+                course.isCanTACreateAnnouncements(),
+                course.getStartDate(),
+                course.getEndDate()
         );
     }
 }
