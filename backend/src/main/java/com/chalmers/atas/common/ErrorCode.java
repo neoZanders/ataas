@@ -9,14 +9,21 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     // Alphabetical
+    CANNOT_DELETE_COURSE_OWNER("CANNOT_DELETE_COURSE_OWNER", "Course owner cannot be deleted", HttpStatus.BAD_REQUEST),
     COURSE_NOT_FOUND("COURSE_NOT_FOUND", "Course not found", HttpStatus.NOT_FOUND),
+    COURSE_INVITE_NOT_FOUND("COURSE_INVITE_NOT_FOUND", "Course invite not found", HttpStatus.NOT_FOUND),
     EMAIL_TAKEN("EMAIL_TAKEN", "Email already taken", HttpStatus.BAD_REQUEST),
     INVALID_COURSE_CODE("INVALID_COURSE_CODE", "Course code format invalid", HttpStatus.BAD_REQUEST),
     INVALID_REFRESH_TOKEN("INVALID_REFRESH_TOKEN", "Invalid refresh token", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_EXPIRED("REFRESH_TOKEN_EXPIRED", "Refresh token expired", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_REVOKED("REFRESH_TOKEN_REVOKED", "Refresh token revoked", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", "Refresh token not found", HttpStatus.NOT_FOUND),
+    START_AFTER_END("START_AFTER_END", "Start date time is after end date time", HttpStatus.BAD_REQUEST),
+    USER_ALREADY_HAS_COURSE_ASSIGNMENT("USER_ALREADY_HAS_COURSE_ASSIGNMENT", "User already has an assignment to this course", HttpStatus.BAD_REQUEST),
+    INVALID_COURSE_ASSIGNMENT_STATUS("INVALID_COURSE_ASSIGNMENT_STATUS", "Invalid course assignment status", HttpStatus.BAD_REQUEST),
+    USER_HAS_NOT_JOINED_COURSE("USER_HAS_NOT_JOINED_COURSE", "User has not joined course", HttpStatus.BAD_REQUEST),
     USER_NOT_COURSE_RESPONSIBLE("USER_NOT_COURSE_RESPONSIBLE", "User is not course responsible for this course", HttpStatus.FORBIDDEN),
+    USER_NOT_FOUND("USER_NOT_FOUND", "User not found", HttpStatus.NOT_FOUND),
 
     // Basic HTTP errors
     UNAUTHORIZED("UNAUTHORIZED", "Invalid credentials", HttpStatus.UNAUTHORIZED),
