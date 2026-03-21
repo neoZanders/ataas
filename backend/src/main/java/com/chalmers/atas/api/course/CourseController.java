@@ -28,7 +28,7 @@ public class CourseController {
         return HttpResponse.fromResult(courseApplicationService.getCourses(currentUser));
     }
 
-    @PutMapping("/{courseId}")
+    @PutMapping("/{courseId}/archive")
     public HttpResponse<CourseResponse> archiveCourse(
             @PathVariable UUID courseId,
             CurrentUser currentUser) {
@@ -40,5 +40,13 @@ public class CourseController {
             @PathVariable UUID courseId,
             CurrentUser currentUser) {
         return HttpResponse.fromResult(courseApplicationService.deleteCourse(courseId, currentUser));
+    }
+
+    @PatchMapping("/{courseId}")
+    public HttpResponse<CourseResponse> updateCourse(
+            @PathVariable UUID courseId,
+            @RequestBody UpdateCourseRequest request,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(courseApplicationService.updateCourse(courseId, request, currentUser));
     }
 }

@@ -60,10 +60,14 @@ public class SecurityConfig {
                                 "/swagger-ui/**"
                         ).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/courses").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/courses").hasRole("CR")
-                        .requestMatchers(HttpMethod.PUT, "/api/courses/{courseId}").hasRole("CR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/courses/{courseId}").hasRole("CR")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/courses",
+                                "/api/courses/{courseId}/course-assignments"
+                        ).hasRole("TA")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/courses/{courseId}/course-assignments/join"
+                        ).hasRole("TA")
+                        .requestMatchers("/api/courses/**").hasRole("CR")
                         .anyRequest().denyAll()
                 ).addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class);
