@@ -2,6 +2,8 @@ package com.chalmers.atas.common;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -24,11 +26,11 @@ public class Result<T> {
         return new Result<>(false, null, error);
     }
 
-    public static <T> Result<T> ofOptional(Optional<T> maybeData) {
+    public static <T> Result<T> ofOptional(Optional<T> maybeData, Error notFoundError) {
         if (maybeData.isPresent()) {
             return new Result<>(true, maybeData.get(), null);
         } else {
-            return new Result<>(false, null, ErrorCode.NOT_FOUND.toError());
+            return new Result<>(false, null, notFoundError);
         }
     }
 
