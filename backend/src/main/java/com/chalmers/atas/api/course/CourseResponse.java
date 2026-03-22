@@ -15,7 +15,7 @@ public class CourseResponse {
 
     private String courseCode;
 
-    private UserResponse cr;
+    private UserResponse owner;
 
     private Course.CourseStatus status;
 
@@ -23,7 +23,7 @@ public class CourseResponse {
         return new CourseResponse(
                 course.getCourseId(),
                 course.getCourseCode(),
-                UserResponse.of(course.getCr()),
+                UserResponse.of(course.getOwner()),
                 course.getCourseStatus()
         );
     }
