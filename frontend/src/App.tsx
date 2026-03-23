@@ -35,7 +35,6 @@ function PublicOnlyRoute({ children }: { children: React.ReactElement }) {
         : <Navigate to="/ta/calendar" replace />;
 }
 
-
 function App() {
     return (
         <AuthProvider>
@@ -95,6 +94,15 @@ function App() {
                             </RoleRoute>
                         }
                     />
+
+                    <Route
+                        path="/cr/constraints"
+                        element={
+                            <RoleRoute allow={["CR"]}>
+                                <CourseResponsibleConstraintsPage />
+                            </RoleRoute>
+                        }
+                    />
                     <Route
                         path="cr/announcements"
                         element={
@@ -142,6 +150,15 @@ function App() {
                         element={
                             <RoleRoute allow={["TA"]}>
                                 <TACoursePage />
+                            </RoleRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/ta/constraints"
+                        element={
+                            <RoleRoute allow={["TA"]}>
+                                <div className="p-6">TA Constraints (placeholder)</div>
                             </RoleRoute>
                         }
                     />
