@@ -6,6 +6,7 @@ import { SignUpPage } from "./Components/SignUpPage";
 import { ProfilePage } from "./Components/ProfilePage";
 import { CourseResponsibleMainPage } from "./Components/CourseResponsibleMainPage";
 import { CourseResponsibleTAListPage } from "./Components/CourseResponsibleTAListPage";
+import { CourseResponsibleConstraintsPage } from "./Components/CourseResponsibleConstraintsPage";
 import {TAMainPage} from "./Components/TAMainPage.tsx";
 
 function RootRedirect() {
@@ -80,6 +81,15 @@ function App() {
                     />
 
                     <Route
+                        path="/cr/constraints"
+                        element={
+                            <RoleRoute allow={["CR"]}>
+                                <CourseResponsibleConstraintsPage />
+                            </RoleRoute>
+                        }
+                    />
+
+                    <Route
                         path="/ta/calendar"
                         element={
                             <RoleRoute allow={["TA"]}>
@@ -87,6 +97,15 @@ function App() {
                             </RoleRoute>
                         }
                     />
+                    <Route
+                        path="/ta/constraints"
+                        element={
+                            <RoleRoute allow={["TA"]}>
+                                <div className="p-6">TA Constraints (placeholder)</div>
+                            </RoleRoute>
+                        }
+                    />
+
                     <Route
                         path="/ta/constraints"
                         element={
