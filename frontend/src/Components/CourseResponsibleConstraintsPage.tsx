@@ -143,9 +143,9 @@ export function CourseResponsibleConstraintsPage() {
                                     <div key={row.id} className="relative rounded-3xl border border-slate-200 p-4 bg-white m-2">
                                         <button
                                             onClick={() => handleDeleteSession(row.id)}
-                                            className="absolute inset-y-0 right-2 my-auto text-slate-400 hover:text-red-500 transition"
+                                            className="absolute inset-y-0 right-2 my-auto text-slate-400"
                                         >
-                                            <Trash2 className="h-4 w-4 text-slate-600" />
+                                            <Trash2 className="h-5 w-5 text-slate-600 transition hover:text-[#002f49]" />
                                         </button>
                                         <p className="flex items-center pl-1 gap-3 text-sm font-semibold text-slate-900">{row.session}</p>
                                         <p><span className="mt-1 pl-1 space-y-0.5 list-disc text-sm text-slate-600">{row.date}</span></p>
