@@ -38,6 +38,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactElement }) {
 
 function App() {
     return (
+
         <AuthProvider>
             <CurrentCourseProvider >
             <Router>
@@ -105,7 +106,6 @@ function App() {
                             </RoleRoute>
                         }
                     />
-
                     <Route
                         path="cr/announcements"
                         element={
