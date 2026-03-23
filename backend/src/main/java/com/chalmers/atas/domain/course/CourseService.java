@@ -46,6 +46,41 @@ public class CourseService {
                 getCourseIfOwnedByCr(courseId, user).then(courseRepository::delete));
     }
 
+    @Transactional
+    public TransactionalResult<Course> createCourseConstraint(
+            UUID courseId,
+            String constraint,
+            User user) {
+        throw new UnsupportedOperationException("Not implemented yet");
+
+    }
+
+    @Transactional
+    public TransactionalResult<Void> deleteCourseConstraint(
+            UUID courseId,
+            UUID courseConstraintId,
+            User user) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public Result<List<Course>> getCourseConstraints(UUID courseId, User user) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Transactional
+    public TransactionalResult<Course> createCourseSession(UUID courseId, String session, User user) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Transactional
+    public TransactionalResult<Void> deleteCourseSession(UUID courseId, UUID courseSession, User user) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public Result<List<Course>> getCourseSession(UUID courseId, User user) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
     private Result<Course> getCourseIfOwnedByCr(UUID courseId, User user) {
         Optional<Course> maybeCourse = courseRepository.findById(courseId);
         if (maybeCourse.isEmpty()) {
