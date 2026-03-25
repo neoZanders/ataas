@@ -49,4 +49,27 @@ public class CourseController {
             CurrentUser currentUser) {
         return HttpResponse.fromResult(courseApplicationService.updateCourse(courseId, request, currentUser));
     }
+
+    @GetMapping("/{courseId}/course-sessions")
+    public HttpResponse<List<CourseSessionResponse>> getCourseSessions(
+            @PathVariable UUID courseId,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(courseApplicationService.getCourseSessions(courseId, currentUser));
+    }
+
+    @PostMapping("/{courseId}/course-sessions")
+    public HttpResponse<CourseSessionResponse> createCourseSession(
+            @PathVariable UUID courseId,
+            @RequestBody CreateCourseSessionRequest request,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(courseApplicationService.createCourseSession(courseId, request, currentUser));
+    }
+
+    @DeleteMapping("/{courseId}/course-sessions/{courseSessionId}")
+    public HttpResponse<Void> deleteCourseSession(
+            @PathVariable UUID courseId,
+            @PathVariable UUID courseSessionId,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(courseApplicationService.deleteCourseSession(courseId, courseSessionId, currentUser));
+    }
 }

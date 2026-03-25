@@ -2,6 +2,7 @@ package com.chalmers.atas.common;
 
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -64,4 +65,13 @@ public class TransactionalResult<T> extends Result<T> {
         }
         return this;
     }
+
+    public static <T> TransactionalResult<T> ofOptional(Optional<T> maybeData, Error notFoundError) {
+        if (maybeData.isPresent()) {
+            return new TransactionalResult<>(true, maybeData.get(), null);
+        } else {
+            return new TransactionalResult<>(false, null, notFoundError);
+        }
+    }
+
 }

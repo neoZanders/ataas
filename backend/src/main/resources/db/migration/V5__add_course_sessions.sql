@@ -20,4 +20,5 @@ CREATE TABLE course_sessions(
     CONSTRAINT fk_course_sessions_course
         FOREIGN KEY (course_id)
             REFERENCES courses(course_id)
+            ON DELETE CASCADE
 )

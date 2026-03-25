@@ -79,7 +79,11 @@ public class Result<T> {
         return success ? data : fallback;
     }
 
-    public Result<T> orErrorIf(boolean condition, Error error) {
-        return condition ? Result.error(error) : this;
+    public Result<T> orIfError(Error error, Result<T> result) {
+        if (success) {
+            return this;
+        } else {
+            return this.error.equals(error) ? result : this;
+        }
     }
 }

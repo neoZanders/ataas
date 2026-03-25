@@ -12,6 +12,7 @@ public enum ErrorCode {
     CANNOT_DELETE_COURSE_OWNER("CANNOT_DELETE_COURSE_OWNER", "Course owner cannot be deleted", HttpStatus.BAD_REQUEST),
     COURSE_NOT_FOUND("COURSE_NOT_FOUND", "Course not found", HttpStatus.NOT_FOUND),
     COURSE_INVITE_NOT_FOUND("COURSE_INVITE_NOT_FOUND", "Course invite not found", HttpStatus.NOT_FOUND),
+    COURSE_SESSION_NOT_FOUND("COURSE_SESSION_NOT_FOUND", "Course session not found", HttpStatus.NOT_FOUND),
     EMAIL_TAKEN("EMAIL_TAKEN", "Email already taken", HttpStatus.BAD_REQUEST),
     INVALID_COURSE_CODE("INVALID_COURSE_CODE", "Course code format invalid", HttpStatus.BAD_REQUEST),
     INVALID_REFRESH_TOKEN("INVALID_REFRESH_TOKEN", "Invalid refresh token", HttpStatus.BAD_REQUEST),
