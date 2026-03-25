@@ -107,4 +107,12 @@ public class CourseService {
         }
         return Result.ok(course);
     }
+
+    public Result<Course> getCourse(UUID courseId) {
+        Optional<Course> maybeCourse = courseRepository.findById(courseId);
+        if (maybeCourse.isEmpty()) {
+            return Result.error(ErrorCode.COURSE_NOT_FOUND.toError());
+        }
+        return Result.ok(maybeCourse.get());
+    }
 }
