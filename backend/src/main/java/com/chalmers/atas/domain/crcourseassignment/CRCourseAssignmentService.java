@@ -93,12 +93,6 @@ public class CRCourseAssignmentService {
             );
         }
 
-        if (!crCourseAssignment.getStatus().equals(CRCourseAssignment.CRAssignmentStatus.JOINED)) {
-            return TransactionalResult.rollbackFor(
-                    ErrorCode.INVALID_COURSE_ASSIGNMENT_STATUS.toError()
-            );
-        }
-
         crCourseAssignmentRepository.delete(crCourseAssignment);
         return TransactionalResult.ok();
     }

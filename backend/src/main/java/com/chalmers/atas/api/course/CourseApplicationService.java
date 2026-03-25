@@ -29,11 +29,12 @@ public class CourseApplicationService {
                         request.getCanTACreateAnnouncements(),
                         request.getStartDate(),
                         request.getEndDate()
-                ).peek(course ->
+                ).flatMap(course ->
                         crCourseAssignmentService.createOwnerAssignment(
                                 currentUser.getUser(),
                                 course
-                )).map(CourseResponse::of)
+                        ).map(ignored -> course)
+                ).map(CourseResponse::of)
         );
     }
 
