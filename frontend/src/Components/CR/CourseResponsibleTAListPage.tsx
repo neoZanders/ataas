@@ -6,7 +6,7 @@ import {
     ArrowDown,
     UserCircle2,
 } from "lucide-react";
-import SideTabNav from "./SideTabNav.tsx";
+import SideTabNav from "../SideTabNav.tsx";
 import { useMemo, useState } from "react";
 import { AddTAPopUp } from "./AddTAPopUp.tsx";
 

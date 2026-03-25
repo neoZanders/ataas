@@ -4,10 +4,13 @@ import { RoleRoute } from "./Components/RoleRoute";
 import { LoginPage } from "./Components/LoginPage";
 import { SignUpPage } from "./Components/SignUpPage";
 import { ProfilePage } from "./Components/ProfilePage";
-import { CourseResponsibleMainPage } from "./Components/CourseResponsibleMainPage";
-import { CourseResponsibleTAListPage } from "./Components/CourseResponsibleTAListPage";
-import { CourseResponsibleAnnouncementPage } from "./Components/CourseResponsibleAnnouncementPage.tsx";
-import { TAMainPage } from "./Components/TAMainPage.tsx";
+import { CourseResponsibleMainPage } from "./Components/CR/CourseResponsibleMainPage.tsx";
+import { CourseResponsibleTAListPage } from "./Components/CR/CourseResponsibleTAListPage.tsx";
+import { CourseResponsibleAnnouncementPage } from "./Components/CR/CourseResponsibleAnnouncementPage.tsx";
+import { TAMainPage } from "./Components/TA/TAMainPage.tsx";
+import { TAAnnouncementPage } from "./Components/TA/TAAnnouncementPage.tsx";
+import { TATaListPage} from "./Components/TA/TATaListPage.tsx";
+import {TAConstraintsPage} from "./Components/TA/TAConstraintsPage.tsx";
 
 function RootRedirect() {
     const { user, isAuthReady } = useAuth();
@@ -98,10 +101,26 @@ function App() {
                         }
                     />
                     <Route
+                        path="/ta/announcements"
+                        element={
+                            <RoleRoute allow={["TA"]}>
+                                <TAAnnouncementPage />
+                            </RoleRoute>
+                        }
+                    />
+                    <Route
+                        path="/ta/talist"
+                        element={
+                            <RoleRoute allow={["TA"]}>
+                                <TATaListPage />
+                            </RoleRoute>
+                        }
+                    />
+                    <Route
                         path="/ta/constraints"
                         element={
                             <RoleRoute allow={["TA"]}>
-                                <div className="p-6">TA Constraints (placeholder)</div>
+                                <TAConstraintsPage />
                             </RoleRoute>
                         }
                     />
