@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.chalmers.atas.common.HttpResponse;
-import com.chalmers.atas.common.Result;
 import com.chalmers.atas.domain.user.CurrentUser;
 
 import jakarta.validation.Valid;
@@ -31,7 +30,7 @@ public class AnnouncementController {
     public HttpResponse<List<AnnouncementResponse>> getAnnouncements(
         @PathVariable UUID courseId,
         CurrentUser currentUser) {
-        return HttpResponse.fromResult(Result.ok(List.of()));
+        return HttpResponse.fromResult(announcementApplicationService.getAnnouncements(courseId, currentUser));
     }
 
     @PostMapping
@@ -39,7 +38,7 @@ public class AnnouncementController {
         @PathVariable UUID courseId,
         @RequestBody @Valid CreateAnnouncementRequest request,
         CurrentUser currentUser) {
-        return HttpResponse.fromResult(Result.ok());
+        return HttpResponse.fromResult(announcementApplicationService.createAnnouncement(courseId, request, currentUser));
     }
     
 }
