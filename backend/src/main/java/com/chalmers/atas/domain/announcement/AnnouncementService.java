@@ -18,7 +18,9 @@ public class AnnouncementService {
     private final AnnouncementRepository announcementRepository;
 
     public Result<List<Announcement>> getAnnouncements(Course course) {
-        return Result.ok(announcementRepository.findByCourseIdOrderByCreatedAtDesc(course.getCourseId()));
+        return Result.ok(
+                announcementRepository.findByCourseCourseIdOrderByCreatedAtDesc(course.getCourseId())
+        );
     }
 
     @Transactional
