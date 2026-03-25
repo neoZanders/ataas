@@ -1,5 +1,5 @@
-import Calendar from "./Calendar";
-import SideTabNav from "./SideTabNav.tsx";
+import Calendar from "../Calendar.tsx";
+import SideTabNav from "../SideTabNav.tsx";
 
 export function CourseResponsibleMainPage() {
     return (
