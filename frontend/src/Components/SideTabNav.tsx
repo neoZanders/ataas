@@ -1,14 +1,13 @@
 import { Link, useLocation, matchPath } from "react-router-dom";
 import type { ReactNode } from "react";
 import {
-    BookOpen,
+    Book,
     Users,
     CalendarDays,
     Megaphone,
-    CalendarSync,
+    BookCopy,
     UserCircle2,
     Rows3,
-    CirclePlus
 } from "lucide-react";
 import {useAuth} from "./AuthContext.tsx";
 
@@ -31,18 +30,21 @@ function SideTabNav() {
 
     const items: SidebarItem[] = user?.userType === "CR"
         ? [
-            { id: "add course", label: "Add Course", to: `${base}/addcourse`, icon: <CirclePlus size={24} />},
-            { id: "courses", label: "Courses", to: `${base}/courses`, icon: <BookOpen size={24} /> },
+            { id: "course", label: "Course", to: `${base}/course`, icon: <Book size={24} /> },
+            { id: "courses", label: "Courses", to: `${base}/courses`, icon: <BookCopy size={24} /> },
             { id: "calendar", label: "Calendar", to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
             { id: "ta list", label: "TA list", to: `${base}/talist`, icon: <Users size={24} /> },
             { id: "constraints", label: "Constraints", to: `${base}/constraints`, icon: <Rows3 size={24} />},
             { id: "announcements", label: "Announcements", to: `${base}/announcements`, icon: <Megaphone size={24} /> , badgeCount: 25},
-            { id: "requests", label: "Requests", to: "/requests", icon: <CalendarSync size={24} />, badgeCount: 10 },
         ]
         : user?.userType === "TA"
             ? [
+                { id: "course", label: "Course", to: `${base}/course`, icon: <Book size={24} /> },
+                { id: "courses", label: "Courses", to: `${base}/courses`, icon: <BookCopy size={24} /> },
                 { id: "calendar", label: "Calendar", to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
+                { id: "ta list", label: "TA list", to: `${base}/talist`, icon: <Users size={24} /> },
                 { id: "constraints", label: "Constraints", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
+                { id: "announcements", label: "Announcements", to: `${base}/announcements`, icon: <Megaphone size={24} /> , badgeCount: 25},
             ]
             : [];
 

@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
-import SideTabNav from "./SideTabNav";
-import { AddAnnouncementPopUp } from "./AddAnnouncementPopUp";
-import { AnnouncementCard } from "./AnnouncementCard";
+import SideTabNav from "../SideTabNav.tsx";
+import { AddAnnouncementPopUp } from "../AddAnnouncementPopUp.tsx";
+import { AnnouncementCard } from "../AnnouncementCard.tsx";
 import { useMemo, useState } from "react";
 
 export type Announcement = {

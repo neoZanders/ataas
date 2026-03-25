@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Announcement } from "./CourseResponsibleAnnouncementPage";
+import type { Announcement } from "./CR/CourseResponsibleAnnouncementPage.tsx";
 import { MarkdownText } from "./MarkdownText";
 
 type AnnouncementCardProps = {

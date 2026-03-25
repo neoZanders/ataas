@@ -1,5 +1,5 @@
-import SideTabNav from "./SideTabNav.tsx";
-import Calendar from "./Calendar.tsx";
+import SideTabNav from "../SideTabNav.tsx";
+import Calendar from "../Calendar.tsx";
 
 export function TAMainPage(){
     return (
