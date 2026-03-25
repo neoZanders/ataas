@@ -67,6 +67,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/courses/{courseId}/course-assignments/join"
                         ).authenticated()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/courses/{courseId}/announcements"
+                        ).authenticated()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/courses/{courseId}/announcements"
+                        ).authenticated()
                         .requestMatchers("/api/courses/**").hasRole("CR")
                         .anyRequest().denyAll()
                 ).addFilterBefore(jwtAuthenticationFilter,
