@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
 import com.chalmers.atas.domain.course.Course;
+import com.chalmers.atas.domain.user.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,10 +27,11 @@ public class AnnouncementService {
     @Transactional
     public TransactionalResult<Announcement> createAnnouncement(
             Course course,
+            User owner,
             String title,
             String body,
             boolean sendByEmail
     ) {
-        return TransactionalResult.ok(announcementRepository.save(Announcement.of(course, title, body, sendByEmail)));
+        return TransactionalResult.ok(announcementRepository.save(Announcement.of(course, owner, title, body, sendByEmail)));
     }
 }

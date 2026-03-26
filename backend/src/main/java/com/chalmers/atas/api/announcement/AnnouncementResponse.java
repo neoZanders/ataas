@@ -3,6 +3,7 @@ package com.chalmers.atas.api.announcement;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.chalmers.atas.api.user.UserResponse;
 import com.chalmers.atas.domain.announcement.Announcement;
 
 import lombok.AllArgsConstructor;
@@ -13,6 +14,8 @@ import lombok.Data;
 public class AnnouncementResponse {
 
     private UUID id;
+
+    private UserResponse owner;
 
     private String title;
 
@@ -25,6 +28,7 @@ public class AnnouncementResponse {
     public static AnnouncementResponse of(Announcement announcement){
         return new AnnouncementResponse(
             announcement.getAnnouncementId(), 
+            UserResponse.of(announcement.getOwner()),
             announcement.getTitle(), 
             announcement.getAnnouncement(), 
             announcement.isSendByEmail(), 
