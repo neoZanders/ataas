@@ -13,6 +13,7 @@ import { TATaListPage} from "./Components/TA/TATaListPage.tsx";
 import {TAConstraintsPage} from "./Components/TA/TAConstraintsPage.tsx";
 import {CourseResponsibleCourse} from "./Components/CR/CourseResponsibleCourse.tsx";
 import {TACoursePage} from "./Components/TA/TACoursePage.tsx";
+import {CourseResponsibleConstraintsPage} from "./Components/CourseResponsibleConstraintsPage.tsx";
 
 function RootRedirect() {
     const { user, isAuthReady } = useAuth();
