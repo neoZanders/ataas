@@ -82,20 +82,6 @@ export function CourseResponsibleConstraintsPage() {
         );
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await fetch("/api/session-constraints");
-                const data = await res.json();
-                setSessionConstraints(data);
-            } catch (error) {
-                console.error("Failed to fetch session constraints:", error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
     return (
         <div className="min-h-screen bg-stone-50">
             <SideTabNav />
