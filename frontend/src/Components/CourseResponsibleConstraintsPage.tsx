@@ -4,7 +4,7 @@ import {
     Trash2,
 } from "lucide-react";
 import SideTabNav from "./SideTabNav.tsx";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 type TAConstraint = {
     id: string;
