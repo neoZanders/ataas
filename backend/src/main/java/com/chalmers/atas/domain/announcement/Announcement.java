@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.chalmers.atas.domain.course.Course;
+import com.chalmers.atas.domain.user.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,6 +36,10 @@ public class Announcement implements Serializable{
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
     @Column(nullable = false)
     private String title;
 
@@ -47,9 +52,10 @@ public class Announcement implements Serializable{
     @Column(nullable = false)
     private Instant createdAt;
 
-    public static Announcement of(Course course, String title, String body, boolean sendByEmail){
+    public static Announcement of(Course course, User owner, String title, String body, boolean sendByEmail){
         Announcement announcement = new Announcement();
         announcement.course = course;
+        announcement.owner = owner;
         announcement.title = title;
         announcement.announcement = body;
         announcement.sendByEmail = sendByEmail;

@@ -42,6 +42,7 @@ public class AnnouncementApplicationService {
                         .flatMap(ignored ->
                                 announcementService.createAnnouncement(
                                         course,
+                                        currentUser.getUser(),
                                         request.getTitle(),
                                         request.getBody(),
                                         request.getSendByEmail()
