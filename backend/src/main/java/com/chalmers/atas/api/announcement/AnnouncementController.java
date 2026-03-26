@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.chalmers.atas.common.HttpResponse;
 import com.chalmers.atas.domain.user.CurrentUser;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -36,7 +35,7 @@ public class AnnouncementController {
     @PostMapping
     public HttpResponse<AnnouncementResponse> createAnnouncement(
         @PathVariable UUID courseId,
-        @RequestBody @Valid CreateAnnouncementRequest request,
+        @RequestBody CreateAnnouncementRequest request,
         CurrentUser currentUser) {
         return HttpResponse.fromResult(announcementApplicationService.createAnnouncement(courseId, request, currentUser));
     }
