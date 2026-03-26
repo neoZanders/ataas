@@ -1,6 +1,7 @@
 package com.chalmers.atas.api.announcement;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,5 +15,6 @@ public class CreateAnnouncementRequest {
     @NotBlank
     private String body;
     
-    private boolean sendByEmail;
+    @NotNull
+    private Boolean sendByEmail;
 }
