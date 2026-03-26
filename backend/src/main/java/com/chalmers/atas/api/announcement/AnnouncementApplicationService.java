@@ -44,7 +44,7 @@ public class AnnouncementApplicationService {
                                         course,
                                         request.getTitle(),
                                         request.getBody(),
-                                        request.isSendByEmail()
+                                        request.getSendByEmail()
                                 ).map(AnnouncementResponse::of)
                         ));
     }
