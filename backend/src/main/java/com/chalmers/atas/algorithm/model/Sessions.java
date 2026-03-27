@@ -23,7 +23,7 @@ public class Sessions {
     public String getCourseId(){return courseId;}
     public String getSessionId(){return sessionId;}
 
-    public Set<String> getTimeSlots(){return timeSlots;}
+    public Set<String> getTimeSlots(){return Collections.unmodifiableSet(timeSlots);}
 
     public int getDurationTime(){return durationTime;}
 
