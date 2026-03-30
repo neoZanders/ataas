@@ -11,11 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.chalmers.atas.domain.coursesession.CourseSession.CourseSessionType.*;
+
 public abstract class AlgorithmTestBase {
 
     protected static final LocalDate RECURRING_START_DATE = LocalDate.of(2026, 1, 19);
     protected static final LocalDate RECURRING_END_DATE = LocalDate.of(2026, 3, 22);
-    protected static final int DEFAULT_SOFT_WEIGHT = 10;
+    protected static final int DEFAULT_SOFT_WEIGHT = 100;
 
     protected AlgorithmRequest request;
 
@@ -42,42 +44,42 @@ public abstract class AlgorithmTestBase {
                         sebastiaanId,
                         67,
                         120,
-                        List.of(CourseSession.CourseSessionType.GRADING),
+                        List.of(GRADING, LABORATION, HELP, EXERCISE),
                         false
                 ),
                 new AlgorithmTA(
                         yakovId,
                         51,
                         80,
-                        List.of(CourseSession.CourseSessionType.LABORATION),
+                        List.of(LABORATION, GRADING, HELP, EXERCISE),
                         true
                 ),
                 new AlgorithmTA(
                         leviId,
                         51,
                         80,
-                        List.of(CourseSession.CourseSessionType.GRADING),
+                        List.of(GRADING, LABORATION, HELP, EXERCISE),
                         false
                 ),
                 new AlgorithmTA(
                         albericId,
                         51,
                         80,
-                        List.of(CourseSession.CourseSessionType.LABORATION),
+                        List.of(LABORATION, GRADING, HELP, EXERCISE),
                         true
                 ),
                 new AlgorithmTA(
                         phoebeId,
                         51,
                         80,
-                        List.of(CourseSession.CourseSessionType.LABORATION),
+                        List.of(LABORATION, GRADING, HELP, EXERCISE),
                         false
                 ),
                 new AlgorithmTA(
                         noelleId,
                         51,
                         80,
-                        List.of(CourseSession.CourseSessionType.LABORATION),
+                        List.of(LABORATION, GRADING, HELP, EXERCISE),
                         true
                 )
         );
@@ -91,7 +93,7 @@ public abstract class AlgorithmTestBase {
                 LocalDate.of(2026, 1, 19),
                 LocalTime.of(8, 0),
                 LocalTime.of(10, 0),
-                CourseSession.CourseSessionType.LABORATION,
+                LABORATION,
                 2,
                 3
         ));
@@ -101,7 +103,7 @@ public abstract class AlgorithmTestBase {
                 LocalDate.of(2026, 1, 21),
                 LocalTime.of(13, 0),
                 LocalTime.of(15, 0),
-                CourseSession.CourseSessionType.LABORATION,
+                LABORATION,
                 3,
                 4
         ));
@@ -111,7 +113,7 @@ public abstract class AlgorithmTestBase {
                 LocalDate.of(2026, 1, 23),
                 LocalTime.of(15, 0),
                 LocalTime.of(17, 0),
-                CourseSession.CourseSessionType.LABORATION,
+                LABORATION,
                 2,
                 4
         ));
@@ -120,7 +122,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab1_grading1_1",
                 LocalDateTime.of(2026, 2, 9, 8, 0),
                 LocalDateTime.of(2026, 2, 9, 10, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -128,7 +130,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab1_grading1_2",
                 LocalDateTime.of(2026, 2, 9, 10, 0),
                 LocalDateTime.of(2026, 2, 9, 12, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -136,7 +138,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab1_grading1_3",
                 LocalDateTime.of(2026, 2, 9, 13, 0),
                 LocalDateTime.of(2026, 2, 9, 15, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -144,7 +146,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab1_grading1_4",
                 LocalDateTime.of(2026, 2, 9, 15, 0),
                 LocalDateTime.of(2026, 2, 9, 17, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -152,7 +154,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab1_gradingReserve_1",
                 LocalDateTime.of(2026, 2, 10, 8, 0),
                 LocalDateTime.of(2026, 2, 10, 12, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 3
         ));
@@ -160,7 +162,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab1_gradingReserve_2",
                 LocalDateTime.of(2026, 2, 10, 13, 0),
                 LocalDateTime.of(2026, 2, 10, 17, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 3
         ));
@@ -169,7 +171,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab2_grading1_1",
                 LocalDateTime.of(2026, 2, 23, 8, 0),
                 LocalDateTime.of(2026, 2, 23, 10, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -177,7 +179,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab2_grading1_2",
                 LocalDateTime.of(2026, 2, 23, 10, 0),
                 LocalDateTime.of(2026, 2, 23, 12, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -185,7 +187,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab2_grading1_3",
                 LocalDateTime.of(2026, 2, 23, 13, 0),
                 LocalDateTime.of(2026, 2, 23, 15, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -193,7 +195,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab2_grading1_4",
                 LocalDateTime.of(2026, 2, 23, 15, 0),
                 LocalDateTime.of(2026, 2, 23, 17, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -201,7 +203,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab2_gradingReserve_1",
                 LocalDateTime.of(2026, 2, 24, 8, 0),
                 LocalDateTime.of(2026, 2, 24, 12, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 3
         ));
@@ -209,7 +211,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab2_gradingReserve_2",
                 LocalDateTime.of(2026, 2, 24, 13, 0),
                 LocalDateTime.of(2026, 2, 24, 17, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 3
         ));
@@ -218,7 +220,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab3_grading1_1",
                 LocalDateTime.of(2026, 3, 9, 8, 0),
                 LocalDateTime.of(2026, 3, 9, 10, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -226,7 +228,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab3_grading1_2",
                 LocalDateTime.of(2026, 3, 9, 10, 0),
                 LocalDateTime.of(2026, 3, 9, 12, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -234,7 +236,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab3_grading1_3",
                 LocalDateTime.of(2026, 3, 9, 13, 0),
                 LocalDateTime.of(2026, 3, 9, 15, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -242,7 +244,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab3_grading1_4",
                 LocalDateTime.of(2026, 3, 9, 15, 0),
                 LocalDateTime.of(2026, 3, 9, 17, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 6
         ));
@@ -250,7 +252,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab3_gradingReserve_1",
                 LocalDateTime.of(2026, 3, 10, 8, 0),
                 LocalDateTime.of(2026, 3, 10, 12, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 3
         ));
@@ -258,7 +260,7 @@ public abstract class AlgorithmTestBase {
                 "session_lab3_gradingReserve_2",
                 LocalDateTime.of(2026, 3, 10, 13, 0),
                 LocalDateTime.of(2026, 3, 10, 17, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 1,
                 3
         ));
@@ -267,7 +269,7 @@ public abstract class AlgorithmTestBase {
                 "session_exam_grading1",
                 LocalDateTime.of(2026, 3, 19, 8, 0),
                 LocalDateTime.of(2026, 3, 19, 17, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 4,
                 6
         ));
@@ -275,7 +277,7 @@ public abstract class AlgorithmTestBase {
                 "session_exam_grading2",
                 LocalDateTime.of(2026, 3, 20, 8, 0),
                 LocalDateTime.of(2026, 3, 20, 17, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 3,
                 6
         ));
@@ -283,7 +285,7 @@ public abstract class AlgorithmTestBase {
                 "session_exam_grading3",
                 LocalDateTime.of(2026, 3, 21, 8, 0),
                 LocalDateTime.of(2026, 3, 21, 17, 0),
-                CourseSession.CourseSessionType.GRADING,
+                GRADING,
                 2,
                 6
         ));
