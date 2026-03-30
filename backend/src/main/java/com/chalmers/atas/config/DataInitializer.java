@@ -1,0 +1,386 @@
+package com.chalmers.atas.config;
+
+import com.chalmers.atas.domain.announcement.Announcement;
+import com.chalmers.atas.domain.announcement.AnnouncementRepository;
+import com.chalmers.atas.domain.course.Course;
+import com.chalmers.atas.domain.course.CourseRepository;
+import com.chalmers.atas.domain.coursesession.CourseSession;
+import com.chalmers.atas.domain.coursesession.CourseSessionRepository;
+import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignment;
+import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentRepository;
+import com.chalmers.atas.domain.user.User;
+import com.chalmers.atas.domain.user.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Component
+@RequiredArgsConstructor
+public class DataInitializer {
+
+    private final AnnouncementRepository announcementRepository;
+    private final CourseSessionRepository courseSessionRepository;
+    private final CourseRepository courseRepository;
+    private final CRCourseAssignmentRepository crCourseAssignmentRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+
+    @EventListener
+    @Transactional
+    public void initializeData(ApplicationReadyEvent ignored) {
+        if (userRepository.count() > 0) {
+            return;
+        }
+
+        // Users
+
+        User dejana = User.of(
+                "dej@test.se",
+                passwordEncoder.encode("dejana123"),
+                "Dejana",
+                User.UserType.CR
+        );
+        userRepository.save(dejana);
+
+        User sebastiaanCR = User.of(
+                "seb@test.se",
+                passwordEncoder.encode("sebastiaan123"),
+                "Sebastiaan",
+                User.UserType.CR
+        );
+        userRepository.save(sebastiaanCR);
+
+        User sebastiaanTA = User.of(
+                "seb@student.test.se",
+                passwordEncoder.encode("sebastiaan123"),
+                "Sebastiaan",
+                User.UserType.TA
+        );
+        userRepository.save(sebastiaanTA);
+
+        User yakov = User.of(
+                "yak@student.test.se",
+                passwordEncoder.encode("yakov123"),
+                "Yakov",
+                User.UserType.TA
+        );
+        userRepository.save(yakov);
+
+        User levi = User.of(
+                "lev@student.test.se",
+                passwordEncoder.encode("levi123"),
+                "Levi",
+                User.UserType.TA
+        );
+        userRepository.save(levi);
+
+        User alberic = User.of(
+                "alb@student.test.se",
+                passwordEncoder.encode("alberic123"),
+                "Alberic",
+                User.UserType.TA
+        );
+        userRepository.save(alberic);
+
+        User phoebe = User.of(
+                "pho@student.test.se",
+                passwordEncoder.encode("phoebe123"),
+                "Phoebe",
+                User.UserType.TA
+        );
+        userRepository.save(phoebe);
+
+        User noelle = User.of(
+                "noe@student.test.se",
+                passwordEncoder.encode("noelle123"),
+                "Noelle",
+                User.UserType.TA
+        );
+        userRepository.save(noelle);
+
+        // Courses
+
+        Course vol101 = Course.of(
+                "VOL101",
+                dejana,
+                "This course is about volcano eruptions",
+                true,
+                true,
+                LocalDate.of(2026, 1, 19),
+                LocalDate.of(2026, 3, 22)
+        );
+        courseRepository.save(vol101);
+
+        // CRCourseAssignments
+
+        crCourseAssignmentRepository.save(CRCourseAssignment.of(
+                dejana,
+                vol101,
+                CRCourseAssignment.CRAssignmentStatus.OWNER
+        ));
+
+        crCourseAssignmentRepository.save(CRCourseAssignment.of(
+                sebastiaanCR,
+                vol101,
+                CRCourseAssignment.CRAssignmentStatus.INVITED
+        ));
+
+        // CourseSessions
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 1, 19, 8, 0),
+                LocalDateTime.of(2026, 1, 19, 10, 0),
+                CourseSession.CourseSessionType.LABORATION,
+                2,
+                3,
+                true
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 1, 21, 13, 0),
+                LocalDateTime.of(2026, 1, 21, 15, 0),
+                CourseSession.CourseSessionType.LABORATION,
+                3,
+                4,
+                true
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 1, 23, 15, 0),
+                LocalDateTime.of(2026, 1, 23, 17, 0),
+                CourseSession.CourseSessionType.LABORATION,
+                2,
+                4,
+                true
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 9, 8, 0),
+                LocalDateTime.of(2026, 2, 9, 10, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 9, 10, 0),
+                LocalDateTime.of(2026, 2, 9, 12, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 9, 13, 0),
+                LocalDateTime.of(2026, 2, 9, 15, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 9, 15, 0),
+                LocalDateTime.of(2026, 2, 9, 17, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 10, 8, 0),
+                LocalDateTime.of(2026, 2, 10, 12, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                3,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 10, 13, 0),
+                LocalDateTime.of(2026, 2, 10, 17, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                3,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 23, 8, 0),
+                LocalDateTime.of(2026, 2, 23, 10, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 23, 10, 0),
+                LocalDateTime.of(2026, 2, 23, 12, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 23, 13, 0),
+                LocalDateTime.of(2026, 2, 23, 15, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 23, 15, 0),
+                LocalDateTime.of(2026, 2, 23, 17, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 24, 8, 0),
+                LocalDateTime.of(2026, 2, 24, 12, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                3,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 2, 24, 13, 0),
+                LocalDateTime.of(2026, 2, 24, 17, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                3,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 3, 9, 8, 0),
+                LocalDateTime.of(2026, 3, 9, 10, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 3, 9, 10, 0),
+                LocalDateTime.of(2026, 3, 9, 12, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 3, 9, 13, 0),
+                LocalDateTime.of(2026, 3, 9, 15, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 3, 9, 15, 0),
+                LocalDateTime.of(2026, 3, 9, 17, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 3, 10, 8, 0),
+                LocalDateTime.of(2026, 3, 10, 12, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                3,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 3, 10, 13, 0),
+                LocalDateTime.of(2026, 3, 10, 17, 0),
+                CourseSession.CourseSessionType.GRADING,
+                1,
+                3,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 3, 19, 8, 0),
+                LocalDateTime.of(2026, 3, 19, 17, 0),
+                CourseSession.CourseSessionType.GRADING,
+                4,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 3, 20, 8, 0),
+                LocalDateTime.of(2026, 3, 20, 17, 0),
+                CourseSession.CourseSessionType.GRADING,
+                3,
+                6,
+                false
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 3, 21, 8, 0),
+                LocalDateTime.of(2026, 3, 21, 17, 0),
+                CourseSession.CourseSessionType.GRADING,
+                2,
+                6,
+                false
+        ));
+
+        // Announcements
+
+        announcementRepository.save(Announcement.of(
+                vol101,
+                dejana,
+                "Welcome all TAs",
+                "We are going to have our first meeting in the course, to make this easier for everyone, " +
+                        "we can meet at lunch Monday 12-13, if anyone can’t make it please contact me asap.",
+                true));
+    }
+}
