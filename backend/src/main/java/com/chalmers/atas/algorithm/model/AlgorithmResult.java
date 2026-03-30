@@ -5,5 +5,6 @@ import java.util.List;
 public record AlgorithmResult(
         List<AlgorithmSessionAllocation> allocations,
         int totalPenalty,
-        boolean feasible
+        boolean feasible,
+        boolean provenOptimal
 ) {}

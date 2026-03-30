@@ -18,6 +18,10 @@ repositories {
     mavenCentral()
 }
 
+configurations.configureEach {
+    exclude group: "org.slf4j", module: "slf4j-nop"
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -34,6 +38,8 @@ dependencies {
 
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
+
+    implementation 'org.choco-solver:choco-solver:5.0.0'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
