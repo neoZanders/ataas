@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class InviteCRRequest {
     @NotBlank
-    String crEmail;
+    private String crEmail;
 }
