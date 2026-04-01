@@ -67,6 +67,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/courses/{courseId}/course-assignments/join"
                         ).authenticated()
+                        .requestMatchers(HttpMethod.PATCH,
+                                "/api/courses/{courseId}/course-assignments/tas/{taId}"
+                        ).authenticated()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/courses/{courseId}/announcements"
                         ).authenticated()
