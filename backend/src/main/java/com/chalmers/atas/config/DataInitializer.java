@@ -6,6 +6,7 @@ import com.chalmers.atas.domain.course.Course;
 import com.chalmers.atas.domain.course.CourseRepository;
 import com.chalmers.atas.domain.coursesession.CourseSession;
 import com.chalmers.atas.domain.coursesession.CourseSessionRepository;
+import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignment;
 import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentRepository;
 import com.chalmers.atas.domain.user.User;
@@ -122,13 +123,13 @@ public class DataInitializer {
         crCourseAssignmentRepository.save(CRCourseAssignment.of(
                 dejana,
                 vol101,
-                CRCourseAssignment.CRAssignmentStatus.OWNER
+                CourseAssignmentStatus.OWNER
         ));
 
         crCourseAssignmentRepository.save(CRCourseAssignment.of(
                 sebastiaanCR,
                 vol101,
-                CRCourseAssignment.CRAssignmentStatus.INVITED
+                CourseAssignmentStatus.INVITED
         ));
 
         // CourseSessions
