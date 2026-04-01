@@ -1,5 +1,5 @@
 import SideTabNav from "../SideTabNav.tsx";
-import {CalendarDays, UserCircle2 } from "lucide-react";
+import { FolderOpen, Trash, Plus, CalendarDays, UserCircle2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
 type CourseSessionType = "GRADING" | "LABORATION" | "HELP" | "EXERCISE";
@@ -115,10 +115,21 @@ function sessionTypeBadgeClass(type: CourseSessionType) {
     }
 }
 
-export function TACoursePage() {
+function uid() {
+    return Math.random().toString(36).slice(2, 10);
+}
+
+export function CourseResponsibleCourse() {
     const [course] = useState<Course>(mockCourse);
     const [sessions, setSessions] = useState<CourseSession[]>(initialSessions);
 
+    const [form, setForm] = useState<CreateCourseSessionRequest>({
+        startDateTime: "",
+        endDateTime: "",
+        courseSessionType: "LABORATION",
+        maxTAs: 1,
+        isWeeklyRecurring: false,
+    });
 
     const sortedSessions = useMemo(() => {
         return [...sessions].sort(
@@ -126,6 +137,39 @@ export function TACoursePage() {
                 new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
         );
     }, [sessions]);
+
+    const handleCreateSession = () => {
+        if (!form.startDateTime || !form.endDateTime) return;
+
+        const newSession: CourseSession = {
+            id: uid(),
+            ...form,
+        };
+
+        setSessions((prev) => [...prev, newSession]);
+
+        setForm({
+            startDateTime: "",
+            endDateTime: "",
+            courseSessionType: "LABORATION",
+            maxTAs: 1,
+            isWeeklyRecurring: false,
+        });
+    };
+
+    const handleDeleteSession = (sessionId: string) => {
+        setSessions((prev) => prev.filter((session) => session.id !== sessionId));
+    };
+
+    const handleArchiveCourse = () => {
+        // TODO hook up to backend later
+        console.log("Archive course", course.id);
+    };
+
+    const handleDeleteCourse = () => {
+        // TODO hook up to backend later
+        console.log("Delete course", course.id);
+    };
 
     return (
         <div className="min-h-screen bg-stone-50">
@@ -180,6 +224,27 @@ export function TACoursePage() {
                                 </div>
                             </div>
 
+                            {course.isCurrentUserOwner && (
+                                <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                                    <button
+                                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#002741]"
+                                        type="button"
+                                        onClick={handleArchiveCourse}
+                                    >
+                                        <FolderOpen className="h-4 w-4" />
+                                        Archive Course
+                                    </button>
+
+                                    <button
+                                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-300"
+                                        type="button"
+                                        onClick={handleDeleteCourse}
+                                    >
+                                        <Trash className="h-4 w-4" />
+                                        Delete Course
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </section>
 
@@ -195,12 +260,120 @@ export function TACoursePage() {
                             this course.
                         </p>
 
+                            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <h3 className="text-sm font-semibold text-slate-900">
+                                    Create course session
+                                </h3>
+
+                                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+                                    <div>
+                                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                                            Start
+                                        </label>
+                                        <input
+                                            type="datetime-local"
+                                            value={form.startDateTime}
+                                            onChange={(e) =>
+                                                setForm((prev) => ({
+                                                    ...prev,
+                                                    startDateTime: e.target.value,
+                                                }))
+                                            }
+                                            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                                            End
+                                        </label>
+                                        <input
+                                            type="datetime-local"
+                                            value={form.endDateTime}
+                                            onChange={(e) =>
+                                                setForm((prev) => ({
+                                                    ...prev,
+                                                    endDateTime: e.target.value,
+                                                }))
+                                            }
+                                            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                                            Session type
+                                        </label>
+                                        <select
+                                            value={form.courseSessionType}
+                                            onChange={(e) =>
+                                                setForm((prev) => ({
+                                                    ...prev,
+                                                    courseSessionType: e.target.value as CourseSessionType,
+                                                }))
+                                            }
+                                            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                        >
+                                            <option value="GRADING">Grading</option>
+                                            <option value="LABORATION">Laboration</option>
+                                            <option value="HELP">Help</option>
+                                            <option value="EXERCISE">Exercise</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                                            Max TAs
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            value={form.maxTAs}
+                                            onChange={(e) =>
+                                                setForm((prev) => ({
+                                                    ...prev,
+                                                    maxTAs: Number(e.target.value),
+                                                }))
+                                            }
+                                            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col justify-end">
+                                        <label className="mb-3 flex items-center gap-2 text-sm text-slate-700">
+                                            <input
+                                                type="checkbox"
+                                                checked={form.isWeeklyRecurring}
+                                                onChange={(e) =>
+                                                    setForm((prev) => ({
+                                                        ...prev,
+                                                        isWeeklyRecurring: e.target.checked,
+                                                    }))
+                                                }
+                                                className="h-4 w-4 rounded border-slate-300 accent-[#003b5c]"
+                                            />
+                                            Weekly recurring
+                                        </label>
+
+                                        <button
+                                            type="button"
+                                            onClick={handleCreateSession}
+                                            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#003b5c] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#002741]"
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                            Create
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                         <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
                             <div className="hidden grid-cols-12 bg-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 md:grid">
                                 <div className="col-span-3">Start</div>
                                 <div className="col-span-3">End</div>
                                 <div className="col-span-2">Type</div>
                                 <div className="col-span-2">Max TAs</div>
+                                <div className="col-span-2">Actions</div>
                             </div>
 
                             <div className="divide-y divide-slate-200 bg-white">
@@ -251,6 +424,20 @@ export function TACoursePage() {
                                             )}
                                         </div>
 
+                                        <div className="md:col-span-2">
+                                            {course.isCurrentUserOwner ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteSession(session.id)}
+                                                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                                                >
+                                                    <Trash className="h-4 w-4" />
+                                                    Delete
+                                                </button>
+                                            ) : (
+                                                <span className="text-sm text-slate-400">—</span>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
 

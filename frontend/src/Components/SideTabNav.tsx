@@ -1,5 +1,5 @@
-import { Link, useLocation, matchPath } from "react-router-dom";
-import type { ReactNode } from "react";
+import {Link, useLocation, matchPath, useNavigate} from "react-router-dom";
+import {type ReactNode, useState} from "react";
 import {
     Book,
     Users,
@@ -10,6 +10,7 @@ import {
     Rows3,
 } from "lucide-react";
 import {useAuth} from "./AuthContext.tsx";
+import {CoursesSidePanel} from "./CoursesSidePanel.tsx";
 
 type SidebarItem = {
     id: string;
@@ -23,10 +24,29 @@ type SidebarItem = {
 function SideTabNav() {
     const location = useLocation();
     const { user } = useAuth();
+
+    const [coursesOpen, setCoursesOpen] = useState(false);
+    const navigate = useNavigate();
+
     const base =
         user?.userType === "CR" ? "/cr"
             : user?.userType === "TA" ? "/ta"
                 : "";
+
+    const coursePanelOptions =
+        user?.userType === "CR"
+            ? [
+                { courseCode: "EDA333", value: `${base}/courses` },
+                { courseCode: "MLV386", value: `${base}/courses` },
+                { courseCode: "TFM754", value: `${base}/courses` },
+                { courseCode: "ETS345", value: `${base}/courses` },
+                { courseCode: "Create course", value: `${base}/courses/create` },
+            ]
+            : [
+                { courseCode: "TDA496", value: `${base}/courses` },
+                { courseCode: "ESA677", value: `${base}/courses/joined` },
+            ];
+
 
     const items: SidebarItem[] = user?.userType === "CR"
         ? [
@@ -55,6 +75,7 @@ function SideTabNav() {
         location.pathname === "/account" || location.pathname === "/profile";
 
     return (
+        <>
         <aside className="fixed left-0 top-0 h-screen w-[104px] bg-[#003b5c] text-white flex flex-col select-none">
             <div className="pt-2">
                 <Link
@@ -96,6 +117,34 @@ function SideTabNav() {
                 {items.map((item) => {
                     const active = isActive(item);
 
+                    if (item.id === "courses") {
+                        return (
+                            <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => setCoursesOpen((prev) => !prev)}
+                                className={[
+                                    "relative w-full min-h-[78px] px-2 py-2 flex flex-col items-center justify-center gap-1.5 transition",
+                                    active || coursesOpen
+                                        ? "bg-white text-[#e85d0c]"
+                                        : "text-white hover:bg-white/5",
+                                ].join(" ")}
+                            >
+                                {(active || coursesOpen) && (
+                                    <span className="absolute left-0 top-0 h-full w-[3px] bg-[#e85d0c]" />
+                                )}
+
+                                <span className="relative inline-flex items-center justify-center">
+                                        {item.icon}
+                                    </span>
+
+                                <span className="text-[11px] leading-none font-medium text-center">
+                                        {item.label}
+                                    </span>
+                            </button>
+                        );
+                    }
+
                     return (
                         <Link
                             key={item.id}
@@ -127,8 +176,22 @@ function SideTabNav() {
                     );
                 })}
             </nav>
-
         </aside>
+            {coursesOpen && (
+                <div className="fixed left-[104px] top-0 h-screen w-64 bg-white border-r border-slate-200 shadow-lg z-50">
+                    <CoursesSidePanel
+                        title="Courses"
+                        options={coursePanelOptions}
+                        value={location.pathname}
+                        onChange={(nextPath) => {
+                            setCoursesOpen(false);
+                            navigate(nextPath);
+                        }}
+                    />
+                </div>
+            )}
+
+        </>
     );
 }
 
