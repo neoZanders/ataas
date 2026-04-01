@@ -3,9 +3,9 @@ package com.chalmers.atas.api.courseassignment;
 import java.util.UUID;
 
 import com.chalmers.atas.api.user.UserResponse;
+import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.coursesession.CourseSession.CourseSessionType;
 import com.chalmers.atas.domain.tacourseassignment.TACourseAssignment;
-import com.chalmers.atas.domain.tacourseassignment.TACourseAssignment.TAAssignmentStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +18,7 @@ public class TACourseAssignmentResponse {
 
     private UserResponse ta;
 
-    private TAAssignmentStatus status;
+    private CourseAssignmentStatus status;
 
     private int minHours;
 

@@ -1,6 +1,7 @@
 package com.chalmers.atas.api.courseassignment;
 
 import com.chalmers.atas.api.user.UserResponse;
+import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +14,7 @@ public class CRCourseAssignmentResponse {
 
     private UUID courseAssignmentId;
 
-    private CRCourseAssignment.CRAssignmentStatus status;
+    private CourseAssignmentStatus status;
 
     private UserResponse user;
 
