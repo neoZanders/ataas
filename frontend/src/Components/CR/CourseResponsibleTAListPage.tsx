@@ -247,6 +247,8 @@ export function CourseResponsibleTAListPage() {
                                 </tbody>
                             </table>
                         </div>
+
+
                     </section>
                 </div>
             </main>

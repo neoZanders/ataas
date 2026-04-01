@@ -11,6 +11,8 @@ import { TAMainPage } from "./Components/TA/TAMainPage.tsx";
 import { TAAnnouncementPage } from "./Components/TA/TAAnnouncementPage.tsx";
 import { TATaListPage} from "./Components/TA/TATaListPage.tsx";
 import {TAConstraintsPage} from "./Components/TA/TAConstraintsPage.tsx";
+import {CourseResponsibleCourse} from "./Components/CR/CourseResponsibleCourse.tsx";
+import {TACoursePage} from "./Components/TA/TACoursePage.tsx";
 
 function RootRedirect() {
     const { user, isAuthReady } = useAuth();
@@ -75,6 +77,16 @@ function App() {
                             </RoleRoute>
                         }
                     />
+
+                    <Route
+                        path="/cr/course"
+                        element={
+                            <RoleRoute allow={["CR"]}>
+                                <CourseResponsibleCourse />
+                            </RoleRoute>
+                        }
+                    />
+
                     <Route
                         path="/cr/talist"
                         element={
@@ -121,6 +133,15 @@ function App() {
                         element={
                             <RoleRoute allow={["TA"]}>
                                 <TAConstraintsPage />
+                            </RoleRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/ta/course"
+                        element={
+                            <RoleRoute allow={["TA"]}>
+                                <TACoursePage />
                             </RoleRoute>
                         }
                     />
