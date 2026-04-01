@@ -18,6 +18,8 @@ public class CourseResponse {
 
     private UserResponse owner;
 
+    private String description;
+
     private Course.CourseStatus status;
 
     private boolean canTASeeAllSchedules;
@@ -33,6 +35,7 @@ public class CourseResponse {
                 course.getCourseId(),
                 course.getCourseCode(),
                 UserResponse.of(course.getOwner()),
+                course.getDescription(),
                 course.getCourseStatus(),
                 course.isCanTASeeAllSchedules(),
                 course.isCanTACreateAnnouncements(),
