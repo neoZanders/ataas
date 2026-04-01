@@ -7,6 +7,7 @@ import com.chalmers.atas.domain.course.CourseRepository;
 import com.chalmers.atas.domain.course.CourseService;
 import com.chalmers.atas.domain.coursesession.CourseSessionService;
 import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentService;
+import com.chalmers.atas.domain.tacourseassignment.TACourseAssignmentService;
 import com.chalmers.atas.domain.user.CurrentUser;
 import com.chalmers.atas.domain.user.User;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class CourseApplicationService {
     private final CourseSessionService courseSessionService;
     private final CourseService courseService;
     private final CRCourseAssignmentService crCourseAssignmentService;
+    private final TACourseAssignmentService taCourseAssignmentService;
     private final TransactionHandler transactionHandler;
     private final CourseRepository courseRepository;
 
@@ -44,10 +46,16 @@ public class CourseApplicationService {
         );
     }
 
-    public Result<List<CourseResponse>> getCourses(CurrentUser currentUser) {
-            return courseService.getCourses(currentUser.getUser())
-                    .map(courses ->
-                            courses.stream().map(CourseResponse::of).toList());
+    public Result<List<CourseWithAssignmentStatusResponse>> getCourses(CurrentUser currentUser) {
+        return courseService.getCourseAssignments(currentUser.getUser())
+                .map(assignments ->
+                        assignments.stream()
+                                .map(assignment -> CourseWithAssignmentStatusResponse.of(
+                                        assignment.getCourse(),
+                                        assignment.getStatus()
+                                ))
+                                .toList()
+                );
     }
 
     public Result<CourseResponse> archiveCourse(UUID courseId, CurrentUser currentUser) {
@@ -69,12 +77,26 @@ public class CourseApplicationService {
     }
 
     public Result<List<CourseSessionResponse>> getCourseSessions(UUID courseId, CurrentUser currentUser) {
-        if (currentUser.getUser().getUserType().equals(User.UserType.CR)) {
-            return courseSessionService.getCourseSessions(courseId).map(courseSessions ->
-                    courseSessions.stream().map(CourseSessionResponse::of).toList());
-        } else {
-            throw new RuntimeException("TAs not implemented yet.");
-        }
+        return courseService.getCourse(courseId).flatMap(course -> {
+            User user = currentUser.getUser();
+            if (user.getUserType().equals(User.UserType.CR)) {
+                if (!crCourseAssignmentService.isUserCrOfCourse(user, course)) {
+                    return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError());
+                }
+                return courseSessionService.getCourseSessions(courseId).map(courseSessions ->
+                        courseSessions.stream().map(CourseSessionResponse::of).toList());
+            }
+
+            if (user.getUserType().equals(User.UserType.TA)) {
+                if (!taCourseAssignmentService.isUserTaOfCourse(user, course)) {
+                    return Result.error(ErrorCode.USER_HAS_NOT_JOINED_COURSE.toError());
+                }
+                return courseSessionService.getCourseSessions(courseId).map(courseSessions ->
+                        courseSessions.stream().map(CourseSessionResponse::of).toList());
+            }
+
+            return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+        });
     }
 
 
