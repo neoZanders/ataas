@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/courses/{courseId}/course-assignments")
@@ -29,11 +30,28 @@ public class CourseAssignmentController {
         return HttpResponse.fromResult(courseAssignmentApplicationService.inviteCR(courseId, request, currentUser));
     }
 
+    @PostMapping("/ta-invitations")
+    public HttpResponse<Void> inviteTA(
+            @PathVariable UUID courseId,
+            @RequestBody InviteTARequest request,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(courseAssignmentApplicationService.inviteTA(courseId, request, currentUser));
+    }
+
     @GetMapping
     public HttpResponse<CourseAssignmentsResponse> getAssignments(
             @PathVariable UUID courseId,
             CurrentUser currentUser) {
         return HttpResponse.fromResult(courseAssignmentApplicationService.getAssignments(courseId, currentUser));
+    }
+
+    @PatchMapping("/tas/{taId}")
+    public HttpResponse<Void> updateTAAssignment(
+            @PathVariable UUID courseId,
+            @PathVariable UUID taId, 
+            CurrentUser currentUser,
+            @RequestBody UpdateTAAssignmentRequest request) {
+        return HttpResponse.fromResult(courseAssignmentApplicationService.updateTAAssignment(courseId, taId, currentUser, request));
     }
 
     @DeleteMapping("/crs/{crId}")
@@ -42,5 +60,13 @@ public class CourseAssignmentController {
             @PathVariable UUID crId,
             CurrentUser currentUser) {
         return HttpResponse.fromResult(courseAssignmentApplicationService.deleteCRAssignment(courseId, crId, currentUser));
+    }
+
+    @DeleteMapping("/tas/{taId}")
+    public HttpResponse<Void> deleteTAAssignment(
+            @PathVariable UUID courseId,
+            @PathVariable UUID taId,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(courseAssignmentApplicationService.deleteTAAssignment(courseId, taId, currentUser));
     }
 }
