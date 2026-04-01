@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import com.chalmers.atas.domain.course.Course;
+import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.coursesession.CourseSession.CourseSessionType;
 import com.chalmers.atas.domain.user.User;
 
@@ -44,32 +45,27 @@ public class TACourseAssignment implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TAAssignmentStatus status;
+    private CourseAssignmentStatus status;
 
-    @Column(nullable = false)
-    private int minHours;
+    @Column
+    private Integer minHours;
     
-    @Column(nullable = false)
-    private int maxHours;
+    @Column
+    private Integer maxHours;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private CourseSessionType sessionTypePreference;
 
     @Column
     private Boolean isCompactSchedule;
 
-    public enum TAAssignmentStatus{
-        INVITED,
-        JOINED
-    }
-
     public static TACourseAssignment of(
             User ta,
             Course course,
-            TAAssignmentStatus status,
-            int minHours,
-            int maxHours,
+            CourseAssignmentStatus status,
+            Integer minHours,
+            Integer maxHours,
             CourseSessionType sessionTypePreference,
             Boolean isCompactSchedule
         ){
