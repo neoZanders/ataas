@@ -76,7 +76,7 @@ public class CourseAssignmentApplicationService {
                 .flatMap(course ->
                         crCourseAssignmentService.getCourseAssignments(course)
                                 .flatMap(crCourseAssignments ->
-                                        taCourseAssignmentService.getCourseAssignment(course)
+                                        taCourseAssignmentService.getCourseAssignments(course)
                                                 .map(taCourseAssignments ->
                                                         CourseAssignmentsResponse.of(
                                                                 courseId,
