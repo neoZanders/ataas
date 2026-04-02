@@ -3,16 +3,12 @@ package com.chalmers.atas.domain.course;
 import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
-import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentRepository;
-import com.chalmers.atas.domain.courseassignment.CourseWithAssignmentStatus;
-import com.chalmers.atas.domain.tacourseassignment.TACourseAssignmentRepository;
 import com.chalmers.atas.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,8 +19,6 @@ public class CourseService {
     private final static String courseCodeMatcher = "^[A-Za-z]{3}\\d{3}$";
 
     private final CourseRepository courseRepository;
-    private final CRCourseAssignmentRepository cRCourseAssignmentRepository;
-    private final TACourseAssignmentRepository taCourseAssignmentRepository;
 
     @Transactional
     public TransactionalResult<Course> createCourse(
@@ -54,28 +48,6 @@ public class CourseService {
                         startDate,
                         endDate
                 )));
-    }
-
-    public Result<List<CourseWithAssignmentStatus>> getCourseAssignments(User user) {
-        if (user.getUserType().equals(User.UserType.CR)) {
-            return Result.ok(cRCourseAssignmentRepository.findAllByCr(user)
-                    .stream()
-                    .map(assignment -> new CourseWithAssignmentStatus(
-                            assignment.getCourse(),
-                            assignment.getStatus()
-                    ))
-                    .toList());
-        }
-        if (user.getUserType().equals(User.UserType.TA)) {
-            return Result.ok(taCourseAssignmentRepository.findAllByTa(user)
-                    .stream()
-                    .map(assignment -> new CourseWithAssignmentStatus(
-                            assignment.getCourse(),
-                            assignment.getStatus()
-                    ))
-                    .toList());
-        }
-        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
     }
 
     @Transactional
