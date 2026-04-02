@@ -20,9 +20,9 @@ public class TACourseAssignmentResponse {
 
     private CourseAssignmentStatus status;
 
-    private int minHours;
+    private Integer minHours;
 
-    private int maxHours;
+    private Integer maxHours;
 
     private CourseSessionType sessionTypePreference;
 
