@@ -47,7 +47,8 @@ public class CourseApplicationService {
     }
 
     public Result<List<CourseWithAssignmentStatusResponse>> getCourses(CurrentUser currentUser) {
-        return courseService.getCourseAssignments(currentUser.getUser())
+        if (currentUser.getUser().getUserType().equals(User.UserType.CR)) {
+            return crCourseAssignmentService.getCRAssignments(currentUser.getUser())
                 .map(assignments ->
                         assignments.stream()
                                 .map(assignment -> CourseWithAssignmentStatusResponse.of(
@@ -55,7 +56,20 @@ public class CourseApplicationService {
                                         assignment.getStatus()
                                 ))
                                 .toList()
-                );
+                );    
+        }
+        if (currentUser.getUser().getUserType().equals(User.UserType.TA)) {
+            return taCourseAssignmentService.getTAAssignments(currentUser.getUser())
+                .map(assignments ->
+                        assignments.stream()
+                                .map(assignment -> CourseWithAssignmentStatusResponse.of(
+                                        assignment.getCourse(),
+                                        assignment.getStatus()
+                                ))
+                                .toList()
+                );    
+        }
+        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
     }
 
     public Result<CourseResponse> archiveCourse(UUID courseId, CurrentUser currentUser) {
