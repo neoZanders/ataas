@@ -86,6 +86,10 @@ public class CRCourseAssignmentService {
         return Result.ok(crCourseAssignmentRepository.findAllByCourse(course));
     }
 
+    public Result<List<CRCourseAssignment>> getCRAssignments(User cr) {
+        return Result.ok(crCourseAssignmentRepository.findAllByCr(cr));
+    }
+
     @Transactional
     public TransactionalResult<Void> deleteAssignment(CRCourseAssignment crCourseAssignment) {
         if (crCourseAssignment.getStatus().equals(CourseAssignmentStatus.OWNER)) {

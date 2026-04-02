@@ -72,8 +72,12 @@ public class TACourseAssignmentService {
         return TransactionalResult.ok();
     }
 
-    public Result<List<TACourseAssignment>> getCourseAssignment(Course course){
+    public Result<List<TACourseAssignment>> getCourseAssignments(Course course){
         return Result.ok(taCourseAssignmentRepository.findAllByCourse(course));
+    }
+
+    public Result<List<TACourseAssignment>> getTAAssignments(User ta){
+        return Result.ok(taCourseAssignmentRepository.findAllByTa(ta));
     }
 
     @Transactional
