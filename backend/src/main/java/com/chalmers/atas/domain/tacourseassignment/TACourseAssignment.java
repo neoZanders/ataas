@@ -55,7 +55,19 @@ public class TACourseAssignment implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column
-    private CourseSessionType sessionTypePreference;
+    private CourseSessionType sessionTypePreference1;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private CourseSessionType sessionTypePreference2;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private CourseSessionType sessionTypePreference3;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private CourseSessionType sessionTypePreference4;
 
     @Column
     private Boolean isCompactSchedule;
@@ -66,7 +78,10 @@ public class TACourseAssignment implements Serializable {
             CourseAssignmentStatus status,
             Integer minHours,
             Integer maxHours,
-            CourseSessionType sessionTypePreference,
+            CourseSessionType sessionTypePreference1,
+            CourseSessionType sessionTypePreference2,
+            CourseSessionType sessionTypePreference3,
+            CourseSessionType sessionTypePreference4,
             Boolean isCompactSchedule
         ){
         TACourseAssignment taCourseAssignment = new TACourseAssignment();
@@ -75,7 +90,10 @@ public class TACourseAssignment implements Serializable {
         taCourseAssignment.status = status;
         taCourseAssignment.minHours = minHours;
         taCourseAssignment.maxHours = maxHours;
-        taCourseAssignment.sessionTypePreference = sessionTypePreference;
+        taCourseAssignment.sessionTypePreference1 = sessionTypePreference1;
+        taCourseAssignment.sessionTypePreference2 = sessionTypePreference2;
+        taCourseAssignment.sessionTypePreference3 = sessionTypePreference3;
+        taCourseAssignment.sessionTypePreference4 = sessionTypePreference4;
         taCourseAssignment.isCompactSchedule = isCompactSchedule;
         return taCourseAssignment;
     }
