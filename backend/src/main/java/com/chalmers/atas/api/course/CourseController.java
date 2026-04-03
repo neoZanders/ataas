@@ -23,7 +23,7 @@ public class CourseController {
     }
 
     @GetMapping
-    public HttpResponse<List<CourseResponse>> getCourses(
+    public HttpResponse<List<CourseWithAssignmentStatusResponse>> getCourses(
             CurrentUser currentUser) {
         return HttpResponse.fromResult(courseApplicationService.getCourses(currentUser));
     }

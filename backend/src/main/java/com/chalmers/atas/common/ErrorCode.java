@@ -23,8 +23,11 @@ public enum ErrorCode {
     USER_ALREADY_HAS_COURSE_ASSIGNMENT("USER_ALREADY_HAS_COURSE_ASSIGNMENT", "User already has an assignment to this course", HttpStatus.BAD_REQUEST),
     INVALID_COURSE_ASSIGNMENT_STATUS("INVALID_COURSE_ASSIGNMENT_STATUS", "Invalid course assignment status", HttpStatus.BAD_REQUEST),
     USER_HAS_NOT_JOINED_COURSE("USER_HAS_NOT_JOINED_COURSE", "User has not joined course", HttpStatus.BAD_REQUEST),
+    USER_NOT_ALLOWED_FOR_COURSE_ACTION("USER_NOT_ALLOWED_FOR_COURSE_ACTION", "User is not allowed to perform this course action", HttpStatus.FORBIDDEN),
+    USER_NOT_ALLOWED_TO_UPDATE_ASSIGNMENT("USER_NOT_ALLOWED_TO_UPDATE_ASSIGNMENT", "User is not allowed to update this assignment", HttpStatus.FORBIDDEN),
     USER_NOT_COURSE_RESPONSIBLE("USER_NOT_COURSE_RESPONSIBLE", "User is not course responsible for this course", HttpStatus.FORBIDDEN),
     USER_NOT_FOUND("USER_NOT_FOUND", "User not found", HttpStatus.NOT_FOUND),
+    USER_NOT_TEACHING_ASSISTANT("USER_NOT_TEACHING_ASSISTANT", "User is not teaching assistant of this course", HttpStatus.FORBIDDEN),
 
     // Basic HTTP errors
     UNAUTHORIZED("UNAUTHORIZED", "Invalid credentials", HttpStatus.UNAUTHORIZED),

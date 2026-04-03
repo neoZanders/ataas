@@ -4,6 +4,7 @@ import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
 import com.chalmers.atas.domain.course.Course;
+import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class CRCourseAssignmentService {
         }
 
         crCourseAssignmentRepository.save(
-                CRCourseAssignment.of(cr, course, CRCourseAssignment.CRAssignmentStatus.OWNER)
+                CRCourseAssignment.of(cr, course, CourseAssignmentStatus.OWNER)
         );
         return TransactionalResult.ok();
     }
@@ -52,20 +53,20 @@ public class CRCourseAssignmentService {
         }
 
         crCourseAssignmentRepository.save(
-                CRCourseAssignment.of(cr, course, CRCourseAssignment.CRAssignmentStatus.INVITED)
+                CRCourseAssignment.of(cr, course, CourseAssignmentStatus.INVITED)
         );
         return TransactionalResult.ok();
     }
 
     @Transactional
     public TransactionalResult<Void> join(CRCourseAssignment crCourseAssignment) {
-        if (!crCourseAssignment.getStatus().equals(CRCourseAssignment.CRAssignmentStatus.INVITED)) {
+        if (!crCourseAssignment.getStatus().equals(CourseAssignmentStatus.INVITED)) {
             return TransactionalResult.rollbackFor(
                     ErrorCode.INVALID_COURSE_ASSIGNMENT_STATUS.toError()
             );
         }
 
-        crCourseAssignment.setStatus(CRCourseAssignment.CRAssignmentStatus.JOINED);
+        crCourseAssignment.setStatus(CourseAssignmentStatus.JOINED);
         crCourseAssignmentRepository.save(crCourseAssignment);
         return TransactionalResult.ok();
     }
@@ -75,8 +76,8 @@ public class CRCourseAssignmentService {
                 user,
                 course,
                 Set.of(
-                        CRCourseAssignment.CRAssignmentStatus.OWNER,
-                        CRCourseAssignment.CRAssignmentStatus.JOINED
+                        CourseAssignmentStatus.OWNER,
+                        CourseAssignmentStatus.JOINED
                 )
         );
     }
@@ -85,9 +86,13 @@ public class CRCourseAssignmentService {
         return Result.ok(crCourseAssignmentRepository.findAllByCourse(course));
     }
 
+    public Result<List<CRCourseAssignment>> getCRAssignments(User cr) {
+        return Result.ok(crCourseAssignmentRepository.findAllByCr(cr));
+    }
+
     @Transactional
     public TransactionalResult<Void> deleteAssignment(CRCourseAssignment crCourseAssignment) {
-        if (crCourseAssignment.getStatus().equals(CRCourseAssignment.CRAssignmentStatus.OWNER)) {
+        if (crCourseAssignment.getStatus().equals(CourseAssignmentStatus.OWNER)) {
             return TransactionalResult.rollbackFor(
                     ErrorCode.CANNOT_DELETE_COURSE_OWNER.toError()
             );

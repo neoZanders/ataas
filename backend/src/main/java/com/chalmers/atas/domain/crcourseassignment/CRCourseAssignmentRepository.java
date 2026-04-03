@@ -1,6 +1,7 @@
 package com.chalmers.atas.domain.crcourseassignment;
 
 import com.chalmers.atas.domain.course.Course;
+import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,13 +14,13 @@ public interface CRCourseAssignmentRepository extends JpaRepository<CRCourseAssi
     boolean existsByCrAndCourseAndStatusIn(
             User cr,
             Course course,
-            Collection<CRCourseAssignment.CRAssignmentStatus> statuses
+            Collection<CourseAssignmentStatus> statuses
     );
 
     Optional<CRCourseAssignment> findByCrAndCourseAndStatusIn(
             User cr,
             Course course,
-            Collection<CRCourseAssignment.CRAssignmentStatus> statuses
+            Collection<CourseAssignmentStatus> statuses
     );
 
     Optional<CRCourseAssignment> findByCrAndCourse(User cr, Course course);

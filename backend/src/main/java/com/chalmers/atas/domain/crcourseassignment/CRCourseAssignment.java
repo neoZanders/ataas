@@ -1,6 +1,7 @@
 package com.chalmers.atas.domain.crcourseassignment;
 
 import com.chalmers.atas.domain.course.Course;
+import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,15 +34,9 @@ public class CRCourseAssignment implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CRAssignmentStatus status;
+    private CourseAssignmentStatus status;
 
-    public enum CRAssignmentStatus {
-        OWNER,
-        INVITED,
-        JOINED
-    }
-
-    public static CRCourseAssignment of(User cr, Course course, CRAssignmentStatus status) {
+    public static CRCourseAssignment of(User cr, Course course, CourseAssignmentStatus status) {
         CRCourseAssignment crCourseAssignment = new CRCourseAssignment();
         crCourseAssignment.cr = cr;
         crCourseAssignment.course = course;
