@@ -40,8 +40,7 @@ public class TACourseAssignmentService {
                 null,
                 null,
                 null,
-                null
-                ,
+                null,
                 null,
                 null,
                 null
