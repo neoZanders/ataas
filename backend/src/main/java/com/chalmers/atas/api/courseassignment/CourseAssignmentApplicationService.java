@@ -109,8 +109,17 @@ public class CourseAssignmentApplicationService {
                     if (request.getMaxHours() != null) {
                         taCourseAssignment.setMaxHours(request.getMaxHours());
                     }
-                    if (request.getSessionTypePreference() != null) {
-                        taCourseAssignment.setSessionTypePreference(request.getSessionTypePreference());
+                    if (request.getSessionTypePreference1() != null) {
+                        taCourseAssignment.setSessionTypePreference1(request.getSessionTypePreference1());
+                    }
+                    if (request.getSessionTypePreference2() != null) {
+                        taCourseAssignment.setSessionTypePreference2(request.getSessionTypePreference2());
+                    }
+                    if (request.getSessionTypePreference3() != null) {
+                        taCourseAssignment.setSessionTypePreference3(request.getSessionTypePreference3());
+                    }
+                    if (request.getSessionTypePreference4() != null) {
+                        taCourseAssignment.setSessionTypePreference4(request.getSessionTypePreference4());
                     }
                     if (request.getIsCompactSchedule() != null) {
                         taCourseAssignment.setIsCompactSchedule(request.getIsCompactSchedule());

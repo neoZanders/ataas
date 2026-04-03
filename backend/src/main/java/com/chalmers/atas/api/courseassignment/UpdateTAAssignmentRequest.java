@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 public class UpdateTAAssignmentRequest {
     private Integer minHours;
     private Integer maxHours;
-    private CourseSessionType sessionTypePreference;
+    private CourseSessionType sessionTypePreference1;
+    private CourseSessionType sessionTypePreference2;
+    private CourseSessionType sessionTypePreference3;
+    private CourseSessionType sessionTypePreference4;
     private Boolean isCompactSchedule;
 }

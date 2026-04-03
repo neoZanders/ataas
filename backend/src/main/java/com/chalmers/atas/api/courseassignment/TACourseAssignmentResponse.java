@@ -24,7 +24,10 @@ public class TACourseAssignmentResponse {
 
     private Integer maxHours;
 
-    private CourseSessionType sessionTypePreference;
+    private CourseSessionType sessionTypePreference1;
+    private CourseSessionType sessionTypePreference2;
+    private CourseSessionType sessionTypePreference3;
+    private CourseSessionType sessionTypePreference4;
 
     private Boolean isCompactSchedule;
 
@@ -35,7 +38,10 @@ public class TACourseAssignmentResponse {
             taCourseAssignment.getStatus(),
             taCourseAssignment.getMinHours(),
             taCourseAssignment.getMaxHours(),
-            taCourseAssignment.getSessionTypePreference(), 
+            taCourseAssignment.getSessionTypePreference1(),
+            taCourseAssignment.getSessionTypePreference2(),
+            taCourseAssignment.getSessionTypePreference3(),
+            taCourseAssignment.getSessionTypePreference4(),
             taCourseAssignment.getIsCompactSchedule());
 
     }
