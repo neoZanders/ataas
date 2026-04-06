@@ -83,6 +83,13 @@ public class TACourseAssignmentService {
         return Result.ok(taCourseAssignmentRepository.findAllByTa(ta));
     }
 
+    public Result<TACourseAssignment> getAssignment(User ta, Course course) {
+        return Result.ofOptional(
+                taCourseAssignmentRepository.findByTaAndCourse(ta, course),
+                ErrorCode.USER_HAS_NOT_JOINED_COURSE.toError()
+        );
+    }
+
     @Transactional
     public TransactionalResult<Void> deleteAssignment(TACourseAssignment taCourseAssignment){
         taCourseAssignmentRepository.delete(taCourseAssignment);
