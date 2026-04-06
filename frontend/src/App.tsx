@@ -12,8 +12,8 @@ import { TAAnnouncementPage } from "./Components/TA/TAAnnouncementPage.tsx";
 import { TATaListPage} from "./Components/TA/TATaListPage.tsx";
 import {TAConstraintsPage} from "./Components/TA/TAConstraintsPage.tsx";
 import {CourseResponsibleCourse} from "./Components/CR/CourseResponsibleCourse.tsx";
-import {TACoursePage} from "./Components/TA/TACoursePage.tsx";
 import {CourseResponsibleConstraintsPage} from "./Components/CourseResponsibleConstraintsPage.tsx";
+import {CurrentCourseProvider} from "./Components/CurrentCourseContext.tsx";
 
 function RootRedirect() {
     const { user, isAuthReady } = useAuth();
@@ -38,7 +38,9 @@ function PublicOnlyRoute({ children }: { children: React.ReactElement }) {
 
 function App() {
     return (
+
         <AuthProvider>
+            <CurrentCourseProvider >
             <Router>
                 <Routes>
                     <Route path="/" element={<RootRedirect />} />
@@ -150,7 +152,7 @@ function App() {
                         path="/ta/course"
                         element={
                             <RoleRoute allow={["TA"]}>
-                                <TACoursePage />
+                                <CourseResponsibleCourse />
                             </RoleRoute>
                         }
                     />
@@ -172,6 +174,7 @@ function App() {
                     />
                 </Routes>
             </Router>
+            </CurrentCourseProvider>
         </AuthProvider>
     );
 }
