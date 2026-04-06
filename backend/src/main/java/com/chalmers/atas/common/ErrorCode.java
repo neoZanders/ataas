@@ -28,6 +28,7 @@ public enum ErrorCode {
     USER_NOT_COURSE_RESPONSIBLE("USER_NOT_COURSE_RESPONSIBLE", "User is not course responsible for this course", HttpStatus.FORBIDDEN),
     USER_NOT_FOUND("USER_NOT_FOUND", "User not found", HttpStatus.NOT_FOUND),
     USER_NOT_TEACHING_ASSISTANT("USER_NOT_TEACHING_ASSISTANT", "User is not teaching assistant of this course", HttpStatus.FORBIDDEN),
+    TA_CONSTRAINT_NOT_FOUND("TA_CONSTRAINT_NOT_FOUND", "TA constraint not found", HttpStatus.NOT_FOUND),
 
     // Basic HTTP errors
     UNAUTHORIZED("UNAUTHORIZED", "Invalid credentials", HttpStatus.UNAUTHORIZED),
