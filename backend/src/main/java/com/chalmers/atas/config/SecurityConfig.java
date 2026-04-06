@@ -78,6 +78,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/courses/{courseId}/announcements"
                         ).authenticated()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/courses/{courseId}/ta-constraints/{taId}"
+                        ).authenticated()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/courses/{courseId}/ta-constraints"
+                        ).authenticated()
+                        .requestMatchers(HttpMethod.PATCH,
+                                "/api/courses/{courseId}/ta-constraints/{taCourseSessionConstraintId}"
+                        ).authenticated()
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/courses/{courseId}/ta-constraints/{taCourseSessionConstraintId}"
+                        ).authenticated()
                         .requestMatchers("/api/courses/**").hasRole("CR")
                         .anyRequest().denyAll()
                 ).addFilterBefore(jwtAuthenticationFilter,
