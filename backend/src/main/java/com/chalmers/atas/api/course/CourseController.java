@@ -28,6 +28,13 @@ public class CourseController {
         return HttpResponse.fromResult(courseApplicationService.getCourses(currentUser));
     }
 
+    @GetMapping("/{courseId}/details")
+    public HttpResponse<CourseResponse> getCourse(
+            @PathVariable UUID courseId,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(courseApplicationService.getCourse(courseId, currentUser));
+    }
+
     @PutMapping("/{courseId}/archive")
     public HttpResponse<CourseResponse> archiveCourse(
             @PathVariable UUID courseId,

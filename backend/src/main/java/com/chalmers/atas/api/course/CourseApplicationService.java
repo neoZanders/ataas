@@ -6,7 +6,9 @@ import com.chalmers.atas.common.TransactionHandler;
 import com.chalmers.atas.domain.course.CourseRepository;
 import com.chalmers.atas.domain.course.CourseService;
 import com.chalmers.atas.domain.coursesession.CourseSessionService;
+import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentRepository;
 import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentService;
+import com.chalmers.atas.domain.tacourseassignment.TACourseAssignmentRepository;
 import com.chalmers.atas.domain.tacourseassignment.TACourseAssignmentService;
 import com.chalmers.atas.domain.user.CurrentUser;
 import com.chalmers.atas.domain.user.User;
@@ -26,6 +28,8 @@ public class CourseApplicationService {
     private final TACourseAssignmentService taCourseAssignmentService;
     private final TransactionHandler transactionHandler;
     private final CourseRepository courseRepository;
+    private final CRCourseAssignmentRepository cRCourseAssignmentRepository;
+    private final TACourseAssignmentRepository tACourseAssignmentRepository;
 
     public Result<CourseResponse> createCourse(CreateCourseRequest request, CurrentUser currentUser) {
         return transactionHandler.executeInTransaction(() ->
@@ -70,6 +74,29 @@ public class CourseApplicationService {
                 );    
         }
         return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+    }
+
+    public Result<CourseResponse> getCourse(UUID courseId, CurrentUser currentUser) {
+        return Result.ofOptional(
+                courseRepository.findById(courseId), ErrorCode.COURSE_NOT_FOUND.toError()
+        ).flatMap(course -> {
+            boolean isUserAllowedToViewCourse;
+            if (currentUser.getUser().getUserType().equals(User.UserType.CR)) {
+                isUserAllowedToViewCourse = cRCourseAssignmentRepository.existsByCrAndCourse(
+                        currentUser.getUser(),
+                        course);
+            } else {
+                isUserAllowedToViewCourse = tACourseAssignmentRepository.existsByTaAndCourse(
+                        currentUser.getUser(),
+                        course);
+            }
+
+            if (isUserAllowedToViewCourse) {
+                return Result.ok(CourseResponse.of(course));
+            } else {
+                return Result.error(ErrorCode.USER_NOT_ALLOWED_TO_VIEW_COURSE.toError());
+            }
+        });
     }
 
     public Result<CourseResponse> archiveCourse(UUID courseId, CurrentUser currentUser) {

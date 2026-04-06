@@ -28,4 +28,6 @@ public interface CRCourseAssignmentRepository extends JpaRepository<CRCourseAssi
     List<CRCourseAssignment> findAllByCourse(Course course);
 
     List<CRCourseAssignment> findAllByCr(User user);
+
+    boolean existsByCrAndCourse(User user, Course course);
 }
