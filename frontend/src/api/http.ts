@@ -29,8 +29,10 @@ export async function fetchJson<T>(
 
     if (!res.ok) {
         const body = await tryReadJson(res);
+        console.error("API error response body:", body);
         throw new ApiError(`Request failed (${res.status})`, res.status, body);
     }
 
-    return (await res.json()) as T;
+    const body = await tryReadJson(res);
+    return body as T;
 }
