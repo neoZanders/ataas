@@ -104,7 +104,7 @@ function SideTabNav() {
             { id: "calendar", label: "Calendar", to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
             { id: "ta list", label: "TA list", to: `${base}/talist`, icon: <Users size={24} /> },
             { id: "constraints", label: "Constraints", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
-            { id: "announcements", label: "Announcements", to: `${base}/announcements`, icon: <Megaphone size={24} />, badgeCount: 25 },
+            { id: "announcements", label: "Announcements", to: `${base}/announcements`, icon: <Megaphone size={24} /> },
         ]
         : user?.userType === "TA"
             ? [
@@ -113,7 +113,7 @@ function SideTabNav() {
                 { id: "calendar", label: "Calendar", to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
                 { id: "ta list", label: "TA list", to: `${base}/talist`, icon: <Users size={24} /> },
                 { id: "constraints", label: "Constraints", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
-                { id: "announcements", label: "Announcements", to: `${base}/announcements`, icon: <Megaphone size={24} />, badgeCount: 25 },
+                { id: "announcements", label: "Announcements", to: `${base}/announcements`, icon: <Megaphone size={24} /> },
             ]
             : [];
 
