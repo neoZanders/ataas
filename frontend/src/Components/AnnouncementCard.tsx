@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Announcement } from "./CR/CourseResponsibleAnnouncementPage.tsx";
+import type { Announcement } from "../types/announcement.ts";
 import { MarkdownText } from "./MarkdownText";
 
 type AnnouncementCardProps = {
@@ -28,12 +28,14 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
     const preview = useMemo(() => getPreview(announcement.body, 160), [announcement.body]);
     const showExpandButton = announcement.body.length >= 160;
     const markdownContent = expanded ? announcement.body : preview;
+    const ownerLabel = announcement.owner.name?.trim() || announcement.owner.email;
 
     return (
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <h3 className="text-lg font-semibold text-slate-900">{announcement.title}</h3>
+                    <p className="mt-1 text-sm text-slate-600">Sent by {ownerLabel}</p>
                     <p className="text-xs text-slate-500">{formatDate(announcement.createdAt)}</p>
                 </div>
                 {showExpandButton && (
