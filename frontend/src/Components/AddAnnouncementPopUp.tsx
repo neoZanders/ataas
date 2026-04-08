@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { X } from "lucide-react";
 import { MarkdownText } from "./MarkdownText";
+import type { CreateAnnouncementRequest } from "../types/announcement.ts";
 
 interface AddAnnouncementPopUpProps {
     isOpen: boolean;
     onClose: () => void;
-    onCreate: (data: { title: string; body: string; sendByEmail: boolean }) => void;
+    onCreate: (data: CreateAnnouncementRequest) => Promise<void>;
 }
 
 export function AddAnnouncementPopUp({ isOpen, onClose, onCreate }: AddAnnouncementPopUpProps) {
@@ -13,13 +14,15 @@ export function AddAnnouncementPopUp({ isOpen, onClose, onCreate }: AddAnnouncem
     const [body, setBody] = useState("");
     const [sendByEmail, setSendByEmail] = useState(false);
     const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     function resetState() {
         setTitle("");
         setBody("");
         setSendByEmail(false);
         setError("");
-    };
+        setIsSubmitting(false);
+    }
 
     const handleClose = useCallback(() => {
         onClose();
@@ -43,7 +46,7 @@ export function AddAnnouncementPopUp({ isOpen, onClose, onCreate }: AddAnnouncem
 
     if (!isOpen) return null;
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (!title.trim() || !body.trim()) {
@@ -51,9 +54,18 @@ export function AddAnnouncementPopUp({ isOpen, onClose, onCreate }: AddAnnouncem
             return;
         }
 
-        onCreate({ title: title.trim(), body: body.trim(), sendByEmail });
-        resetState();
-        handleClose();
+        setIsSubmitting(true);
+        setError("");
+
+        try {
+            await onCreate({ title: title.trim(), body: body.trim(), sendByEmail });
+            resetState();
+            handleClose();
+        } catch (submitError) {
+            console.error(submitError);
+            setError("Could not create announcement.");
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -82,6 +94,7 @@ export function AddAnnouncementPopUp({ isOpen, onClose, onCreate }: AddAnnouncem
                         <input
                             value={title}
                             onChange={(event) => setTitle(event.target.value)}
+                            disabled={isSubmitting}
                             className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
                             placeholder="Announcement title"
                         />
@@ -93,6 +106,7 @@ export function AddAnnouncementPopUp({ isOpen, onClose, onCreate }: AddAnnouncem
                             <textarea
                                 value={body}
                                 onChange={(event) => setBody(event.target.value)}
+                                disabled={isSubmitting}
                                 rows={8}
                                 className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
                                 placeholder="Write your announcement in markdown..."
@@ -117,6 +131,7 @@ export function AddAnnouncementPopUp({ isOpen, onClose, onCreate }: AddAnnouncem
                             type="checkbox"
                             checked={sendByEmail}
                             onChange={(event) => setSendByEmail(event.target.checked)}
+                            disabled={isSubmitting}
                             className="h-4 w-4 rounded border-slate-300 accent-[#003b5c] hover:cursor-pointer"
                         />
                         Send by email as well
@@ -127,16 +142,18 @@ export function AddAnnouncementPopUp({ isOpen, onClose, onCreate }: AddAnnouncem
                     <div className="flex items-center justify-end gap-3">
                         <button
                             type="button"
-                            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:cursor-pointer"
+                            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                             onClick={handleCancel}
+                            disabled={isSubmitting}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="rounded-full bg-[#003b5c] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] hover:cursor-pointer"
+                            className="rounded-full bg-[#003b5c] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                            disabled={isSubmitting}
                         >
-                            Create
+                            {isSubmitting ? "Creating..." : "Create"}
                         </button>
                     </div>
                 </form>
