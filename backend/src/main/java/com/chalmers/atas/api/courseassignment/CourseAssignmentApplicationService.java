@@ -4,6 +4,7 @@ import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.domain.course.Course;
 import com.chalmers.atas.domain.course.CourseRepository;
+import com.chalmers.atas.domain.courseassignment.CourseAuthorizationService;
 import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentRepository;
 import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentService;
 import com.chalmers.atas.domain.tacourseassignment.TACourseAssignmentRepository;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class CourseAssignmentApplicationService {
 
     private final CourseRepository courseRepository;
+    private final CourseAuthorizationService courseAuthorizationService;
     private final CRCourseAssignmentService crCourseAssignmentService;
     private final TACourseAssignmentService taCourseAssignmentService;
     private final CRCourseAssignmentRepository crCourseAssignmentRepository;
@@ -50,7 +52,7 @@ public class CourseAssignmentApplicationService {
     }
 
     public Result<Void> inviteCR(UUID courseId, InviteCRRequest request, CurrentUser currentUser) {
-        return assertUserIsCrOfCourse(courseId, currentUser.getUser())
+        return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
                 .flatMap(course ->
                                 Result.ofOptional(
                                         userRepository.findByEmail(request.getCrEmail()),
@@ -60,7 +62,7 @@ public class CourseAssignmentApplicationService {
     }
 
     public Result<Void> inviteTA(UUID courseId, InviteTARequest request, CurrentUser currentUser){
-        return assertUserIsCrOfCourse(courseId, currentUser.getUser())
+        return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
                 .flatMap(course ->
                                 Result.ofOptional(
                                         userRepository.findByEmail(request.getTaEmail()),
@@ -72,7 +74,7 @@ public class CourseAssignmentApplicationService {
     }
 
     public Result<CourseAssignmentsResponse> getAssignments(UUID courseId, CurrentUser currentUser) {
-        return assertUserIsCrOfCourse(courseId, currentUser.getUser())
+        return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
                 .flatMap(course ->
                         crCourseAssignmentService.getCourseAssignments(course)
                                 .flatMap(crCourseAssignments ->
@@ -88,7 +90,7 @@ public class CourseAssignmentApplicationService {
                 );
     }
 
-    
+    //TODO move the fileds setting logic to domain service level and return a response
     public Result<Void> updateTAAssignment(UUID courseId, UUID taId, CurrentUser currentUser, UpdateTAAssignmentRequest request){
         if (!currentUser.getUser().getUserType().equals(User.UserType.TA)) {
             return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
@@ -130,7 +132,7 @@ public class CourseAssignmentApplicationService {
     }
     
     public Result<Void> deleteCRAssignment(UUID courseId, UUID userId, CurrentUser currentUser) {
-        return assertUserIsCrOfCourse(courseId, currentUser.getUser())
+        return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
                 .flatMap(course ->
                                 Result.ofOptional(
                                         userRepository.findById(userId),
@@ -143,7 +145,7 @@ public class CourseAssignmentApplicationService {
     }
 
     public Result<Void> deleteTAAssignment(UUID courseId, UUID userId, CurrentUser currentUser){
-        return assertUserIsCrOfCourse(courseId, currentUser.getUser())
+        return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
                 .flatMap(course ->
                                 Result.ofOptional(
                                         userRepository.findById(userId),
@@ -162,14 +164,5 @@ public class CourseAssignmentApplicationService {
                 courseRepository.findById(courseId),
                 ErrorCode.COURSE_NOT_FOUND.toError()
         );
-    }
-
-    private Result<Course> assertUserIsCrOfCourse(UUID courseId, User user) {
-        return resolveCourse(courseId).flatMap(course -> {
-            if (!crCourseAssignmentService.isUserCrOfCourse(user, course)) {
-                return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError());
-            }
-            return Result.ok(course);
-        });
     }
 }
