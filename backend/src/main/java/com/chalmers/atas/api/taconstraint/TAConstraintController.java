@@ -49,7 +49,7 @@ public class TAConstraintController {
     }
 
     @PatchMapping("/{taCourseSessionConstraintId}")
-    public HttpResponse<Void> updateTAConstraint(
+    public HttpResponse<TAConstraintResponse> updateTAConstraint(
         @PathVariable UUID courseId,
         @PathVariable UUID taCourseSessionConstraintId,
         @RequestBody UpdateTAConstraintRequest request,

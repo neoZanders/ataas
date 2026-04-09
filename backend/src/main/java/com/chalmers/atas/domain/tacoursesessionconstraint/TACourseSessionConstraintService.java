@@ -63,7 +63,26 @@ public class TACourseSessionConstraintService {
     }
 
     @Transactional
-    public TransactionalResult<TACourseSessionConstraint> updateConstraint(TACourseSessionConstraint constraint) {
+    public TransactionalResult<TACourseSessionConstraint> updateConstraint(
+            TACourseSessionConstraint constraint,
+            ConstraintType constraintType,
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime,
+            Boolean isWeeklyRecurring
+    ) {
+        if (constraintType != null) {
+            constraint.setConstraintType(constraintType);
+        }
+        if (startDateTime != null) {
+            constraint.setStartDateTime(startDateTime);
+        }
+        if (endDateTime != null) {
+            constraint.setEndDateTime(endDateTime);
+        }
+        if (isWeeklyRecurring != null) {
+            constraint.setWeeklyRecurring(isWeeklyRecurring);
+        }
+
         if (constraint.getStartDateTime().isAfter(constraint.getEndDateTime())) {
             return TransactionalResult.rollbackFor(ErrorCode.START_AFTER_END.toError());
         }
