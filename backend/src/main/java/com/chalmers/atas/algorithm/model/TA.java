@@ -53,6 +53,9 @@ public class TA {
         this.totalAssignedHours += hours;
     }
 
+    public boolean preferredSessionType(CourseSession.CourseSessionType type) {
+        return sessionTypesPreferences.contains(type);
+    }
 
     //getter
     public UUID getTaID(){return taID;}
@@ -60,5 +63,5 @@ public class TA {
     public int getMinHoursPerLp(){return minHoursPerLp;}
     public List<CourseSession.CourseSessionType> getSessionType(){return sessionTypesPreferences;}
     public List<TAConstraint> getConstraints(){return constraints;}
-
+    public int getTotalAssignedHours (){return totalAssignedHours;}
 }

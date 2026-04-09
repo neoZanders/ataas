@@ -57,10 +57,7 @@ public class CPscheduler implements AlgorithmService {
                 taVar[y] = shifts[i][y];
                 durations[y] = moreSessions.get(y).getDurationTime();
             }
-            model.addLinearConstraint(
-                    LinearExpr.weightedSum(taVar, durations),
-                    ta.getMinHoursPerLp(),
-                    ta.getMaxHoursPerLp()
+            model.addLinearConstraint(LinearExpr.weightedSum(taVar, durations), ta.getMinHoursPerLp(), ta.getMaxHoursPerLp()
             );
         }
 
@@ -72,15 +69,15 @@ public class CPscheduler implements AlgorithmService {
             for(int y = 0; y < numSessions; y++){
                 sessionVar[y] = shifts[i][y];
             }
-            model.addLinearConstraint(
-                    LinearExpr.sum(sessionVar),
-                    session.getMinTa(),
-                    session.getMaxTA()
+            model.addLinearConstraint(LinearExpr.sum(sessionVar), session.getMinTa(), session.getMaxTA()
             );
         }
 
         //for doublebooking
+        for(int i = 0; i < numSessions; i++){
+            Sessions session = moreSessions.get(i);
 
+        }
 
         //
         CpSolver solver = new CpSolver();
@@ -101,7 +98,7 @@ public class CPscheduler implements AlgorithmService {
             }
         }
             System.out.println("Cp solver status: " + status);
-    } else {
+        }else {
             System.out.println("Warning: CP Solver status: " + status);
         }
         List<ScheduleResult> results = moreSessions.stream()

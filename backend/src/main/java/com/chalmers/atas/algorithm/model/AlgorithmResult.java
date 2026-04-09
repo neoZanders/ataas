@@ -1,6 +1,5 @@
 package com.chalmers.atas.algorithm.model;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
