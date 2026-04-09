@@ -14,7 +14,7 @@ public class ScheduleResult {
     public ScheduleResult(Sessions session, List<UUID> assignedTaIds){
         this.session = session;
         List<UUID> tmp;
-        if(assignedTaIds == null)
+        if(assignedTaIds != null)
             tmp = new ArrayList<>(assignedTaIds);
         else
             tmp = new ArrayList<>();

@@ -20,7 +20,7 @@ public class AlgorithmResult {
     }
 
     public static AlgorithmResult infeasible(List<ScheduleResult> allocations){
-        List<UUID> unfeasible = allocations.stream().filter(allocation -> allocation.isFullyStaffed())
+        List<UUID> unfeasible = allocations.stream().filter(allocation -> !allocation.isFullyStaffed())
                 .map(allocation -> allocation.getSession().getSessionId())
                 .collect(Collectors.toUnmodifiableList());
         return new AlgorithmResult(allocations, false, unfeasible);

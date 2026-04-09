@@ -15,7 +15,6 @@ public class TA {
     private List<TAConstraint> constraints;
     private int totalAssignedHours;         //Curr ent state
 
-    //Constructor
     public TA(UUID taID,
               int maxHoursPerLp,
               int minHoursPerLp,
@@ -35,7 +34,7 @@ public class TA {
 
     //check availability
     public boolean isAvailableAt(Timeslots sessionSlot){
-        return constraints.stream().anyMatch(constraint -> constraint.timeslots().overLapsWith(sessionSlot));
+        return constraints.stream().noneMatch(constraint -> constraint.timeslots().overLapsWith(sessionSlot));
     }
 
 
@@ -44,8 +43,8 @@ public class TA {
         return (hours + totalAssignedHours)<= maxHoursPerLp;
     }
     // --check preference 
-    public boolean isPreferred(CourseSession.CourseSessionType type) {
-        return  sessionTypesPreferences.contains(type);
+    public boolean preferredSessionType(CourseSession.CourseSessionType type) {
+        return sessionTypesPreferences.contains(type);
     }
 
     //method add up the total time.
@@ -53,9 +52,7 @@ public class TA {
         this.totalAssignedHours += hours;
     }
 
-    public boolean preferredSessionType(CourseSession.CourseSessionType type) {
-        return sessionTypesPreferences.contains(type);
-    }
+
 
     //getter
     public UUID getTaID(){return taID;}

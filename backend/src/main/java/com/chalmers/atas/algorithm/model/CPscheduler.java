@@ -34,8 +34,8 @@ public class CPscheduler implements AlgorithmService {
         //creates variables
         IntVar[][] shifts = new IntVar[numTas][numSessions];
         for(int i = 0; i < numTas; i++){
-            for(int y = 0; y < numSessions; y++ ){
-                shifts[i][y] = model.newBoolVar("shifts" + i + "_" + y);
+            for(int j = 0; j < numSessions; j++ ){
+                shifts[i][j] = model.newBoolVar("shifts" + i + "_" + j);
             }
         }
 
@@ -53,9 +53,9 @@ public class CPscheduler implements AlgorithmService {
             TA ta = tas.get(i);
             IntVar[] taVar = new IntVar[numSessions];
             long[] durations = new long [numSessions];
-            for(int y = 0; y< numSessions; y++){
-                taVar[y] = shifts[i][y];
-                durations[y] = moreSessions.get(y).getDurationTime();
+            for(int j = 0; j< numSessions; j++){
+                taVar[j] = shifts[i][j];
+                durations[j] = moreSessions.get(j).getDurationTime();
             }
             model.addLinearConstraint(LinearExpr.weightedSum(taVar, durations), ta.getMinHoursPerLp(), ta.getMaxHoursPerLp()
             );
@@ -63,23 +63,28 @@ public class CPscheduler implements AlgorithmService {
 
 
         //min max per Session
-        for(int i = 0; i < numSessions; i++){
+        for(int i = 0; i < numTas; i++){
             Sessions session = moreSessions.get(i);
             IntVar[] sessionVar = new IntVar[numTas];
-            for(int y = 0; y < numSessions; y++){
-                sessionVar[y] = shifts[i][y];
+            for(int j = 0; j < numSessions; j++){
+                sessionVar[j] = shifts[j][i];
             }
             model.addLinearConstraint(LinearExpr.sum(sessionVar), session.getMinTa(), session.getMaxTA()
             );
         }
 
         //for doublebooking
-        for(int i = 0; i < numSessions; i++){
-            Sessions session = moreSessions.get(i);
-
+        for(int i = 0; i < numTas; i++){
+            for(int j = 0; j < numSessions; j++){
+                for(int k = j + 1;k < numSessions; k++ ){
+                    if(moreSessions.get(j).getTimeslot().overLapsWith(moreSessions.get(k).getTimeslot())){
+                        model.addLinearConstraint(LinearExpr.sum(new IntVar[]{shifts[i][j], shifts[i][k]}), 0,1);
+                    }
+                }
+            }
         }
 
-        //
+        //solve
         CpSolver solver = new CpSolver();
         CpSolverStatus status = solver.solve(model);
 
@@ -89,11 +94,11 @@ public class CPscheduler implements AlgorithmService {
 
         if(status == CpSolverStatus.FEASIBLE || status == CpSolverStatus.OPTIMAL){
             for(int i = 0; i < numTas; i++){
-                for(int y = 0; y < numSessions; y++){
-                if(solver.value(shifts[i][y]) == 1){
-                    UUID sessionsID = moreSessions.get(y).getSessionId();
+                for(int j = 0; j < numSessions; j++){
+                if(solver.value(shifts[i][j]) == 1){
+                    UUID sessionsID = moreSessions.get(j).getSessionId();
                     assignmentMap.get(sessionsID).add(tas.get(i).getTaID());
-                    tas.get(i).addAssignedHours(moreSessions.get(y).getDurationTime());
+                    tas.get(i).addAssignedHours(moreSessions.get(j).getDurationTime());
                 }
             }
         }

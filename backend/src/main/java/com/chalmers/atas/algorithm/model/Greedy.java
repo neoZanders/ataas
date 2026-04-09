@@ -27,7 +27,6 @@ public class Greedy implements AlgorithmService {
 
         sessions.forEach(s -> assignment.putIfAbsent(s.getSessionId(), new ArrayList<>()));
 
-
         //timematching
         Map<UUID, List<TA>> candidates = step1_timeMatching(tas, sessions,assignment);
 
@@ -52,7 +51,7 @@ public class Greedy implements AlgorithmService {
                     List<TA> eligable = candidates.getOrDefault(session.getSessionId(), List.of());
                     if(eligable.isEmpty()) continue;
 
-                    eligable.sort(Comparator.comparingInt((TA ta) -> constrantScore(ta, sessions,assignment))
+                    eligable.sort(Comparator.comparingInt((TA ta) -> constraintScore(ta, sessions,assignment))
                             .thenComparingInt(ta -> ta.preferredSessionType(session.getSessionType()) ? 0 : 1)
                             .thenComparingInt(TA::getTotalAssignedHours)
                     ) ;
@@ -75,11 +74,24 @@ public class Greedy implements AlgorithmService {
                     }
                 }
             }
-            allOrginized = sessions.stream().allMatch(s -> isFullyStaffed(s, assignment));
 
-            
         }
-    }
+        List<ScheduleResult> results = sessions.stream()
+                .map(s -> new ScheduleResult(s, assignment.getOrDefault(s.getSessionId(), new ArrayList<>())))
+                .collect(Collectors.toList());
+
+        boolean feasible = results.stream().allMatch(ScheduleResult::isFullyStaffed);
+
+        AlgorithmResult result;
+        if(feasible)
+            result = AlgorithmResult.fesiable(results);
+        else
+            result = AlgorithmResult.infeasible(results);
+
+        return result;
+
+
+    }//end of filling
 
     private Map<UUID, List<TA>> step1_timeMatching(List<TA> tas, List<Sessions> sessions, Map<UUID, List<UUID>> assignments){
         Map<UUID, List<TA>> candidates = new HashMap<>();
@@ -89,7 +101,7 @@ public class Greedy implements AlgorithmService {
             List<TA> eligable = tas.stream().filter(ta -> ta.isAvailableAt(sessions1.getTimeslot()))
                     .filter(ta -> ta.hasCapacityToWork(sessions1.getDurationTime()))
                     .filter(ta -> !assignments.get(sessions1.getSessionId()).contains(ta.getTaID()))
-                    .collect(Collectors.toUnmodifiableList());
+                    .toList();
             candidates.put(sessions1.getSessionId(), eligable);
 
         }
@@ -119,7 +131,7 @@ public class Greedy implements AlgorithmService {
         return groups;
     }
 
-    private int constrantScore(TA ta, List<Sessions> sessions, Map<UUID,List<UUID>> assignment){
+    private int constraintScore(TA ta, List<Sessions> sessions, Map<UUID,List<UUID>> assignment){
         return (int) sessions.stream().filter(s -> !isFullyStaffed(s, assignment))
                 .filter(s -> assignment.get(s.getSessionId()).size() < s.getMaxTA())
                 .filter(s-> ta.isAvailableAt(s.getTimeslot()))
@@ -131,7 +143,6 @@ public class Greedy implements AlgorithmService {
     private boolean isFullyStaffed(Sessions sessions, Map<UUID, List<UUID>> assignment){
         return assignment.get(sessions.getSessionId()).size() >= sessions.getMaxTA();
     }
-
 
 
 
