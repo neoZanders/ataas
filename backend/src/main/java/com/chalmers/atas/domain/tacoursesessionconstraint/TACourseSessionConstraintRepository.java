@@ -5,11 +5,13 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TACourseSessionConstraintRepository extends JpaRepository<TACourseSessionConstraint, UUID> {
-    List<TACourseSessionConstraint> findAllByTaCourseAssignment_Course_CourseId(UUID courseId);
+import com.chalmers.atas.domain.course.Course;
 
-    List<TACourseSessionConstraint> findAllByTaCourseAssignment_Ta_UserIdAndTaCourseAssignment_Course_CourseId(
+public interface TACourseSessionConstraintRepository extends JpaRepository<TACourseSessionConstraint, UUID> {
+    List<TACourseSessionConstraint> findAllByTaCourseAssignment_Course(Course course);
+
+    List<TACourseSessionConstraint> findAllByTaCourseAssignment_Ta_UserIdAndTaCourseAssignment_Course(
             UUID taId,
-            UUID courseId
+            Course course
     );
 }

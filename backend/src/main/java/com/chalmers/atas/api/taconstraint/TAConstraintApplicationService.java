@@ -31,7 +31,7 @@ public class TAConstraintApplicationService {
 
         return courseAuthorizationService.assertUserIsCrOfCourse(courseId, user)
                 .flatMap(course ->
-                        taCourseSessionConstraintService.getCourseConstraints(courseId)
+                        taCourseSessionConstraintService.getCourseConstraints(course)
                                 .map(constraints ->
                                         constraints.stream().map(TAConstraintResponse::of).toList()
                                 ));
@@ -49,7 +49,7 @@ public class TAConstraintApplicationService {
 
         return courseAuthorizationService.assertUserIsTaOfCourse(courseId, user)
                 .flatMap(course ->
-                        taCourseSessionConstraintService.getTAConstraints(courseId, taId)
+                        taCourseSessionConstraintService.getTAConstraints(course, taId)
                                 .map(constraints ->
                                         constraints.stream().map(TAConstraintResponse::of).toList()
                                 ));
