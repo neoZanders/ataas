@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
+import com.chalmers.atas.domain.course.Course;
 import com.chalmers.atas.domain.tacourseassignment.TACourseAssignment;
 import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraint.ConstraintType;
 
@@ -21,14 +22,14 @@ public class TACourseSessionConstraintService {
 
     private final TACourseSessionConstraintRepository taCourseSessionConstraintRepository;
 
-    public Result<List<TACourseSessionConstraint>> getCourseConstraints(UUID courseId) {
-        return Result.ok(taCourseSessionConstraintRepository.findAllByTaCourseAssignment_Course_CourseId(courseId));
+    public Result<List<TACourseSessionConstraint>> getCourseConstraints(Course course) {
+        return Result.ok(taCourseSessionConstraintRepository.findAllByTaCourseAssignment_Course(course));
     }
 
-    public Result<List<TACourseSessionConstraint>> getTAConstraints(UUID courseId, UUID taId) {
+    public Result<List<TACourseSessionConstraint>> getTAConstraints(Course course, UUID taId) {
         return Result.ok(
                 taCourseSessionConstraintRepository
-                        .findAllByTaCourseAssignment_Ta_UserIdAndTaCourseAssignment_Course_CourseId(taId, courseId)
+                        .findAllByTaCourseAssignment_Ta_UserIdAndTaCourseAssignment_Course(taId, course)
         );
     }
 
