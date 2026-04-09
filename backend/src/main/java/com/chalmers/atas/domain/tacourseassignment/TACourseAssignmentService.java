@@ -97,7 +97,11 @@ public class TACourseAssignmentService {
     }
 
     public boolean isUserTaOfCourse(User user, Course course) {
-        return taCourseAssignmentRepository.existsByTaAndCourse(user, course);
+        return taCourseAssignmentRepository.existsByTaAndCourseAndStatus(
+                user,
+                course,
+                CourseAssignmentStatus.JOINED
+        );
     }
 
 }
