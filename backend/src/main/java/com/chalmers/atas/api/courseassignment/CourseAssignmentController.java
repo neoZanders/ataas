@@ -46,7 +46,7 @@ public class CourseAssignmentController {
     }
 
     @PatchMapping("/tas/{taId}")
-    public HttpResponse<Void> updateTAAssignment(
+    public HttpResponse<TACourseAssignmentResponse> updateTAAssignment(
             @PathVariable UUID courseId,
             @PathVariable UUID taId, 
             CurrentUser currentUser,

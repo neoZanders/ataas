@@ -10,6 +10,7 @@ import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
 import com.chalmers.atas.domain.course.Course;
 import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
+import com.chalmers.atas.domain.coursesession.CourseSession.CourseSessionType;
 import com.chalmers.atas.domain.user.User;
 
 import lombok.RequiredArgsConstructor;
@@ -64,15 +65,45 @@ public class TACourseAssignmentService {
     }
 
     @Transactional
-    public TransactionalResult<Void> updateAssignment(TACourseAssignment taCourseAssignment){
+    public TransactionalResult<TACourseAssignment> updateAssignment(
+            TACourseAssignment taCourseAssignment,
+            Integer minHours,
+            Integer maxHours,
+            CourseSessionType sessionTypePreference1,
+            CourseSessionType sessionTypePreference2,
+            CourseSessionType sessionTypePreference3,
+            CourseSessionType sessionTypePreference4,
+            Boolean isCompactSchedule
+    ){
         if (!taCourseAssignment.getStatus().equals(CourseAssignmentStatus.JOINED)) {
             return TransactionalResult.rollbackFor(
                 ErrorCode.INVALID_COURSE_ASSIGNMENT_STATUS.toError()
             );
         }
 
-        taCourseAssignmentRepository.save(taCourseAssignment);
-        return TransactionalResult.ok();
+        if (minHours != null) {
+            taCourseAssignment.setMinHours(minHours);
+        }
+        if (maxHours != null) {
+            taCourseAssignment.setMaxHours(maxHours);
+        }
+        if (sessionTypePreference1 != null) {
+            taCourseAssignment.setSessionTypePreference1(sessionTypePreference1);
+        }
+        if (sessionTypePreference2 != null) {
+            taCourseAssignment.setSessionTypePreference2(sessionTypePreference2);
+        }
+        if (sessionTypePreference3 != null) {
+            taCourseAssignment.setSessionTypePreference3(sessionTypePreference3);
+        }
+        if (sessionTypePreference4 != null) {
+            taCourseAssignment.setSessionTypePreference4(sessionTypePreference4);
+        }
+        if (isCompactSchedule != null) {
+            taCourseAssignment.setIsCompactSchedule(isCompactSchedule);
+        }
+
+        return TransactionalResult.ok(taCourseAssignmentRepository.save(taCourseAssignment));
     }
 
     public Result<List<TACourseAssignment>> getCourseAssignments(Course course){

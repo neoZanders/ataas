@@ -90,8 +90,12 @@ public class CourseAssignmentApplicationService {
                 );
     }
 
-    //TODO move the fileds setting logic to domain service level and return a response
-    public Result<Void> updateTAAssignment(UUID courseId, UUID taId, CurrentUser currentUser, UpdateTAAssignmentRequest request){
+    public Result<TACourseAssignmentResponse> updateTAAssignment(
+            UUID courseId,
+            UUID taId,
+            CurrentUser currentUser,
+            UpdateTAAssignmentRequest request
+    ){
         if (!currentUser.getUser().getUserType().equals(User.UserType.TA)) {
             return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
         }
@@ -104,30 +108,18 @@ public class CourseAssignmentApplicationService {
                 Result.ofOptional(
                         taCourseAssignmentRepository.findByTaAndCourse(currentUser.getUser(), course),
                         ErrorCode.USER_HAS_NOT_JOINED_COURSE.toError()
-                ).flatMap(taCourseAssignment -> {
-                    if (request.getMinHours() != null) {
-                        taCourseAssignment.setMinHours(request.getMinHours());
-                    }
-                    if (request.getMaxHours() != null) {
-                        taCourseAssignment.setMaxHours(request.getMaxHours());
-                    }
-                    if (request.getSessionTypePreference1() != null) {
-                        taCourseAssignment.setSessionTypePreference1(request.getSessionTypePreference1());
-                    }
-                    if (request.getSessionTypePreference2() != null) {
-                        taCourseAssignment.setSessionTypePreference2(request.getSessionTypePreference2());
-                    }
-                    if (request.getSessionTypePreference3() != null) {
-                        taCourseAssignment.setSessionTypePreference3(request.getSessionTypePreference3());
-                    }
-                    if (request.getSessionTypePreference4() != null) {
-                        taCourseAssignment.setSessionTypePreference4(request.getSessionTypePreference4());
-                    }
-                    if (request.getIsCompactSchedule() != null) {
-                        taCourseAssignment.setIsCompactSchedule(request.getIsCompactSchedule());
-                    }
-                    return taCourseAssignmentService.updateAssignment(taCourseAssignment);
-                })
+                ).flatMap(taCourseAssignment ->
+                        taCourseAssignmentService.updateAssignment(
+                                taCourseAssignment,
+                                request.getMinHours(),
+                                request.getMaxHours(),
+                                request.getSessionTypePreference1(),
+                                request.getSessionTypePreference2(),
+                                request.getSessionTypePreference3(),
+                                request.getSessionTypePreference4(),
+                                request.getIsCompactSchedule()
+                        ).map(TACourseAssignmentResponse::of)
+                )
         );
     }
     

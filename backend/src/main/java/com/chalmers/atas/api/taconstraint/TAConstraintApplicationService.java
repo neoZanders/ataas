@@ -75,8 +75,12 @@ public class TAConstraintApplicationService {
                                 ));
     }
 
-    //TODO move the logic of setting fileds to domain service and return a response
-    public Result<Void> updateTAConstraint(UUID courseId, UUID taCourseSessionConstraintId, UpdateTAConstraintRequest request, CurrentUser currentUser){
+    public Result<TAConstraintResponse> updateTAConstraint(
+            UUID courseId,
+            UUID taCourseSessionConstraintId,
+            UpdateTAConstraintRequest request,
+            CurrentUser currentUser
+    ){
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.TA)) {
             return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
@@ -90,19 +94,13 @@ public class TAConstraintApplicationService {
                     if (!constraint.getTaCourseAssignment().getTa().getUserId().equals(user.getUserId())) {
                         return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
                     }
-                    if (request.getConstraintType() != null) {
-                        constraint.setConstraintType(request.getConstraintType());
-                    }
-                    if (request.getStartDateTime() != null) {
-                        constraint.setStartDateTime(request.getStartDateTime());
-                    }
-                    if (request.getEndDateTime() != null) {
-                        constraint.setEndDateTime(request.getEndDateTime());
-                    }
-                    if (request.getIsWeeklyRecurring() != null) {
-                        constraint.setWeeklyRecurring(request.getIsWeeklyRecurring());
-                    }
-                    return taCourseSessionConstraintService.updateConstraint(constraint).map(ignored -> null);
+                    return taCourseSessionConstraintService.updateConstraint(
+                            constraint,
+                            request.getConstraintType(),
+                            request.getStartDateTime(),
+                            request.getEndDateTime(),
+                            request.getIsWeeklyRecurring()
+                    ).map(TAConstraintResponse::of);
                 });
     }
 
