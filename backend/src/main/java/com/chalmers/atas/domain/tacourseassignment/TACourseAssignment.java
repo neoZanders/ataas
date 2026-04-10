@@ -54,19 +54,19 @@ public class TACourseAssignment implements Serializable {
     private Integer maxHours;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(name = "session_type_preference_1")
     private CourseSessionType sessionTypePreference1;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(name = "session_type_preference_2")
     private CourseSessionType sessionTypePreference2;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(name = "session_type_preference_3")
     private CourseSessionType sessionTypePreference3;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(name = "session_type_preference_4")
     private CourseSessionType sessionTypePreference4;
 
     @Column
