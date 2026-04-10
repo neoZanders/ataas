@@ -5,6 +5,7 @@ import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionHandler;
 import com.chalmers.atas.domain.course.CourseRepository;
 import com.chalmers.atas.domain.course.CourseService;
+import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.coursesession.CourseSessionService;
 import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentRepository;
 import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentService;
@@ -86,9 +87,10 @@ public class CourseApplicationService {
                         currentUser.getUser(),
                         course);
             } else {
-                isUserAllowedToViewCourse = tACourseAssignmentRepository.existsByTaAndCourse(
+                isUserAllowedToViewCourse = tACourseAssignmentRepository.existsByTaAndCourseAndStatus(
                         currentUser.getUser(),
-                        course);
+                        course,
+                        CourseAssignmentStatus.JOINED);
             }
 
             if (isUserAllowedToViewCourse) {
