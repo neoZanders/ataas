@@ -90,6 +90,20 @@ public class CourseAssignmentApplicationService {
                 );
     }
 
+    public Result<TACourseAssignmentResponse> getTAAssignment(UUID courseId, UUID taId, CurrentUser currentUser) {
+        return Result.ofOptional(userRepository.findById(taId), ErrorCode.USER_NOT_FOUND.toError())
+                .flatMap(ta -> {
+                    if (currentUser.getUser().getUserType().equals(User.UserType.CR)) {
+                        return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
+                                .flatMap(course -> taCourseAssignmentService.getAssignment(ta, course));
+                    } else if (taId.equals(currentUser.getUserId())) {
+                        return courseAuthorizationService.assertUserIsTaOfCourse(courseId, ta)
+                                .flatMap(course -> taCourseAssignmentService.getAssignment(ta, course));
+                    }
+                    return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+                }).map(TACourseAssignmentResponse::of);
+    }
+
     public Result<TACourseAssignmentResponse> updateTAAssignment(
             UUID courseId,
             UUID taId,
