@@ -22,7 +22,7 @@ public class ScheduleResult {
     }
 
     public boolean isFullyStaffed() {
-        return assignedTaIds.size() >= session.getMaxTA();
+        return assignedTaIds.size() >= session.getMinTa();
     }
 
     public int getRemainingSlots() {

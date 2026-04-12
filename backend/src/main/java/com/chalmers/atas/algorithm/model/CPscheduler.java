@@ -62,10 +62,10 @@ public class CPscheduler implements AlgorithmService {
 
 
         //min max per Session
-        for(int i = 0; i < numTas; i++){
+        for(int i = 0; i < numSessions; i++){
             Sessions session = moreSessions.get(i);
             IntVar[] sessionVar = new IntVar[numTas];
-            for(int j = 0; j < numSessions; j++){
+            for(int j = 0; j < numTas; j++){
                 sessionVar[j] = shifts[j][i];
             }
             model.addLinearConstraint(LinearExpr.sum(sessionVar), session.getMinTa(), session.getMaxTA()
