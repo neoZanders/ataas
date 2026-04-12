@@ -32,8 +32,7 @@ public class Greedy implements AlgorithmService {
 
         //timegrouping
         List<List<Sessions>> groups = step2_timeGrouping(sessions);
-
-
+        
         boolean allOrginized = false;
         while(!allOrginized) {
             groups.sort((g1,g2) -> Integer.compare(g2.size(),g1.size()));

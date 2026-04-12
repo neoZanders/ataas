@@ -21,8 +21,7 @@ public class CPscheduler implements AlgorithmService {
     public AlgorithmResult run(List<TA> tas, List<Sessions> sessions){
 
         //recurring into week instance
-        List<Sessions> moreSessions = sessions.stream()
-                .flatMap(session -> session.recurring().stream())
+        List<Sessions> moreSessions = sessions.stream().flatMap(session -> session.recurring().stream())
                 .collect(Collectors.toList());
 
 
