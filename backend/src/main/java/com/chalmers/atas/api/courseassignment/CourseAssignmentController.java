@@ -45,6 +45,14 @@ public class CourseAssignmentController {
         return HttpResponse.fromResult(courseAssignmentApplicationService.getAssignments(courseId, currentUser));
     }
 
+    @GetMapping("/tas/{taId}/details")
+    public HttpResponse<TACourseAssignmentResponse> getTAAssignment(
+            @PathVariable UUID courseId,
+            @PathVariable UUID taId,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(courseAssignmentApplicationService.getTAAssignment(courseId, taId, currentUser));
+    }
+
     @PatchMapping("/tas/{taId}")
     public HttpResponse<TACourseAssignmentResponse> updateTAAssignment(
             @PathVariable UUID courseId,
