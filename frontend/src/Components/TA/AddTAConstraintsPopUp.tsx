@@ -1,35 +1,42 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, X, Trash2, ChevronDown } from "lucide-react";
 import SessionTypeRanker, { SessionType } from "./SessionRanking1to4.tsx";
-
-interface AddTAConstraintsPopUpProps {
-    isOpen: boolean;
-    onClose: () => void;
-}
+import type { CourseAssignmentConstraintsRequest } from "../../api/taConstraintsApi.ts";
 
 type RankingState = Record<SessionType, number | null>;
-
-const initialRanking: RankingState = {
-    [SessionType.grading]: null,
-    [SessionType.laboration]: null,
-    [SessionType.help]: null,
-    [SessionType.exercise]: null,
-};
 
 type ConstraintKind =
     | "timeSlotsCantWork"
     | "timeSlotsCantWorkSoft"
     | "sessionPreference"
-    | "compactSchedule"
+    | "compactSchedule";
 
-type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
+export type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
-type TimeSlot = {
+export type TimeSlot = {
     id: string;
     day: Day;
-    start: string; // "HH:MM"
-    end: string;   // "HH:MM"
+    start: string;
+    end: string;
+    backendId?: string;
+    isWeeklyRecurring?: boolean;
 };
+
+interface AddTAConstraintsPopUpProps {
+    isOpen: boolean;
+    onClose: () => void;
+
+    form: CourseAssignmentConstraintsRequest;
+    setForm: React.Dispatch<React.SetStateAction<CourseAssignmentConstraintsRequest>>;
+
+    hardTimeSlots: TimeSlot[];
+    setHardTimeSlots: React.Dispatch<React.SetStateAction<TimeSlot[]>>;
+
+    softTimeSlots: TimeSlot[];
+    setSoftTimeSlots: React.Dispatch<React.SetStateAction<TimeSlot[]>>;
+
+    onSave: () => Promise<void>;
+}
 
 const dayOptions: Day[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -73,7 +80,69 @@ function SectionShell({
     );
 }
 
-export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUpProps) {
+function preferencesToRanking(form: CourseAssignmentConstraintsRequest): RankingState {
+    const next: RankingState = {
+        [SessionType.grading]: null,
+        [SessionType.laboration]: null,
+        [SessionType.help]: null,
+        [SessionType.exercise]: null,
+    };
+
+    const prefMap = [
+        form.sessionTypePreference1,
+        form.sessionTypePreference2,
+        form.sessionTypePreference3,
+        form.sessionTypePreference4,
+    ];
+
+    prefMap.forEach((pref, index) => {
+        const key = pref.toLowerCase() as SessionType;
+        next[key] = index + 1;
+    });
+
+    return next;
+}
+
+function rankingToPreferences(ranking: RankingState) {
+    const rankedItems: { type: string; rank: number }[] = [];
+
+    for (const type in ranking) {
+        const rank = ranking[type as SessionType];
+
+        if (rank !== null) {
+            rankedItems.push({
+                type: type.toUpperCase(),
+                rank: rank,
+            });
+        }
+    }
+    rankedItems.sort((a, b) => a.rank - b.rank);
+    return {
+        sessionTypePreference1:
+            (rankedItems[0]?.type ?? "LABORATION") as CourseAssignmentConstraintsRequest["sessionTypePreference1"],
+
+        sessionTypePreference2:
+            (rankedItems[1]?.type ?? "HELP") as CourseAssignmentConstraintsRequest["sessionTypePreference2"],
+
+        sessionTypePreference3:
+            (rankedItems[2]?.type ?? "EXERCISE") as CourseAssignmentConstraintsRequest["sessionTypePreference3"],
+
+        sessionTypePreference4:
+            (rankedItems[3]?.type ?? "GRADING") as CourseAssignmentConstraintsRequest["sessionTypePreference4"],
+    };
+}
+
+export function AddTAConstraintsPopUp({
+                                          isOpen,
+                                          onClose,
+                                          form,
+                                          setForm,
+                                          hardTimeSlots,
+                                          setHardTimeSlots,
+                                          softTimeSlots,
+                                          setSoftTimeSlots,
+                                          onSave,
+                                      }: AddTAConstraintsPopUpProps) {
     const [enabled, setEnabled] = useState<Record<ConstraintKind, boolean>>({
         timeSlotsCantWork: false,
         timeSlotsCantWorkSoft: false,
@@ -81,17 +150,16 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
         compactSchedule: false,
     });
 
-    const [ranking, setRanking] = useState<RankingState>(initialRanking);
-    const [timeSlotsCantWork, setTimeSlotsCantWork] = useState<TimeSlot[]>([]);
-    const [timeSlotsCantWorkSoft, setTimeSlotsCantWorkSoft] = useState<TimeSlot[]>([]);
-    const [compactSchedule, setCompactSchedule] = useState<boolean>(true);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const ranking = useMemo(() => preferencesToRanking(form), [form]);
 
     const availableKinds = useMemo(() => {
         const allKinds: ConstraintKind[] = [
             "timeSlotsCantWork",
             "timeSlotsCantWorkSoft",
             "sessionPreference",
-            "compactSchedule"
+            "compactSchedule",
         ];
         return allKinds.filter((k) => !enabled[k]);
     }, [enabled]);
@@ -115,73 +183,96 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
         if (!isOpen) return;
 
         setEnabled({
-            timeSlotsCantWork: false,
-            timeSlotsCantWorkSoft: false,
-            sessionPreference: false,
-            compactSchedule: false,
+            timeSlotsCantWork: hardTimeSlots.length > 0,
+            timeSlotsCantWorkSoft: softTimeSlots.length > 0,
+            sessionPreference: true,
+            compactSchedule: true,
         });
-
-        setRanking(initialRanking);
-        setTimeSlotsCantWork([]);
-        setTimeSlotsCantWorkSoft([]);
-        setCompactSchedule(true);
-    }, [isOpen]);
+    }, [isOpen, hardTimeSlots.length, softTimeSlots.length]);
 
     if (!isOpen) return null;
 
     const addConstraint = (kind: ConstraintKind) => {
         setEnabled((prev) => ({ ...prev, [kind]: true }));
 
-        if (kind === "timeSlotsCantWork") {
-            setTimeSlotsCantWork([{ id: uid(), day: "Mon", start: "08:00", end: "10:00" }]);
+        if (kind === "timeSlotsCantWork" && hardTimeSlots.length === 0) {
+            setHardTimeSlots([{ id: uid(), day: "Mon", start: "08:00", end: "10:00" }]);
         }
-        if (kind === "timeSlotsCantWorkSoft"){
-            setTimeSlotsCantWorkSoft([{ id: uid(), day: "Mon", start: "08:00", end: "10:00" }])
+
+        if (kind === "timeSlotsCantWorkSoft" && softTimeSlots.length === 0) {
+            setSoftTimeSlots([{ id: uid(), day: "Mon", start: "08:00", end: "10:00" }]);
         }
     };
 
     const removeConstraint = (kind: ConstraintKind) => {
         setEnabled((prev) => ({ ...prev, [kind]: false }));
 
-        if (kind === "timeSlotsCantWork") setTimeSlotsCantWork([]);
-        if (kind === "timeSlotsCantWorkSoft") setTimeSlotsCantWorkSoft([]);
-        if (kind === "compactSchedule") setCompactSchedule(true);
+        if (kind === "timeSlotsCantWork") {
+            setHardTimeSlots([]);
+        }
+
+        if (kind === "timeSlotsCantWorkSoft") {
+            setSoftTimeSlots([]);
+        }
+
+        if (kind === "compactSchedule") {
+            setForm((prev) => ({
+                ...prev,
+                isCompactSchedule: false,
+            }));
+        }
+
+        if (kind === "sessionPreference") {
+            setForm((prev) => ({
+                ...prev,
+                sessionTypePreference1: "LABORATION",
+                sessionTypePreference2: "HELP",
+                sessionTypePreference3: "EXERCISE",
+                sessionTypePreference4: "GRADING",
+            }));
+        }
     };
 
-    const addTimeSlotRowTimeSlotsCantWork = () => {
-        setTimeSlotsCantWork((prev) => [
+    const addHardTimeSlotRow = () => {
+        setHardTimeSlots((prev) => [
             ...prev,
             { id: uid(), day: "Mon", start: "08:00", end: "10:00" },
         ]);
     };
 
-    const addTimeSlotRowTimeSlotsCantWorkSoft = () => {
-        setTimeSlotsCantWorkSoft((prev) => [
+    const addSoftTimeSlotRow = () => {
+        setSoftTimeSlots((prev) => [
             ...prev,
             { id: uid(), day: "Mon", start: "08:00", end: "10:00" },
-        ])
-    }
-
-    const removeTimeSlotRowTimeSlotsCantWork = (id: string) => {
-        setTimeSlotsCantWork((prev) => prev.filter((x) => x.id !== id));
+        ]);
     };
 
-    const removeTimeSlotRowTimeSlotsCantWorkSoft = (id: string) => {
-        setTimeSlotsCantWorkSoft((prev) => prev.filter((x) => x.id !== id));
+    const removeHardTimeSlotRow = (id: string) => {
+        setHardTimeSlots((prev) => prev.filter((x) => x.id !== id));
     };
 
-
-    const updateTimeSlotTimeSlotsCantWork = (id: string, patch: Partial<TimeSlot>) => {
-        setTimeSlotsCantWork((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+    const removeSoftTimeSlotRow = (id: string) => {
+        setSoftTimeSlots((prev) => prev.filter((x) => x.id !== id));
     };
 
-    const updateTimeSlotTimeSlotsCantWorkSoft = (id: string, patch: Partial<TimeSlot>) => {
-        setTimeSlotsCantWorkSoft((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+    const updateHardTimeSlot = (id: string, patch: Partial<TimeSlot>) => {
+        setHardTimeSlots((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
     };
 
-    const handleSave = () => {
-        // later send to backend
-        handleClose();
+    const updateSoftTimeSlot = (id: string, patch: Partial<TimeSlot>) => {
+        setSoftTimeSlots((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+    };
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await onSave();
+            handleClose();
+        } catch (error) {
+            console.error("Failed to save popup constraints", error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -237,8 +328,8 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
                                 </select>
 
                                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400">
-                <ChevronDown className="h-4 w-4" />
-              </span>
+                                    <ChevronDown className="h-4 w-4" />
+                                </span>
                             </div>
 
                             <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500">
@@ -249,15 +340,23 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                         {enabled.sessionPreference && (
                             <SectionShell
-                            title="Session Preference"
-                            onRemove={() => removeConstraint("sessionPreference")}
-                            className="md:col-span-2" >
-                                <SessionTypeRanker value={ranking} onChange={setRanking} />
+                                title="Session Preference"
+                                onRemove={() => removeConstraint("sessionPreference")}
+                                className="md:col-span-2"
+                            >
+                                <SessionTypeRanker
+                                    value={ranking}
+                                    onChange={(nextRanking) => {
+                                        const prefs = rankingToPreferences(nextRanking);
+                                        setForm((prev) => ({
+                                            ...prev,
+                                            ...prefs,
+                                        }));
+                                    }}
+                                />
                             </SectionShell>
-
                         )}
 
                         {enabled.compactSchedule && (
@@ -269,7 +368,7 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
                                 <div className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
                                     <div>
                                         <p className="text-sm font-medium text-slate-900">
-                                            {compactSchedule ? "Compact schedule" : "Spread out schedule"}
+                                            {form.isCompactSchedule ? "Compact schedule" : "Spread out schedule"}
                                         </p>
                                         <p className="text-xs text-slate-500">
                                             Toggle how tightly you prefer sessions scheduled.
@@ -278,19 +377,24 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
 
                                     <button
                                         type="button"
-                                        onClick={() => setCompactSchedule((v) => !v)}
+                                        onClick={() =>
+                                            setForm((prev) => ({
+                                                ...prev,
+                                                isCompactSchedule: !prev.isCompactSchedule,
+                                            }))
+                                        }
                                         className={[
                                             "relative inline-flex h-8 w-14 items-center rounded-full transition",
-                                            compactSchedule ? "bg-[#003b5c]" : "bg-slate-300",
+                                            form.isCompactSchedule ? "bg-[#003b5c]" : "bg-slate-300",
                                         ].join(" ")}
-                                        aria-pressed={compactSchedule}
+                                        aria-pressed={form.isCompactSchedule}
                                     >
-                  <span
-                      className={[
-                          "inline-block h-6 w-6 transform rounded-full bg-white transition",
-                          compactSchedule ? "translate-x-7" : "translate-x-1",
-                      ].join(" ")}
-                  />
+                                        <span
+                                            className={[
+                                                "inline-block h-6 w-6 transform rounded-full bg-white transition",
+                                                form.isCompactSchedule ? "translate-x-7" : "translate-x-1",
+                                            ].join(" ")}
+                                        />
                                     </button>
                                 </div>
                             </SectionShell>
@@ -303,14 +407,16 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
                                 className="md:col-span-2"
                             >
                                 <div className="space-y-3">
-                                    {timeSlotsCantWorkSoft.map((slot) => (
+                                    {softTimeSlots.map((slot) => (
                                         <div
                                             key={slot.id}
                                             className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center"
                                         >
                                             <select
                                                 value={slot.day}
-                                                onChange={(e) => updateTimeSlotTimeSlotsCantWorkSoft(slot.id, { day: e.target.value as Day })}
+                                                onChange={(e) =>
+                                                    updateSoftTimeSlot(slot.id, { day: e.target.value as Day })
+                                                }
                                                 className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c] sm:w-28"
                                             >
                                                 {dayOptions.map((d) => (
@@ -324,21 +430,25 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
                                                 <input
                                                     type="time"
                                                     value={slot.start}
-                                                    onChange={(e) => updateTimeSlotTimeSlotsCantWorkSoft(slot.id, { start: e.target.value })}
+                                                    onChange={(e) =>
+                                                        updateSoftTimeSlot(slot.id, { start: e.target.value })
+                                                    }
                                                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
                                                 />
                                                 <span className="text-sm text-slate-500">to</span>
                                                 <input
                                                     type="time"
                                                     value={slot.end}
-                                                    onChange={(e) => updateTimeSlotTimeSlotsCantWorkSoft(slot.id, { end: e.target.value })}
+                                                    onChange={(e) =>
+                                                        updateSoftTimeSlot(slot.id, { end: e.target.value })
+                                                    }
                                                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
                                                 />
                                             </div>
 
                                             <button
                                                 type="button"
-                                                onClick={() => removeTimeSlotRowTimeSlotsCantWorkSoft(slot.id)}
+                                                onClick={() => removeSoftTimeSlotRow(slot.id)}
                                                 className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
                                                 aria-label="Remove timeslot"
                                             >
@@ -349,14 +459,13 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
 
                                     <button
                                         type="button"
-                                        onClick={addTimeSlotRowTimeSlotsCantWorkSoft}
+                                        onClick={addSoftTimeSlotRow}
                                         className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#003b5c] hover:text-[#003b5c]"
                                     >
                                         <Plus className="h-4 w-4" />
                                         Add timeslot
                                     </button>
                                 </div>
-
                             </SectionShell>
                         )}
 
@@ -367,14 +476,16 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
                                 className="md:col-span-2"
                             >
                                 <div className="space-y-3">
-                                    {timeSlotsCantWork.map((slot) => (
+                                    {hardTimeSlots.map((slot) => (
                                         <div
                                             key={slot.id}
                                             className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center"
                                         >
                                             <select
                                                 value={slot.day}
-                                                onChange={(e) => updateTimeSlotTimeSlotsCantWork(slot.id, { day: e.target.value as Day })}
+                                                onChange={(e) =>
+                                                    updateHardTimeSlot(slot.id, { day: e.target.value as Day })
+                                                }
                                                 className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c] sm:w-28"
                                             >
                                                 {dayOptions.map((d) => (
@@ -388,21 +499,25 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
                                                 <input
                                                     type="time"
                                                     value={slot.start}
-                                                    onChange={(e) => updateTimeSlotTimeSlotsCantWork(slot.id, { start: e.target.value })}
+                                                    onChange={(e) =>
+                                                        updateHardTimeSlot(slot.id, { start: e.target.value })
+                                                    }
                                                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
                                                 />
                                                 <span className="text-sm text-slate-500">to</span>
                                                 <input
                                                     type="time"
                                                     value={slot.end}
-                                                    onChange={(e) => updateTimeSlotTimeSlotsCantWork(slot.id, { end: e.target.value })}
+                                                    onChange={(e) =>
+                                                        updateHardTimeSlot(slot.id, { end: e.target.value })
+                                                    }
                                                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
                                                 />
                                             </div>
 
                                             <button
                                                 type="button"
-                                                onClick={() => removeTimeSlotRowTimeSlotsCantWork(slot.id)}
+                                                onClick={() => removeHardTimeSlotRow(slot.id)}
                                                 className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
                                                 aria-label="Remove timeslot"
                                             >
@@ -413,7 +528,7 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
 
                                     <button
                                         type="button"
-                                        onClick={addTimeSlotRowTimeSlotsCantWork}
+                                        onClick={addHardTimeSlotRow}
                                         className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#003b5c] hover:text-[#003b5c]"
                                     >
                                         <Plus className="h-4 w-4" />
@@ -438,9 +553,10 @@ export function AddTAConstraintsPopUp({ isOpen, onClose }: AddTAConstraintsPopUp
                         <button
                             type="button"
                             onClick={handleSave}
-                            className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49]"
+                            disabled={isSaving}
+                            className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                         >
-                            Save constraints
+                            {isSaving ? "Saving..." : "Save constraints"}
                         </button>
                     </div>
                 </div>
