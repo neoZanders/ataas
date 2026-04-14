@@ -27,52 +27,53 @@ export type CourseAssignmentConstraintsResponse = {
     isCompactSchedule: boolean;
 }
 
-export type getTAConstraintsTimeSlotsResponse = {
+export type TAConstraintsTimeSlotsResponse = {
     taCourseSessionConstraintId: string;
     courseId: string;
     taId: string;
     constraintType: "SOFT" | "HARD";
     startDateTime: string;
     endDateTime: string;
-    weeklyRecurring: number;
+    weeklyRecurring: boolean;
 }
 
-export type createTAConstraintsTimeSlotsRequest = {
+export type TAConstraintsTimeSlotsRequest = {
     constraintType: "SOFT" | "HARD";
     startDateTime: string;
     endDateTime: string;
     isWeeklyRecurring: boolean;
 }
 
-export type getCourseAssignmentConstraintsResponse = {
-    taCourseAssignmentId: string;
-    ta: UserResponse;
-    status: "OWNER" | "JOINED" | "INVITED" | string;
-    minHours: number;
-    maxHours: number;
-    sessionTypePreference1: CourseSessionType;
-    sessionTypePreference2: CourseSessionType;
-    sessionTypePreference3: CourseSessionType;
-    sessionTypePreference4: CourseSessionType;
-    isCompactSchedule: boolean;
-}
 
 export async function getCourseAssignmentConstraints(
     taId: string,
     courseId: string,
     accessToken: string | null,
-):Promise<getCourseAssignmentConstraintsResponse>
+):Promise<CourseAssignmentConstraintsResponse>
 {
-    return authFetchJson<getCourseAssignmentConstraintsResponse>(
+    return authFetchJson<CourseAssignmentConstraintsResponse>(
         `/api/courses/${courseId}/course-assignments/tas/${taId}/details`, accessToken, {
             method: "GET",
+        });
+}
+
+export async function updateTAConstraintsTimeSlots(
+    courseId: string,
+    accessToken: string | null,
+    taCourseSessionConstraintId: string,
+    req: TAConstraintsTimeSlotsRequest
+):Promise<TAConstraintsTimeSlotsResponse>{
+    return authFetchJson<TAConstraintsTimeSlotsResponse>(`/api/courses/${courseId}/ta-constraints/${taCourseSessionConstraintId}`,
+        accessToken, {
+            method: "PATCH",
+            body: JSON.stringify(req)
         });
 }
 
 export async function createTAConstraintsTimeSlots(
     courseId: string,
     accessToken: string | null,
-    req: createTAConstraintsTimeSlotsRequest,
+    req: TAConstraintsTimeSlotsRequest,
 ):Promise<void> {
     return authFetchJson<void>(`/api/courses/${courseId}/ta-constraints`,
         accessToken, {
@@ -97,9 +98,9 @@ export async function getTAConstraintsTimeSlots(
     courseId: string,
     taId: string,
     accessToken: string | null
-):Promise<getTAConstraintsTimeSlotsResponse[]>
+):Promise<TAConstraintsTimeSlotsResponse[]>
 {
-    return authFetchJson<getTAConstraintsTimeSlotsResponse[]>(
+    return authFetchJson<TAConstraintsTimeSlotsResponse[]>(
         `/api/courses/${courseId}/ta-constraints/${taId}`, accessToken, {
         method: "GET",
     });
