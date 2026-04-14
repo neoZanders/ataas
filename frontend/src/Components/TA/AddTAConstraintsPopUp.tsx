@@ -11,15 +11,13 @@ type ConstraintKind =
     | "sessionPreference"
     | "compactSchedule";
 
-export type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
-
 export type TimeSlot = {
     id: string;
-    day: Day;
-    start: string;
-    end: string;
+    date: string;
+    startTime: string;
+    endTime: string;
     backendId?: string;
-    isWeeklyRecurring?: boolean;
+    isWeeklyRecurring: boolean;
 };
 
 interface AddTAConstraintsPopUpProps {
@@ -38,7 +36,6 @@ interface AddTAConstraintsPopUpProps {
     onSave: () => Promise<void>;
 }
 
-const dayOptions: Day[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const kindLabel: Record<ConstraintKind, string> = {
     timeSlotsCantWork: "Timeslots you can't work",
@@ -46,10 +43,6 @@ const kindLabel: Record<ConstraintKind, string> = {
     sessionPreference: "Session type preference",
     compactSchedule: "Compact or spread out schedule",
 };
-
-function uid() {
-    return Math.random().toString(36).slice(2, 10);
-}
 
 function SectionShell({
                           title,
@@ -194,14 +187,7 @@ export function AddTAConstraintsPopUp({
 
     const addConstraint = (kind: ConstraintKind) => {
         setEnabled((prev) => ({ ...prev, [kind]: true }));
-
-        if (kind === "timeSlotsCantWork" && hardTimeSlots.length === 0) {
-            setHardTimeSlots([{ id: uid(), day: "Mon", start: "08:00", end: "10:00" }]);
-        }
-
-        if (kind === "timeSlotsCantWorkSoft" && softTimeSlots.length === 0) {
-            setSoftTimeSlots([{ id: uid(), day: "Mon", start: "08:00", end: "10:00" }]);
-        }
+        
     };
 
     const removeConstraint = (kind: ConstraintKind) => {
@@ -236,31 +222,47 @@ export function AddTAConstraintsPopUp({
     const addHardTimeSlotRow = () => {
         setHardTimeSlots((prev) => [
             ...prev,
-            { id: uid(), day: "Mon", start: "08:00", end: "10:00" },
+            {
+                id: crypto.randomUUID(),
+                date: "",
+                startTime: "",
+                endTime: "",
+                isWeeklyRecurring: false,
+            }
         ]);
     };
 
     const addSoftTimeSlotRow = () => {
         setSoftTimeSlots((prev) => [
             ...prev,
-            { id: uid(), day: "Mon", start: "08:00", end: "10:00" },
+            {
+                id: crypto.randomUUID(),
+                date: "",
+                startTime: "",
+                endTime: "",
+                isWeeklyRecurring: false,
+            }
         ]);
     };
 
     const removeHardTimeSlotRow = (id: string) => {
-        setHardTimeSlots((prev) => prev.filter((x) => x.id !== id));
+        setHardTimeSlots((prev) => prev.filter((slot) => slot.id !== id));
     };
 
     const removeSoftTimeSlotRow = (id: string) => {
-        setSoftTimeSlots((prev) => prev.filter((x) => x.id !== id));
+        setSoftTimeSlots((prev) => prev.filter((slot) => slot.id !== id));
     };
 
-    const updateHardTimeSlot = (id: string, patch: Partial<TimeSlot>) => {
-        setHardTimeSlots((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+    const updateHardTimeSlot = (id: string, updates: Partial<TimeSlot>) => {
+        setHardTimeSlots((prev) =>
+            prev.map((slot) => (slot.id === id ? { ...slot, ...updates } : slot))
+        );
     };
 
-    const updateSoftTimeSlot = (id: string, patch: Partial<TimeSlot>) => {
-        setSoftTimeSlots((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+    const updateSoftTimeSlot = (id: string, updates: Partial<TimeSlot>) => {
+        setSoftTimeSlots((prev) =>
+            prev.map((slot) => (slot.id === id ? {...slot, ...updates} : slot))
+        );
     };
 
     const handleSave = async () => {
@@ -410,50 +412,78 @@ export function AddTAConstraintsPopUp({
                                     {softTimeSlots.map((slot) => (
                                         <div
                                             key={slot.id}
-                                            className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center"
+                                            className="rounded-2xl border border-slate-200 bg-slate-50 p-3"
                                         >
-                                            <select
-                                                value={slot.day}
-                                                onChange={(e) =>
-                                                    updateSoftTimeSlot(slot.id, { day: e.target.value as Day })
-                                                }
-                                                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c] sm:w-28"
-                                            >
-                                                {dayOptions.map((d) => (
-                                                    <option key={d} value={d}>
-                                                        {d}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 flex-1">
+                                                    <div>
+                                                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                                                            Date
+                                                        </label>
+                                                        <input
+                                                            type="date"
+                                                            value={slot.date}
+                                                            onChange={(e) =>
+                                                                updateSoftTimeSlot(slot.id, { date: e.target.value })
+                                                            }
+                                                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                                        />
+                                                    </div>
 
-                                            <div className="flex w-full items-center gap-2">
-                                                <input
-                                                    type="time"
-                                                    value={slot.start}
-                                                    onChange={(e) =>
-                                                        updateSoftTimeSlot(slot.id, { start: e.target.value })
-                                                    }
-                                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
-                                                />
-                                                <span className="text-sm text-slate-500">to</span>
-                                                <input
-                                                    type="time"
-                                                    value={slot.end}
-                                                    onChange={(e) =>
-                                                        updateSoftTimeSlot(slot.id, { end: e.target.value })
-                                                    }
-                                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
-                                                />
+                                                    <div>
+                                                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                                                            Start time
+                                                        </label>
+                                                        <input
+                                                            type="time"
+                                                            value={slot.startTime}
+                                                            onChange={(e) =>
+                                                                updateSoftTimeSlot(slot.id, { startTime: e.target.value })
+                                                            }
+                                                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                                                            End time
+                                                        </label>
+                                                        <input
+                                                            type="time"
+                                                            value={slot.endTime}
+                                                            onChange={(e) =>
+                                                                updateSoftTimeSlot(slot.id, { endTime: e.target.value })
+                                                            }
+                                                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex items-center pt-6">
+                                                        <label className="inline-flex items-center gap-2 text-sm text-slate-700">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={slot.isWeeklyRecurring}
+                                                                onChange={(e) =>
+                                                                    updateSoftTimeSlot(slot.id, {
+                                                                        isWeeklyRecurring: e.target.checked,
+                                                                    })
+                                                                }
+                                                                className="h-4 w-4 rounded border-slate-300 text-[#003b5c] focus:ring-[#003b5c]"
+                                                            />
+                                                            Weekly recurring
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeSoftTimeSlotRow(slot.id)}
+                                                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                                                    aria-label="Remove timeslot"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
                                             </div>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => removeSoftTimeSlotRow(slot.id)}
-                                                className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
-                                                aria-label="Remove timeslot"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
                                         </div>
                                     ))}
 
@@ -479,50 +509,78 @@ export function AddTAConstraintsPopUp({
                                     {hardTimeSlots.map((slot) => (
                                         <div
                                             key={slot.id}
-                                            className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center"
+                                            className="rounded-2xl border border-slate-200 bg-slate-50 p-3"
                                         >
-                                            <select
-                                                value={slot.day}
-                                                onChange={(e) =>
-                                                    updateHardTimeSlot(slot.id, { day: e.target.value as Day })
-                                                }
-                                                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c] sm:w-28"
-                                            >
-                                                {dayOptions.map((d) => (
-                                                    <option key={d} value={d}>
-                                                        {d}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 flex-1">
+                                                    <div>
+                                                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                                                            Date
+                                                        </label>
+                                                        <input
+                                                            type="date"
+                                                            value={slot.date}
+                                                            onChange={(e) =>
+                                                                updateHardTimeSlot(slot.id, { date: e.target.value })
+                                                            }
+                                                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                                        />
+                                                    </div>
 
-                                            <div className="flex w-full items-center gap-2">
-                                                <input
-                                                    type="time"
-                                                    value={slot.start}
-                                                    onChange={(e) =>
-                                                        updateHardTimeSlot(slot.id, { start: e.target.value })
-                                                    }
-                                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
-                                                />
-                                                <span className="text-sm text-slate-500">to</span>
-                                                <input
-                                                    type="time"
-                                                    value={slot.end}
-                                                    onChange={(e) =>
-                                                        updateHardTimeSlot(slot.id, { end: e.target.value })
-                                                    }
-                                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
-                                                />
+                                                    <div>
+                                                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                                                            Start time
+                                                        </label>
+                                                        <input
+                                                            type="time"
+                                                            value={slot.startTime}
+                                                            onChange={(e) =>
+                                                                updateHardTimeSlot(slot.id, { startTime: e.target.value })
+                                                            }
+                                                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                                                            End time
+                                                        </label>
+                                                        <input
+                                                            type="time"
+                                                            value={slot.endTime}
+                                                            onChange={(e) =>
+                                                                updateHardTimeSlot(slot.id, { endTime: e.target.value })
+                                                            }
+                                                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex items-center pt-6">
+                                                        <label className="inline-flex items-center gap-2 text-sm text-slate-700">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={slot.isWeeklyRecurring}
+                                                                onChange={(e) =>
+                                                                    updateHardTimeSlot(slot.id, {
+                                                                        isWeeklyRecurring: e.target.checked,
+                                                                    })
+                                                                }
+                                                                className="h-4 w-4 rounded border-slate-300 text-[#003b5c] focus:ring-[#003b5c]"
+                                                            />
+                                                            Weekly recurring
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeHardTimeSlotRow(slot.id)}
+                                                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                                                    aria-label="Remove timeslot"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
                                             </div>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => removeHardTimeSlotRow(slot.id)}
-                                                className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
-                                                aria-label="Remove timeslot"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
                                         </div>
                                     ))}
 
