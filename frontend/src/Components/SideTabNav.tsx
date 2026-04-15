@@ -15,11 +15,20 @@ import { CreateCoursePopUp } from "./CreateCoursePopUp.tsx";
 import {getCourses, joinCourse} from "../api/coursesApi.ts";
 import { useCurrentCourse} from "./CurrentCourseContext.tsx";
 
-type SidebarItem = {
+type SidebarItem =
+    | {
     id: string;
     label: string;
+    type: "link";
     to: string;
     pattern?: string;
+    icon: ReactNode;
+    badgeCount?: number;
+}
+    | {
+    id: string;
+    label: string;
+    type: "action";
     icon: ReactNode;
     badgeCount?: number;
 };
@@ -55,6 +64,18 @@ function SideTabNav() {
         user?.userType === "CR" ? "/cr"
             : user?.userType === "TA" ? "/ta"
                 : "";
+
+    useEffect(() => {
+        if (!currentCourseId || apiCourseOptions.length === 0) return;
+
+        const exists = apiCourseOptions.some(
+            (option) => option.type === "course" && option.courseId === currentCourseId
+        );
+
+        if (!exists) {
+            setCurrentCourseId(null);
+        }
+    }, [apiCourseOptions, currentCourseId, setCurrentCourseId]);
 
     useEffect(() => {
         loadCourses();
@@ -99,26 +120,26 @@ function SideTabNav() {
 
     const items: SidebarItem[] = user?.userType === "CR"
         ? [
-            { id: "course", label: "Course", to: `${base}/course`, icon: <Book size={24} /> },
-            { id: "courses", label: "Courses", to: `${base}/courses`, icon: <BookCopy size={24} /> },
-            { id: "calendar", label: "Calendar", to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
-            { id: "ta list", label: "TA list", to: `${base}/talist`, icon: <Users size={24} /> },
-            { id: "constraints", label: "Constraints", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
-            { id: "announcements", label: "Announcements", to: `${base}/announcements`, icon: <Megaphone size={24} /> },
+            { id: "course", label: "Course", type: "link" , to: `${base}/course`, icon: <Book size={24} /> },
+            { id: "courses", label: "Courses", type: "action", icon: <BookCopy size={24} /> },
+            { id: "calendar", label: "Calendar", type: "link" , to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
+            { id: "ta list", label: "TA list", type: "link" , to: `${base}/talist`, icon: <Users size={24} /> },
+            { id: "constraints", label: "Constraints", type: "link", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
+            { id: "announcements", label: "Announcements", type: "link" ,  to: `${base}/announcements`, icon: <Megaphone size={24} /> },
         ]
         : user?.userType === "TA"
             ? [
-                { id: "course", label: "Course", to: `${base}/course`, icon: <Book size={24} /> },
-                { id: "courses", label: "Courses", to: `${base}/courses`, icon: <BookCopy size={24} /> },
-                { id: "calendar", label: "Calendar", to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
-                { id: "ta list", label: "TA list", to: `${base}/talist`, icon: <Users size={24} /> },
-                { id: "constraints", label: "Constraints", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
-                { id: "announcements", label: "Announcements", to: `${base}/announcements`, icon: <Megaphone size={24} /> },
+                { id: "course", label: "Course", type: "link" , to: `${base}/course`, icon: <Book size={24} /> },
+                { id: "courses", label: "Courses", type: "action", icon: <BookCopy size={24} /> },
+                { id: "calendar", label: "Calendar", type: "link" , to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
+                { id: "ta list", label: "TA list", type: "link" , to: `${base}/talist`, icon: <Users size={24} /> },
+                { id: "constraints", label: "Constraints", type: "link", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
+                { id: "announcements", label: "Announcements", type: "link" , to: `${base}/announcements`, icon: <Megaphone size={24} /> },
             ]
             : [];
 
     const isActive = (item: SidebarItem) =>
-        !!matchPath({ path: item.to, end: false }, location.pathname);
+        item.type === "link" && !!matchPath({path: item.to, end:false}, location.pathname)
 
     const isAccountActive = () =>
         location.pathname === "/account" || location.pathname === "/profile";
@@ -180,9 +201,9 @@ function SideTabNav() {
 
                 <nav className="flex flex-col">
                     {items.map((item) => {
-                        const active = isActive(item);
+                        if (item.type === "action") {
+                            const active = coursesOpen;
 
-                        if (item.id === "courses") {
                             return (
                                 <button
                                     key={item.id}
@@ -190,25 +211,25 @@ function SideTabNav() {
                                     onClick={() => setCoursesOpen((prev) => !prev)}
                                     className={[
                                         "relative w-full min-h-[78px] px-2 py-2 flex flex-col items-center justify-center gap-1.5 transition",
-                                        active || coursesOpen
-                                            ? "bg-white text-[#e85d0c]"
-                                            : "text-white hover:bg-white/5",
+                                        active ? "bg-white text-[#e85d0c]" : "text-white hover:bg-white/5",
                                     ].join(" ")}
                                 >
-                                    {(active || coursesOpen) && (
+                                    {active && (
                                         <span className="absolute left-0 top-0 h-full w-[3px] bg-[#e85d0c]" />
                                     )}
 
                                     <span className="relative inline-flex items-center justify-center">
-                                        {item.icon}
-                                    </span>
+                        {item.icon}
+                    </span>
 
                                     <span className="text-[11px] leading-none font-medium text-center">
-                                        {item.label}
-                                    </span>
+                        {item.label}
+                    </span>
                                 </button>
                             );
                         }
+
+                        const active = isActive(item);
 
                         return (
                             <Link
@@ -225,18 +246,18 @@ function SideTabNav() {
                                 )}
 
                                 <span className="relative inline-flex items-center justify-center">
-                                    {item.icon}
+                    {item.icon}
 
                                     {typeof item.badgeCount === "number" && item.badgeCount > 0 && (
                                         <span className="absolute -top-2 -right-4 min-w-[20px] h-5 px-1.5 rounded-full bg-white text-slate-800 border-2 border-[#003b5c] text-[11px] font-bold leading-none flex items-center justify-center">
-                                            {item.badgeCount}
-                                        </span>
+                            {item.badgeCount}
+                        </span>
                                     )}
-                                </span>
+                </span>
 
                                 <span className="text-[11px] leading-none font-medium text-center">
-                                    {item.label}
-                                </span>
+                    {item.label}
+                </span>
                             </Link>
                         );
                     })}

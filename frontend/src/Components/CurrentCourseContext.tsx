@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { CourseResponse } from "../api/coursesApi.ts";
 
 type CurrentCourseContextType = {
@@ -10,9 +10,28 @@ type CurrentCourseContextType = {
 
 const CurrentCourseContext = createContext<CurrentCourseContextType | undefined>(undefined);
 
+const CURRENT_COURSE_ID_KEY = "currentCourseId";
+
 export function CurrentCourseProvider({ children }: { children: ReactNode }) {
-    const [currentCourseId, setCurrentCourseId] = useState<string | null>(null);
+    const [currentCourseId, setCurrentCourseIdState] = useState<string | null>(null);
     const [currentCourse, setCurrentCourse] = useState<CourseResponse | null>(null);
+
+    useEffect(() => {
+        const savedCourseId = localStorage.getItem(CURRENT_COURSE_ID_KEY);
+        if (savedCourseId) {
+            setCurrentCourseIdState(savedCourseId);
+        }
+    }, []);
+
+    const setCurrentCourseId = (courseId: string | null) => {
+        setCurrentCourseIdState(courseId);
+
+        if (courseId) {
+            localStorage.setItem(CURRENT_COURSE_ID_KEY, courseId);
+        } else {
+            localStorage.removeItem(CURRENT_COURSE_ID_KEY);
+        }
+    };
 
     return (
         <CurrentCourseContext.Provider
