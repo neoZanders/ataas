@@ -6,102 +6,47 @@ import {
     UserCircle2,
 } from "lucide-react";
 import SideTabNav from "../SideTabNav.tsx";
-import { useMemo, useState } from "react";
+import {useEffect, useState} from "react";
+import {useAuth} from "../AuthContext.tsx";
+import {useCurrentCourse} from "../CurrentCourseContext.tsx";
+import {type CourseResponse, getCourseById} from "../../api/coursesApi.ts";
+import {
+    getListCourseMembers,
+    type taCourseAssignment
+} from "../../api/courseAssignmentApi.ts";
 
 type TARecord = {
     id: string;
     name: string;
     budgetHours: number;
-    allocatedHours: number;
-    administrationHours: number;
+
 };
 
-type SortKey = "name" | "budgetHours" | "allocatedHours" | "administrationHours";
+type SortKey = "name" | "budgetHours" ;
 type SortDirection = "asc" | "desc";
-
-// mock data will remove later
-const rows: TARecord[] = [
-    {
-        id: "1",
-        name: "Jane Doe",
-        budgetHours: 80,
-        allocatedHours: 52,
-        administrationHours: 8,
-    },
-    {
-        id: "2",
-        name: "Jane Doe",
-        budgetHours: 60,
-        allocatedHours: 41,
-        administrationHours: 6,
-    },
-    {
-        id: "3",
-        name: "Jane Doe",
-        budgetHours: 100,
-        allocatedHours: 73,
-        administrationHours: 12,
-    },
-    {
-        id: "4",
-        name: "Jane Doe",
-        budgetHours: 75,
-        allocatedHours: 30,
-        administrationHours: 5,
-    },
-    {
-        id: "5",
-        name: "Jane Doe",
-        budgetHours: 90,
-        allocatedHours: 68,
-        administrationHours: 10,
-    },
-    {
-        id: "6",
-        name: "Jane Doe",
-        budgetHours: 85,
-        allocatedHours: 49,
-        administrationHours: 9,
-    },
-];
 
 const headerButtonClass =
     "flex w-full items-center gap-2 text-left text-sm font-semibold text-slate-700 transition hover:text-[#003b5c]";
 
+
 export function TATaListPage() {
-    const [sortKey, setSortKey] = useState<SortKey>("name");
-    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+    const [sortKey ] = useState<SortKey>("name");
+    const [sortDirection] = useState<SortDirection>("asc");
 
-    const handleSort = (key: SortKey) => {
-        if (sortKey === key) {
-            setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-            return;
+    const { accessToken } = useAuth();
+    const {currentCourseId} = useCurrentCourse();
+    const [course, setCourse] = useState<CourseResponse | null>(null);
+
+    const [taList, setTaList] = useState<TARecord[]>([]);
+
+    function mapTaCourseAssignmentToUser(taMember: taCourseAssignment): TARecord {
+        return {
+            id: taMember.ta.id,
+            name: taMember.ta.name,
+            budgetHours: taMember.maxHours
         }
+    }
 
-        setSortKey(key);
-        setSortDirection("asc");
-    };
-
-    const sortedRows = useMemo(() => {
-        const sorted = [...rows];
-
-        sorted.sort((a, b) => {
-            const aValue = a[sortKey];
-            const bValue = b[sortKey];
-
-            let result = 0;
-
-            if (typeof aValue === "number" && typeof bValue === "number") {
-                result = aValue - bValue;
-            } else {
-                result = String(aValue).localeCompare(String(bValue));
-            }
-
-            return sortDirection === "asc" ? result : -result;
-        });
-
-        return sorted;
-    }, [sortKey, sortDirection]);
 
     const renderSortIcon = (key: SortKey) => {
         if (sortKey !== key) {
@@ -114,6 +59,47 @@ export function TATaListPage() {
             <ArrowDown className="h-4 w-4" />
         );
     };
+
+    useEffect(() => {
+        const loadCourse = async () => {
+            if (!currentCourseId || !accessToken) {
+                setCourse(null);
+                return;
+            }
+            try {
+                const fetchedCourse = await getCourseById(currentCourseId, accessToken);
+                setCourse(fetchedCourse);
+            } catch (error){
+                console.error("Failed to load course", error);
+                setCourse(null);
+            }
+        };
+        loadCourse();
+    }, [currentCourseId, accessToken]);
+
+    useEffect(() => {
+        const loadTAList = async () => {
+            if (!currentCourseId || !accessToken) return;
+
+            try {
+                const response = await getListCourseMembers(
+                    currentCourseId,
+                    accessToken,
+                )
+
+                const listTaCourseAssignmentSlots = response.taCourseAssignments
+
+                setTaList(
+                    listTaCourseAssignmentSlots.map(mapTaCourseAssignmentToUser)
+                );
+
+            } catch (error){
+                console.error("Failed to load list", error);
+            }
+
+        };
+        loadTAList();
+    }, [currentCourseId, accessToken]);
 
     return (
         <div className="min-h-screen bg-stone-50">
@@ -137,7 +123,6 @@ export function TATaListPage() {
                                         <div className="space-y-3">
                                             <button
                                                 type="button"
-                                                onClick={() => handleSort("name")}
                                                 className={headerButtonClass}
                                             >
                                                 TA List
@@ -160,7 +145,6 @@ export function TATaListPage() {
                                     <th className="min-w-[180px] border-b border-r border-slate-200 px-5 py-4">
                                         <button
                                             type="button"
-                                            onClick={() => handleSort("budgetHours")}
                                             className={headerButtonClass}
                                         >
                                             Budget hours
@@ -168,32 +152,11 @@ export function TATaListPage() {
                                         </button>
                                     </th>
 
-                                    <th className="min-w-[190px] border-b border-r border-slate-200 px-5 py-4">
-                                        <button
-                                            type="button"
-                                            onClick={() => handleSort("allocatedHours")}
-                                            className={headerButtonClass}
-                                        >
-                                            Allocated hours
-                                            {renderSortIcon("allocatedHours")}
-                                        </button>
-                                    </th>
-
-                                    <th className="min-w-[220px] border-b border-slate-200 px-5 py-4">
-                                        <button
-                                            type="button"
-                                            onClick={() => handleSort("administrationHours")}
-                                            className={headerButtonClass}
-                                        >
-                                            Administration hours
-                                            {renderSortIcon("administrationHours")}
-                                        </button>
-                                    </th>
                                 </tr>
                                 </thead>
 
                                 <tbody>
-                                {sortedRows.map((row, index) => (
+                                {taList.map((row, index) => (
                                     <tr
                                         key={row.id}
                                         className={index % 2 === 0 ? "bg-white" : "bg-slate-50/40"}
@@ -211,13 +174,6 @@ export function TATaListPage() {
                                             {row.budgetHours}
                                         </td>
 
-                                        <td className="border-b border-r border-slate-100 px-5 py-4 text-sm text-slate-700">
-                                            {row.allocatedHours}
-                                        </td>
-
-                                        <td className="border-b border-slate-100 px-5 py-4 text-sm text-slate-700">
-                                            {row.administrationHours}
-                                        </td>
                                     </tr>
                                 ))}
                                 </tbody>
