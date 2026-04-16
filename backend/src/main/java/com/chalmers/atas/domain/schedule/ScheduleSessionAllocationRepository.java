@@ -1,4 +1,4 @@
-package com.chalmers.atas.domain.schedule;
+ackage com.chalmers.atas.domain.schedule;
 
 import com.chalmers.atas.domain.course.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
