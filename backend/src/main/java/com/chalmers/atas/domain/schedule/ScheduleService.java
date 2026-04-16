@@ -30,7 +30,8 @@ public class ScheduleService {
 
         Course course = maybeCourse.getData();
         return TransactionalResult.ok(
-                scheduleRepository.save(Schedule.of("Schedule " + course.getCourseCode(), course))
+                scheduleRepository.findFirstByCourse(course)
+                        .orElseGet(() -> scheduleRepository.save(Schedule.of(course)))
         );
     }
 
@@ -46,7 +47,7 @@ public class ScheduleService {
         }
 
         Course course = maybeCourse.get();
-        if (!course.getCr().getUserId().equals(user.getUserId())) {
+        if (!course.getOwner().getUserId().equals(user.getUserId())) {
             return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError());
         }
 

@@ -26,7 +26,7 @@ public class Schedule implements Serializable {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    public static Schedule of(String name, Course course) {
+    public static Schedule of(Course course) {
         Schedule schedule = new Schedule();
         schedule.course = course;
         return schedule;

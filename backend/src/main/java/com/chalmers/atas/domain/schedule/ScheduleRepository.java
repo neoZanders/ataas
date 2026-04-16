@@ -8,4 +8,8 @@ import java.util.UUID;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, UUID> {
     List<Schedule> findByCourse(Course course);
+
+    java.util.Optional<Schedule> findFirstByCourse(Course course);
+
+    java.util.Optional<Schedule> findFirstByCourseCourseId(UUID courseId);
 }

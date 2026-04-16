@@ -1,8 +1,8 @@
-package com.chalmers.atas.domain.schedule;
+package com.chalmers.atas.domain.schedulesessionallocation;
 
-import com.chalmers.atas.domain.course.Course;
-import com.chalmers.atas.domain.session.Session;
-import com.chalmers.atas.domain.user.User;
+import com.chalmers.atas.domain.schedule.Schedule;
+import com.chalmers.atas.domain.coursesession.CourseSession;
+import com.chalmers.atas.domain.tacourseassignment.TACourseAssignment;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,8 +21,8 @@ import java.util.UUID;
 public class ScheduleSessionAllocation implements Serializable {
     @Id
     @GeneratedValue
-    @Column(name = "schedule_session_allocations_id", columnDefinition = "UUID")
-    private UUID scheduleSessionAllocationsId;
+    @Column(name = "schedule_session_allocation_id", columnDefinition = "UUID")
+    private UUID scheduleSessionAllocationId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "schedule_id", nullable = false)
@@ -34,12 +34,12 @@ public class ScheduleSessionAllocation implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ta_course_assignment_id", nullable = false)
-    private TaCourseAssignment taCourseAssignment;
+    private TACourseAssignment taCourseAssignment;
 
     public static ScheduleSessionAllocation of(
             Schedule schedule,
             CourseSession courseSession,
-            TaCourseAssignment taCourseAssignment
+            TACourseAssignment taCourseAssignment
     ) {
         ScheduleSessionAllocation allocation = new ScheduleSessionAllocation();
         allocation.schedule = schedule;
