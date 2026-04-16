@@ -16,6 +16,7 @@ export type TimeSlot = {
     date: string;
     startTime: string;
     endTime: string;
+    constraintType: "SOFT" | "HARD";
     backendId?: string;
     isWeeklyRecurring: boolean;
 };
@@ -227,6 +228,7 @@ export function AddTAConstraintsPopUp({
                 date: "",
                 startTime: "",
                 endTime: "",
+                constraintType: "HARD",
                 isWeeklyRecurring: false,
             }
         ]);
@@ -240,6 +242,7 @@ export function AddTAConstraintsPopUp({
                 date: "",
                 startTime: "",
                 endTime: "",
+                constraintType: "SOFT",
                 isWeeklyRecurring: false,
             }
         ]);
