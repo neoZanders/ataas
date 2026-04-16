@@ -1,7 +1,6 @@
 package com.chalmers.atas.api.taconstraint;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.chalmers.atas.common.HttpResponse;
 import com.chalmers.atas.domain.user.CurrentUser;
@@ -10,13 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,6 +38,14 @@ public class TAConstraintController {
         @RequestBody CreateTAConstraintRequest request,
         CurrentUser currentUser) {
         return HttpResponse.fromResult(taConstraintApplicationService.createTAConstraint(courseId, request, currentUser));
+    }
+
+    @PutMapping
+    public HttpResponse<List<TAConstraintResponse>> replaceTAConstraints(
+            @PathVariable UUID courseId,
+            @RequestBody ReplaceTAConstraintsRequest request,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(taConstraintApplicationService.replaceTAConstraints(courseId, request, currentUser));
     }
 
     @PatchMapping("/{taCourseSessionConstraintId}")
