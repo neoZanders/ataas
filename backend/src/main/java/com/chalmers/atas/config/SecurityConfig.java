@@ -91,6 +91,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/courses/{courseId}/ta-constraints/{taCourseSessionConstraintId}"
                         ).authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/courses/{courseId}/ta-constraints").hasRole("TA")
                         .requestMatchers("/api/courses/**").hasRole("CR")
                         .anyRequest().denyAll()
                 ).addFilterBefore(jwtAuthenticationFilter,

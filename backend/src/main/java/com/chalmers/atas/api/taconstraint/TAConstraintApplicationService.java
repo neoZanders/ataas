@@ -1,12 +1,13 @@
 package com.chalmers.atas.api.taconstraint;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import com.chalmers.atas.common.*;
+import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraint;
 import org.springframework.stereotype.Service;
 
-import com.chalmers.atas.common.ErrorCode;
-import com.chalmers.atas.common.Result;
 import com.chalmers.atas.domain.courseassignment.CourseAuthorizationService;
 import com.chalmers.atas.domain.tacourseassignment.TACourseAssignmentService;
 import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraintService;
@@ -22,6 +23,7 @@ public class TAConstraintApplicationService {
     private final TACourseSessionConstraintService taCourseSessionConstraintService;
     private final TACourseAssignmentService taCourseAssignmentService;
     private final CourseAuthorizationService courseAuthorizationService;
+    private final TransactionHandler transactionHandler;
 
     public Result<List<TAConstraintResponse>> getCourseConstraints(UUID courseId, CurrentUser currentUser){
         User user = currentUser.getUser();
@@ -73,6 +75,94 @@ public class TAConstraintApplicationService {
                                                 request.getIsWeeklyRecurring()
                                         ).map(ignored -> null)
                                 ));
+    }
+
+    public Result<List<TAConstraintResponse>> replaceTAConstraints(
+            UUID courseId,
+            ReplaceTAConstraintsRequest request,
+            CurrentUser currentUser
+    ) {
+        User user = currentUser.getUser();
+
+        if (!user.getUserType().equals(User.UserType.TA)) {
+            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
+        }
+
+        return courseAuthorizationService.assertUserIsTaOfCourse(courseId, user)
+                .flatMap(course ->
+                        taCourseAssignmentService.getAssignment(user, course)
+                                .flatMap(taCourseAssignment ->
+                                        transactionHandler.executeInTransaction(() -> {
+                                            Result<List<TACourseSessionConstraint>> existingConstraintsResult =
+                                                    taCourseSessionConstraintService.getTAConstraints(course, currentUser.getUserId());
+
+                                            if (!existingConstraintsResult.isSuccess()) {
+                                                return TransactionalResult.rollbackFor(existingConstraintsResult.getError());
+                                            }
+
+                                            Map<UUID, TACourseSessionConstraint> remainingConstraints =
+                                                    existingConstraintsResult.getData().stream()
+                                                            .collect(Collectors.toMap(
+                                                                    TACourseSessionConstraint::getTaCourseSessionConstraintId,
+                                                                    Function.identity()
+                                                            ));
+
+                                            List<TAConstraintResponse> responses = new ArrayList<>();
+
+                                            for (ReplaceTAConstraintRequest constraintRequest : request.getRequests()) {
+                                                TransactionalResult<TACourseSessionConstraint> constraintResult;
+
+                                                if (constraintRequest.getTaCourseConstraintId() == null) {
+                                                    constraintResult = taCourseSessionConstraintService.createConstraint(
+                                                            taCourseAssignment,
+                                                            constraintRequest.getConstraintType(),
+                                                            constraintRequest.getStartDateTime(),
+                                                            constraintRequest.getEndDateTime(),
+                                                            constraintRequest.getIsWeeklyRecurring()
+                                                    );
+                                                } else {
+                                                    TACourseSessionConstraint existingConstraint =
+                                                            remainingConstraints.remove(constraintRequest.getTaCourseConstraintId());
+
+                                                    if (existingConstraint == null) {
+                                                        return TransactionalResult.rollbackFor(
+                                                                ErrorCode.TA_CONSTRAINT_NOT_FOUND.toError(
+                                                                        "TA course session constraint with id="
+                                                                                + constraintRequest.getTaCourseConstraintId()
+                                                                                + " could not be found!"
+                                                                )
+                                                        );
+                                                    }
+
+                                                    constraintResult = taCourseSessionConstraintService.updateConstraint(
+                                                            existingConstraint,
+                                                            constraintRequest.getConstraintType(),
+                                                            constraintRequest.getStartDateTime(),
+                                                            constraintRequest.getEndDateTime(),
+                                                            constraintRequest.getIsWeeklyRecurring()
+                                                    );
+                                                }
+
+                                                if (!constraintResult.isSuccess()) {
+                                                    return TransactionalResult.rollbackFor(constraintResult.getError());
+                                                }
+
+                                                responses.add(TAConstraintResponse.of(constraintResult.getData()));
+                                            }
+
+                                            for (TACourseSessionConstraint constraintToDelete : remainingConstraints.values()) {
+                                                TransactionalResult<Void> deleteResult =
+                                                        taCourseSessionConstraintService.deleteConstraint(constraintToDelete);
+
+                                                if (!deleteResult.isSuccess()) {
+                                                    return TransactionalResult.rollbackFor(deleteResult.getError());
+                                                }
+                                            }
+
+                                            return TransactionalResult.ok(responses);
+                                        })
+                                )
+                );
     }
 
     public Result<TAConstraintResponse> updateTAConstraint(
