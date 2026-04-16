@@ -1,6 +1,6 @@
 package com.chalmers.atas.api.schedule;
 
-import com.chalmers.atas.domain.schedule.ScheduleSessionAllocation;
+import com.chalmers.atas.domain.schedulesessionallocation.ScheduleSessionAllocation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,17 +10,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ScheduleSessionAllocationResponse {
 
-    private UUID allocationId;
-    private UUID courseId;
-    private UUID sessionId;
-    private UUID taId;
+    private UUID scheduleSessionAllocationId;
+    private UUID scheduleId;
+    private UUID courseSessionId;
+    private UUID taCourseAssignmentId;
 
     public static ScheduleSessionAllocationResponse of(ScheduleSessionAllocation allocation) {
         return new ScheduleSessionAllocationResponse(
-                allocation.getAllocationId(),
-                allocation.getCourse().getCourseId(),
-                allocation.getSession().getSessionId(),
-                allocation.getTA().getUserId()
+                allocation.getScheduleSessionAllocationId(),
+                allocation.getSchedule().getScheduleId(),
+                allocation.getCourseSession().getCourseSessionId(),
+                allocation.getTaCourseAssignment().getTaCourseAssignmentId()
         );
     }
 }
