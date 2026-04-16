@@ -1,40 +1,32 @@
 import SideTabNav from "../SideTabNav.tsx";
 import { Plus } from "lucide-react";
 import {useEffect, useState} from "react";
-import { AddTAConstraintsPopUp } from "./AddTAConstraintsPopUp.tsx";
+import {AddTAConstraintsPopUp, type TimeSlot} from "./AddTAConstraintsPopUp.tsx";
 import { useAuth } from "../AuthContext.tsx";
 import { useCurrentCourse } from "../CurrentCourseContext.tsx";
 import {
     type CourseAssignmentConstraintsRequest,
     createTAConstraintNotASession,
-    getCourseAssignmentConstraints, getTAConstraintsTimeSlots,
+    getCourseAssignmentConstraints,
+    getTAConstraintsTimeSlots,
+    putTAConstraintsTimeSlots, type PutTAConstraintsTimeSlotsRequest, type TAConstraintsTimeSlotsResponse,
+
 } from "../../api/taConstraintsApi.ts";
 import {type CourseResponse, getCourseById} from "../../api/coursesApi.ts";
-
-type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
-
-type UITimeSlot = {
-    id: string;
-    day: Day;
-    start: string;
-    end: string;
-    constraintType: "HARD" | "SOFT";
-    backendId?: string;
-    isWeeklyRecurring?: boolean;
-};
 
 export function TAConstraintsPage() {
     const { accessToken, user } = useAuth();
     const { currentCourseId } = useCurrentCourse();
     const [course, setCourse] = useState<CourseResponse | null>(null);
 
-    const [hardTimeSlots, setHardTimeSlots] = useState<UITimeSlot[]>([]);
-    const [softTimeSlots, setSoftTimeSlots] = useState<UITimeSlot[]>([]);
-
     const [isPopUpOpen, setIsPopUpOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+
+    const [hardTimeSlots, setHardTimeSlots] = useState<TimeSlot[]>([]);
+    const [softTimeSlots, setSoftTimeSlots] = useState<TimeSlot[]>([]);
+
 
     const [form, setForm] = useState<CourseAssignmentConstraintsRequest>({
         minHours: 0,
@@ -46,9 +38,57 @@ export function TAConstraintsPage() {
         isCompactSchedule: false,
     });
 
+    // from backend res to UI
+    function mapResponseToTimeSlot(slot: TAConstraintsTimeSlotsResponse): TimeSlot {
+        return {
+            id: slot.taCourseSessionConstraintId,
+            backendId: slot.taCourseSessionConstraintId,
+            constraintType: slot.constraintType,
+            date: toLocalDateInputValue(slot.startDateTime),
+            startTime: toLocalTimeInputValue(slot.startDateTime),
+            endTime: toLocalTimeInputValue(slot.endDateTime),
+            isWeeklyRecurring: slot.isWeeklyRecurring,
+        };
+    }
+
+    // from UI to backend
+    function mapTimeSlotsToPutRequest(
+        hardTimeSlots: TimeSlot[],
+        softTimeSlots: TimeSlot[]
+    ): PutTAConstraintsTimeSlotsRequest {
+        const allSlots = [...hardTimeSlots, ...softTimeSlots];
+
+        return {
+            requests: allSlots.map((slot) => ({
+                taCourseConstraintId: slot.backendId || undefined,
+                constraintType: slot.constraintType,
+                startDateTime: combineDateAndTime(slot.date, slot.startTime),
+                endDateTime: combineDateAndTime(slot.date, slot.endTime),
+                isWeeklyRecurring: slot.isWeeklyRecurring,
+            })),
+        };
+    }
+
+    function toLocalDateInputValue(dateTime: string): string {
+        return dateTime.slice(0, 10);
+    }
+
+    function toLocalTimeInputValue(dateTime: string): string {
+        return dateTime.slice(11, 16);
+    }
+
+    function combineDateAndTime(date: string, time: string): string {
+        return `${date}T${time}:00`;
+    }
+
     const handleSaveConstraints = async () => {
         if (!currentCourseId) {
             setSaveError("No course selected, go to courses and select a course!");
+            return;
+        }
+
+        if (!user?.id) {
+            setSaveError("No user found.");
             return;
         }
 
@@ -60,7 +100,7 @@ export function TAConstraintsPage() {
             const response = await createTAConstraintNotASession(
                 form,
                 currentCourseId,
-                user?.id,
+                user.id,
                 accessToken
             );
 
@@ -73,6 +113,23 @@ export function TAConstraintsPage() {
                 sessionTypePreference4: response.sessionTypePreference4,
                 isCompactSchedule: response.isCompactSchedule,
             });
+
+            const timeSlotRequest = mapTimeSlotsToPutRequest(hardTimeSlots, softTimeSlots);
+
+            const savedTimeSlots = await putTAConstraintsTimeSlots(
+                currentCourseId,
+                accessToken,
+                timeSlotRequest
+            );
+
+            const mappedSavedSlots = savedTimeSlots.map(mapResponseToTimeSlot);
+
+            setHardTimeSlots(
+                mappedSavedSlots.filter((slot) => slot.constraintType === "HARD")
+            );
+            setSoftTimeSlots(
+                mappedSavedSlots.filter((slot) => slot.constraintType === "SOFT")
+            );
 
             setSaveSuccess("Constraints saved.");
         } catch (error) {
@@ -141,40 +198,14 @@ export function TAConstraintsPage() {
                     accessToken
                 );
 
-                const hard: UITimeSlot[] = [];
-                const soft: UITimeSlot[] = [];
+                const mappedSlots = response.map(mapResponseToTimeSlot);
 
-                for (const item of response) {
-                    const start = new Date(item.startDateTime);
-                    const end = new Date(item.endDateTime);
-
-                    const uiSlot: UITimeSlot = {
-                        id: item.taCourseSessionConstraintId,
-                        backendId: item.taCourseSessionConstraintId,
-                        day: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][start.getDay()] as Day,
-                        start: start.toLocaleTimeString("sv-SE", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: false,
-                        }),
-                        end: end.toLocaleTimeString("sv-SE", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: false,
-                        }),
-                        constraintType: item.constraintType,
-                        isWeeklyRecurring: !!item.weeklyRecurring,
-                    };
-
-                    if (item.constraintType === "HARD") {
-                        hard.push(uiSlot);
-                    } else {
-                        soft.push(uiSlot);
-                    }
-                }
-
-                setHardTimeSlots(hard);
-                setSoftTimeSlots(soft);
+                setHardTimeSlots(
+                    mappedSlots.filter((slot) => slot.constraintType === "HARD")
+                );
+                setSoftTimeSlots(
+                    mappedSlots.filter((slot) => slot.constraintType === "SOFT")
+                );
             } catch (error) {
                 console.error("Failed to load timeslot constraints", error);
             }
@@ -336,7 +367,7 @@ export function TAConstraintsPage() {
                                         className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
                                     >
                                         <p className="text-sm text-slate-700">
-                                            <span className="font-semibold">{slot.day}</span> {slot.start}–{slot.end}
+                                            <span className="font-semibold">{slot.date}</span> {slot.startTime}–{slot.endTime}
                                         </p>
                                         {slot.isWeeklyRecurring && (
                                             <p className="mt-1 text-xs text-slate-500">Weekly recurring</p>
@@ -365,7 +396,7 @@ export function TAConstraintsPage() {
                                         className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
                                     >
                                         <p className="text-sm text-slate-700">
-                                            <span className="font-semibold">{slot.day}</span> {slot.start}–{slot.end}
+                                            <span className="font-semibold">{slot.date}</span> {slot.startTime}–{slot.endTime}
                                         </p>
                                         {slot.isWeeklyRecurring && (
                                             <p className="mt-1 text-xs text-slate-500">Weekly recurring</p>
