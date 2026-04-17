@@ -1,6 +1,8 @@
 package com.chalmers.atas.domain.tacourseassignment;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +83,34 @@ public class TACourseAssignmentService {
             );
         }
 
+        Integer updatedMinHours = minHours != null ? minHours : taCourseAssignment.getMinHours();
+        Integer updatedMaxHours = maxHours != null ? maxHours : taCourseAssignment.getMaxHours();
+        CourseSessionType updatedPreference1 =
+            sessionTypePreference1 != null ? sessionTypePreference1 : taCourseAssignment.getSessionTypePreference1();
+        CourseSessionType updatedPreference2 =
+            sessionTypePreference2 != null ? sessionTypePreference2 : taCourseAssignment.getSessionTypePreference2();
+        CourseSessionType updatedPreference3 =
+            sessionTypePreference3 != null ? sessionTypePreference3 : taCourseAssignment.getSessionTypePreference3();
+        CourseSessionType updatedPreference4 =
+            sessionTypePreference4 != null ? sessionTypePreference4 : taCourseAssignment.getSessionTypePreference4();
+
+        if (updatedMinHours != null && updatedMaxHours != null && updatedMaxHours < updatedMinHours) {
+            return TransactionalResult.rollbackFor(
+                ErrorCode.BAD_REQUEST.toError("maxHours cannot be less than minHours")
+            );
+        }
+
+        if (hasDuplicatePreferences(
+                updatedPreference1,
+                updatedPreference2,
+                updatedPreference3,
+                updatedPreference4
+        )) {
+            return TransactionalResult.rollbackFor(
+                ErrorCode.BAD_REQUEST.toError("session type preferences must be unique")
+            );
+        }
+
         if (minHours != null) {
             taCourseAssignment.setMinHours(minHours);
         }
@@ -104,6 +134,16 @@ public class TACourseAssignmentService {
         }
 
         return TransactionalResult.ok(taCourseAssignmentRepository.save(taCourseAssignment));
+    }
+
+    private boolean hasDuplicatePreferences(CourseSessionType... preferences) {
+        Set<CourseSessionType> seenPreferences = new HashSet<>();
+        for (CourseSessionType preference : preferences) {
+            if (preference != null && !seenPreferences.add(preference)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Result<List<TACourseAssignment>> getCourseAssignments(Course course){
