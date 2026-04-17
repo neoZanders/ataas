@@ -877,5 +877,77 @@ public class DataInitializer {
                 "We are going to have our first meeting in the course, to make this easier for everyone, " +
                         "we can meet at lunch Monday 12-13, if anyone can’t make it please contact me asap.",
                 true));
+
+
+
+
+        // STA888 Course
+        // Users
+        User olivia = User.of(
+                "oli@student.test.se",
+                passwordEncoder.encode("olivia123"),
+                "Olívia",
+                User.UserType.TA
+                );
+        userRepository.save(olivia);
+
+        User zephyrus = User.of(
+                "zep@student.test.se",
+                passwordEncoder.encode("zephyrus123"),
+                "Zephyrus",
+                User.UserType.TA
+                );
+        userRepository.save(zephyrus);
+
+        // Course
+        Course sta888 = Course.of(
+                "STA888",
+                sebastiaanCR,
+                "STARS",
+                true,
+                true,
+                LocalDate.of(2026, 3, 23),
+                LocalDate.of(2026, 6, 6)
+        );
+        courseRepository.save(sta888);
+
+        // CRCourseAssignments
+        crCourseAssignmentRepository.save(CRCourseAssignment.of(
+                sebastiaanCR,
+                sta888,
+                CourseAssignmentStatus.OWNER
+        ));
+
+        // TACourseAssignment
+
+        TACourseAssignment oliTAAssignment = TACourseAssignment.of(
+                olivia,
+                sta888,
+                CourseAssignmentStatus.INVITED,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        taCourseAssignmentRepository.save(oliTAAssignment);
+
+        TACourseAssignment zepTAAssignment = TACourseAssignment.of(
+                zephyrus,
+                sta888,
+                CourseAssignmentStatus.INVITED,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        taCourseAssignmentRepository.save(zepTAAssignment);
+        
+
     }
 }
