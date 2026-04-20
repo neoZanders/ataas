@@ -1,5 +1,5 @@
-
 # General
+.secrets/*
 
 # OS junk
 .DS_Store
