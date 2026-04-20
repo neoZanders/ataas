@@ -11,6 +11,7 @@ import com.chalmers.atas.algorithm.model.AlgorithmTA;
 import com.chalmers.atas.algorithm.model.AlgorithmTimeInterval;
 import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
+import com.chalmers.atas.common.TransactionHandler;
 import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.coursesession.CourseSession;
 import com.chalmers.atas.domain.coursesession.CourseSessionService;
@@ -23,7 +24,7 @@ import com.chalmers.atas.domain.tacourseassignment.TACourseAssignmentService;
 import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraint;
 import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraintService;
 import com.chalmers.atas.domain.user.CurrentUser;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -34,18 +35,41 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ScheduleApplicationService {
 
     private final List<AlgorithmService> algorithmServices;
+    private final AlgorithmType algorithmType;
+    private final int softConstraintWeight;
     private final CourseSessionService courseSessionService;
     private final ScheduleService scheduleService;
     private final ScheduleSessionAllocationService scheduleSessionAllocationService;
     private final TACourseAssignmentService taCourseAssignmentService;
     private final TACourseSessionConstraintService taCourseSessionConstraintService;
+    private final TransactionHandler transactionHandler;
+
+    public ScheduleApplicationService(
+            List<AlgorithmService> algorithmServices,
+            @Value("${app.alg.type:NAIVE_CHOCO}") AlgorithmType algorithmType,
+            @Value("${app.alg.soft-constraint-weight:1}") int softConstraintWeight,
+            CourseSessionService courseSessionService,
+            ScheduleService scheduleService,
+            ScheduleSessionAllocationService scheduleSessionAllocationService,
+            TACourseAssignmentService taCourseAssignmentService,
+            TACourseSessionConstraintService taCourseSessionConstraintService,
+            TransactionHandler transactionHandler
+    ) {
+        this.algorithmServices = algorithmServices;
+        this.algorithmType = algorithmType;
+        this.softConstraintWeight = softConstraintWeight;
+        this.courseSessionService = courseSessionService;
+        this.scheduleService = scheduleService;
+        this.scheduleSessionAllocationService = scheduleSessionAllocationService;
+        this.taCourseAssignmentService = taCourseAssignmentService;
+        this.taCourseSessionConstraintService = taCourseSessionConstraintService;
+        this.transactionHandler = transactionHandler;
+    }
 
     public Result<ScheduleResponse> createSchedule(
-            CreateScheduleRequest request,
             UUID courseId,
             CurrentUser currentUser) {
         AlgorithmService algorithmService = resolveChocoAlgorithmService();
@@ -53,40 +77,43 @@ public class ScheduleApplicationService {
             return Result.error(ErrorCode.INTERNAL_SERVER_ERROR.toError("No Choco algorithm service configured"));
         }
 
-        return scheduleService.createSchedule(courseId, currentUser.getUser())
-                .flatMap(schedule -> courseSessionService.getCourseSessions(courseId)
-                        .flatMap(courseSessions -> {
-                            if (courseSessions.isEmpty()) {
-                                return Result.error(ErrorCode.BAD_REQUEST.toError("Course has no course sessions"));
-                            }
+        return transactionHandler.executeInTransaction(() ->
+                scheduleService.createSchedule(courseId, currentUser.getUser())
+                        .flatMap(schedule -> courseSessionService.getCourseSessions(courseId)
+                                .flatMap(courseSessions -> {
+                                    if (courseSessions.isEmpty()) {
+                                        return Result.error(ErrorCode.BAD_REQUEST.toError("Course has no course sessions"));
+                                    }
 
-                            return taCourseAssignmentService.getCourseAssignments(schedule.getCourse())
-                                    .flatMap(assignments -> {
-                                        List<TACourseAssignment> joinedAssignments = assignments.stream()
-                                                .filter(assignment -> assignment.getStatus() == CourseAssignmentStatus.JOINED)
-                                                .toList();
-                                        if (joinedAssignments.isEmpty()) {
-                                            return Result.error(ErrorCode.BAD_REQUEST.toError(
-                                                    "Course has no joined TA course assignments"));
-                                        }
+                                    return taCourseAssignmentService.getCourseAssignments(schedule.getCourse())
+                                            .flatMap(assignments -> {
+                                                List<TACourseAssignment> joinedAssignments = assignments.stream()
+                                                        .filter(assignment -> assignment.getStatus() == CourseAssignmentStatus.JOINED)
+                                                        .toList();
+                                                if (joinedAssignments.isEmpty()) {
+                                                    return Result.error(ErrorCode.BAD_REQUEST.toError(
+                                                            "Course has no joined TA course assignments"));
+                                                }
 
-                                        return taCourseSessionConstraintService.getCourseConstraints(schedule.getCourse())
-                                                .flatMap(constraints -> algorithmService
-                                                        .runAlgorithm(toAlgorithmRequest(
-                                                                courseSessions,
-                                                                joinedAssignments,
-                                                                constraints
-                                                        ))
-                                                        .flatMap(result -> saveAllocationsAndBuildResponse(
-                                                                courseId,
-                                                                currentUser,
-                                                                schedule,
-                                                                courseSessions,
-                                                                joinedAssignments,
-                                                                result
-                                                        )));
-                                    });
-                        }));
+                                                return validateHourBudgets(joinedAssignments)
+                                                        .flatMap(ignored -> taCourseSessionConstraintService.getCourseConstraints(schedule.getCourse())
+                                                                .flatMap(constraints -> algorithmService
+                                                                        .runAlgorithm(toAlgorithmRequest(
+                                                                                courseSessions,
+                                                                                joinedAssignments,
+                                                                                constraints
+                                                                        ))
+                                                                        .flatMap(result -> saveAllocationsAndBuildResponse(
+                                                                                courseId,
+                                                                                currentUser,
+                                                                                schedule,
+                                                                                courseSessions,
+                                                                                joinedAssignments,
+                                                                                result
+                                                                        ))));
+                                            });
+                                }))
+        );
     }
 
     public Result<ScheduleResponse> getSchedule(UUID courseId, CurrentUser currentUser) {
@@ -108,7 +135,7 @@ public class ScheduleApplicationService {
 
     private AlgorithmService resolveChocoAlgorithmService() {
         return algorithmServices.stream()
-                .filter(service -> service.getType() == AlgorithmType.NAIVE_CHOCO)
+                .filter(service -> service.getType() == algorithmType)
                 .findFirst()
                 .orElseGet(() -> algorithmServices.stream().findFirst().orElse(null));
     }
@@ -145,11 +172,21 @@ public class ScheduleApplicationService {
     private AlgorithmTA toAlgorithmTA(TACourseAssignment assignment) {
         return new AlgorithmTA(
                 assignment.getTaCourseAssignmentId(),
-                assignment.getMinHours() != null ? assignment.getMinHours() : 0,
-                assignment.getMaxHours() != null ? assignment.getMaxHours() : 10_000,
+                assignment.getMinHours(),
+                assignment.getMaxHours(),
                 orderedPreferences(assignment),
                 Boolean.TRUE.equals(assignment.getIsCompactSchedule())
         );
+    }
+
+    private Result<Void> validateHourBudgets(List<TACourseAssignment> assignments) {
+        for (TACourseAssignment assignment : assignments) {
+            if (assignment.getMinHours() == null || assignment.getMaxHours() == null) {
+                return Result.error(ErrorCode.BAD_REQUEST.toError(
+                        "TA course assignment is missing hour budget: " + assignment.getTaCourseAssignmentId()));
+            }
+        }
+        return Result.ok();
     }
 
     private List<CourseSession.CourseSessionType> orderedPreferences(TACourseAssignment assignment) {
@@ -179,7 +216,7 @@ public class ScheduleApplicationService {
         return new AlgorithmSoftSessionConstraint(
                 constraint.getTaCourseAssignment().getTaCourseAssignmentId(),
                 new AlgorithmTimeInterval(constraint.getStartDateTime(), constraint.getEndDateTime()),
-                1
+                softConstraintWeight
         );
     }
 
@@ -197,8 +234,8 @@ public class ScheduleApplicationService {
 
         Map<UUID, CourseSession> courseSessionById = courseSessions.stream()
                 .collect(Collectors.toMap(CourseSession::getCourseSessionId, Function.identity()));
-                        Map<UUID, TACourseAssignment> assignmentById = assignments.stream()
-                                .collect(Collectors.toMap(TACourseAssignment::getTaCourseAssignmentId, Function.identity()));
+        Map<UUID, TACourseAssignment> assignmentById = assignments.stream()
+                .collect(Collectors.toMap(TACourseAssignment::getTaCourseAssignmentId, Function.identity()));
 
         List<ScheduleSessionAllocation> allocations = algorithmResult.allocations().stream()
                 .flatMap(allocation -> allocation.taAssignmentIds().stream()
