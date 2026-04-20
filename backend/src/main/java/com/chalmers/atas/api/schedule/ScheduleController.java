@@ -23,9 +23,8 @@ public class ScheduleController {
 
     @PostMapping("/{courseId}/schedule")
     public HttpResponse<ScheduleResponse> createSchedule(
-            @RequestBody CreateScheduleRequest request,
             @PathVariable UUID courseId,
             CurrentUser currentUser) {
-        return HttpResponse.fromResult(scheduleApplicationService.createSchedule(request, courseId, currentUser));
+        return HttpResponse.fromResult(scheduleApplicationService.createSchedule(courseId, currentUser));
     }
 }
