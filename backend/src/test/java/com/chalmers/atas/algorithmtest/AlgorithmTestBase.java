@@ -322,15 +322,38 @@ public abstract class AlgorithmTestBase {
                 LocalTime.of(12, 0)
         ));
         constraints.addAll(weeklyHardConstraints(
+                yakovId, 
+                LocalDate.of(2026, 1, 20), 
+                LocalTime.of(8, 0), 
+                LocalTime.of(12, 0)
+        ));
+        constraints.addAll(weeklyHardConstraints(
                 yakovId,
                 LocalDate.of(2026, 1, 21),
                 LocalTime.of(10, 0),
                 LocalTime.of(17, 0)
         ));
+        constraints.addAll(weeklyHardConstraints(
+                yakovId,
+                LocalDate.of(2026, 1, 23),
+                LocalTime.of(8, 0),
+                LocalTime.of(12, 0)
+        ));
+        constraints.add(hardConstraint(
+                yakovId,
+                LocalDateTime.of(2026, 3, 16, 8, 0),
+                LocalDateTime.of(2026, 3, 21, 17, 0)
+        ));
 
         constraints.addAll(weeklyHardConstraints(
                 leviId,
                 LocalDate.of(2026, 1, 19),
+                LocalTime.of(10, 0),
+                LocalTime.of(15, 0)
+        ));
+        constraints.addAll(weeklyHardConstraints(
+                leviId,
+                LocalDate.of(2026, 1, 21),
                 LocalTime.of(13, 0),
                 LocalTime.of(15, 0)
         ));
@@ -363,6 +386,17 @@ public abstract class AlgorithmTestBase {
                 LocalDateTime.of(2026, 1, 30, 8, 0),
                 LocalDateTime.of(2026, 1, 30, 10, 0)
         ));
+        constraints.add(hardConstraint(
+                albericId,
+                LocalDateTime.of(2026, 3, 19, 8, 0),
+                LocalDateTime.of(2026, 3, 19, 17, 0)
+        ));
+        constraints.add(hardConstraint(
+                albericId,
+                LocalDateTime.of(2026, 3, 20, 8, 0),
+                LocalDateTime.of(2026, 3, 20, 17, 0)
+        ));
+
 
         constraints.addAll(weeklyHardConstraints(
                 phoebeId,
@@ -378,7 +412,19 @@ public abstract class AlgorithmTestBase {
         ));
         constraints.addAll(weeklyHardConstraints(
                 phoebeId,
+                LocalDate.of(2026, 1, 19),
+                LocalTime.of(13, 0),
+                LocalTime.of(15, 0)
+        ));
+        constraints.addAll(weeklyHardConstraints(
+                phoebeId,
                 LocalDate.of(2026, 1, 20),
+                LocalTime.of(13, 0),
+                LocalTime.of(15, 0)
+        ));
+        constraints.addAll(weeklyHardConstraints(
+                phoebeId,
+                LocalDate.of(2026, 1, 21),
                 LocalTime.of(13, 0),
                 LocalTime.of(15, 0)
         ));
@@ -387,6 +433,11 @@ public abstract class AlgorithmTestBase {
                 LocalDate.of(2026, 1, 23),
                 LocalTime.of(13, 0),
                 LocalTime.of(15, 0)
+        ));
+        constraints.add(hardConstraint(
+                phoebeId,
+                LocalDateTime.of(2026, 3, 16, 8, 0),
+                LocalDateTime.of(2026, 3, 21, 17, 0)
         ));
 
         constraints.addAll(weeklyHardConstraints(
@@ -449,6 +500,42 @@ public abstract class AlgorithmTestBase {
                 LocalTime.of(10, 0),
                 DEFAULT_SOFT_WEIGHT
         ));
+        constraints.add(softConstraint(
+                leviId,
+                LocalDateTime.of(2026, 3, 16, 8, 0),
+                LocalDateTime.of(2026, 3, 16, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                leviId,
+                LocalDateTime.of(2026, 3, 17, 8, 0),
+                LocalDateTime.of(2026, 3, 17, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                leviId,
+                LocalDateTime.of(2026, 3, 18, 8, 0),
+                LocalDateTime.of(2026, 3, 18, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                leviId,
+                LocalDateTime.of(2026, 3, 19, 8, 0),
+                LocalDateTime.of(2026, 3, 19, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                leviId,
+                LocalDateTime.of(2026, 3, 20, 8, 0),
+                LocalDateTime.of(2026, 3, 20, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                leviId,
+                LocalDateTime.of(2026, 3, 21, 8, 0),
+                LocalDateTime.of(2026, 3, 21, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
 
         constraints.addAll(weeklySoftConstraints(
                 albericId,
@@ -469,6 +556,30 @@ public abstract class AlgorithmTestBase {
                 LocalDate.of(2026, 1, 23),
                 LocalTime.of(13, 0),
                 LocalTime.of(17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                albericId,
+                LocalDateTime.of(2026, 3, 16, 8, 0),
+                LocalDateTime.of(2026, 3, 16, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                albericId,
+                LocalDateTime.of(2026, 3, 17, 8, 0),
+                LocalDateTime.of(2026, 3, 17, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                albericId,
+                LocalDateTime.of(2026, 3, 18, 8, 0),
+                LocalDateTime.of(2026, 3, 18, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                albericId,
+                LocalDateTime.of(2026, 3, 21, 8, 0),
+                LocalDateTime.of(2026, 3, 21, 17, 0),
                 DEFAULT_SOFT_WEIGHT
         ));
 
@@ -505,6 +616,42 @@ public abstract class AlgorithmTestBase {
                 LocalDate.of(2026, 1, 23),
                 LocalTime.of(15, 0),
                 LocalTime.of(17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                noelleId,
+                LocalDateTime.of(2026, 3, 16, 8, 0),
+                LocalDateTime.of(2026, 3, 16, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                noelleId,
+                LocalDateTime.of(2026, 3, 17, 8, 0),
+                LocalDateTime.of(2026, 3, 17, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                noelleId,
+                LocalDateTime.of(2026, 3, 18, 8, 0),
+                LocalDateTime.of(2026, 3, 18, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                noelleId,
+                LocalDateTime.of(2026, 3, 19, 8, 0),
+                LocalDateTime.of(2026, 3, 19, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                noelleId,
+                LocalDateTime.of(2026, 3, 20, 8, 0),
+                LocalDateTime.of(2026, 3, 20, 17, 0),
+                DEFAULT_SOFT_WEIGHT
+        ));
+        constraints.add(softConstraint(
+                noelleId,
+                LocalDateTime.of(2026, 3, 21, 8, 0),
+                LocalDateTime.of(2026, 3, 21, 17, 0),
                 DEFAULT_SOFT_WEIGHT
         ));
 
