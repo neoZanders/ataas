@@ -800,8 +800,8 @@ public class DataInitializer {
                 phoAssignment,
                 ConstraintType.HARD,
                 LocalDateTime.of(2026, 03, 16, 8, 00),
-                LocalDateTime.of(2026, 01, 21, 17, 00),
-                true
+                LocalDateTime.of(2026, 03, 21, 17, 00),
+                false
         ));
 
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
