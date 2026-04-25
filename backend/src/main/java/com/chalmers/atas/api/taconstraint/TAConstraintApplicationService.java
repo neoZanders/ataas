@@ -1,11 +1,15 @@
 package com.chalmers.atas.api.taconstraint;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.chalmers.atas.common.*;
 import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraint;
+import com.chalmers.atas.external.TimeEditClient;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
 import com.chalmers.atas.domain.courseassignment.CourseAuthorizationService;
@@ -23,6 +27,7 @@ public class TAConstraintApplicationService {
     private final TACourseSessionConstraintService taCourseSessionConstraintService;
     private final TACourseAssignmentService taCourseAssignmentService;
     private final CourseAuthorizationService courseAuthorizationService;
+    private final TimeEditClient timeEditClient;
     private final TransactionHandler transactionHandler;
 
     public Result<List<TAConstraintResponse>> getCourseConstraints(UUID courseId, CurrentUser currentUser){
@@ -212,4 +217,45 @@ public class TAConstraintApplicationService {
                 });
     }
 
+    public Result<List<TAConstraintResponse>> importFromTimeEdit(
+            UUID courseId,
+            ImportTimeEditTAConstraintRequest request,
+            CurrentUser currentUser
+    ) {
+        if (!currentUser.getUser().getUserType().equals(User.UserType.TA)) {
+            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
+        }
+
+        return courseAuthorizationService.assertUserIsTaOfCourse(courseId, currentUser.getUser())
+                .flatMap(course -> taCourseAssignmentService.getAssignment(currentUser.getUser(), course)
+                        .flatMap(taCourseAssignment -> timeEditClient.fetchCourseSessionStartAndEnds(
+                                                request.getCourseCode(),
+                                                course.getStartDate(),
+                                                course.getEndDate()
+                                        ).flatMap(startAndEnds -> transactionHandler.executeInTransaction(() -> {
+                                            List<TAConstraintResponse> responses = new ArrayList<>();
+
+                                            for (Pair<LocalDateTime, LocalDateTime> startAndEnd : startAndEnds) {
+                                                TransactionalResult<TAConstraintResponse> createResult =
+                                                        TransactionalResult.from(
+                                                                taCourseSessionConstraintService.createConstraint(
+                                                                        taCourseAssignment,
+                                                                        TACourseSessionConstraint.ConstraintType.HARD,
+                                                                        startAndEnd.getLeft(),
+                                                                        startAndEnd.getRight(),
+                                                                        false
+                                                                ).map(TAConstraintResponse::of)
+                                                        );
+
+                                                if (!createResult.isSuccess()) {
+                                                    return TransactionalResult.rollbackFor(createResult.getError());
+                                                }
+
+                                                responses.add(createResult.getData());
+                                            }
+
+                                            return TransactionalResult.ok(responses);
+                                        }))
+                        ));
+    }
 }
