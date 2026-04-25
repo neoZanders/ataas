@@ -37,13 +37,6 @@ export type TAConstraintsTimeSlotsResponse = {
     isWeeklyRecurring: boolean;
 }
 
-// export type TAConstraintsTimeSlotRequest = {
-//     constraintType: "SOFT" | "HARD";
-//     startDateTime: string;
-//     endDateTime: string;
-//     isWeeklyRecurring: boolean;
-// }
-
 export type PutTAConstraintsTimeSlotRequest = {
     taCourseConstraintId?: string;
     constraintType: "SOFT" | "HARD";
@@ -79,43 +72,6 @@ export async function getCourseAssignmentConstraints(
             method: "GET",
         });
 }
-
-// export async function updateTAConstraintsTimeSlots(
-//     courseId: string,
-//     accessToken: string | null,
-//     taCourseSessionConstraintId: string,
-//     req: TAConstraintsTimeSlotRequest
-// ):Promise<TAConstraintsTimeSlotsResponse>{
-//     return authFetchJson<TAConstraintsTimeSlotsResponse>(`/api/courses/${courseId}/ta-constraints/${taCourseSessionConstraintId}`,
-//         accessToken, {
-//             method: "PATCH",
-//             body: JSON.stringify(req)
-//         });
-// }
-
-// export async function createTAConstraintsTimeSlots(
-//     courseId: string,
-//     accessToken: string | null,
-//     req: TAConstraintsTimeSlotRequest,
-// ):Promise<void> {
-//     return authFetchJson<void>(`/api/courses/${courseId}/ta-constraints`,
-//         accessToken, {
-//             method: "POST",
-//             body: JSON.stringify(req)
-//         });
-// }
-
-// export async function deleteTAConstraintsTimeSlots(
-//     courseId: string,
-//     taCourseSessionConstraintId: string,
-//     accessToken: string | null,
-// ): Promise<void>
-// {
-//     return authFetchJson<void>(`/api/courses/${courseId}/ta-constraints/${taCourseSessionConstraintId}`,
-//         accessToken, {
-//         method: "DELETE",
-//     });
-// }
 
 export async function getTAConstraintsTimeSlots(
     courseId: string,

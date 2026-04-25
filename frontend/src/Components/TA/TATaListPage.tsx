@@ -12,7 +12,7 @@ import {useCurrentCourse} from "../CurrentCourseContext.tsx";
 import {type CourseResponse, getCourseById} from "../../api/coursesApi.ts";
 import {
     getListCourseMembers,
-    type taCourseAssignment
+    type TaCourseAssignment
 } from "../../api/courseAssignmentApi.ts";
 
 type TARecord = {
@@ -39,7 +39,7 @@ export function TATaListPage() {
 
     const [taList, setTaList] = useState<TARecord[]>([]);
 
-    function mapTaCourseAssignmentToUser(taMember: taCourseAssignment): TARecord {
+    function mapTaCourseAssignmentToUser(taMember: TaCourseAssignment): TARecord {
         return {
             id: taMember.ta.id,
             name: taMember.ta.name,
@@ -110,7 +110,7 @@ export function TATaListPage() {
                     <div className="mb-6 text-center">
                         <h1 className="text-3xl font-bold text-slate-900">TA List</h1>
                         <p className="mt-1 text-sm text-slate-500">
-                            Course responsible TA list overview
+                            TA list overview
                         </p>
                     </div>
 
