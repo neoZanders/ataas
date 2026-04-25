@@ -19,6 +19,7 @@ public enum ErrorCode {
     REFRESH_TOKEN_EXPIRED("REFRESH_TOKEN_EXPIRED", "Refresh token expired", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_REVOKED("REFRESH_TOKEN_REVOKED", "Refresh token revoked", HttpStatus.BAD_REQUEST),
     REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", "Refresh token not found", HttpStatus.NOT_FOUND),
+    REQUEST_TIMED_OUT("REQUEST_TIMED_OUT", "External API request timed out", HttpStatus.BAD_GATEWAY),
     SCHEDULE_INFEASIBLE("SCHEDULE_INFEASIBLE", "Schedule for course under current constraints infeasible", HttpStatus.BAD_REQUEST),
     SCHEDULE_GENERATION_TIMED_OUT("SCHEDULE_GENERATION_TIMED_OUT", "Schedule generation timed out before a feasible schedule could be found", HttpStatus.BAD_REQUEST),
     START_AFTER_END("START_AFTER_END", "Start date time is after end date time", HttpStatus.BAD_REQUEST),

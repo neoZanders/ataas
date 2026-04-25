@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Data
 public class Result<T> {
@@ -60,6 +61,14 @@ public class Result<T> {
         }
     }
 
+    public <U> Result<U> then(Supplier<Result<U>> next) {
+        if (success) {
+            return next.get();
+        } else {
+            return Result.error(error);
+        }
+    }
+
     public Result<T> peek(Consumer<? super T> action) {
         if (success) {
             action.accept(data);
@@ -75,15 +84,23 @@ public class Result<T> {
         }
     }
 
-    public T orElse(T fallback) {
+    public T orGet(T fallback) {
         return success ? data : fallback;
     }
 
-    public Result<T> orIfError(Error error, Result<T> result) {
+    public Result<T> orGetIfError(Error error, Supplier<? extends Result<T>> supplier) {
         if (success) {
             return this;
         } else {
-            return this.error.equals(error) ? result : this;
+            return this.error.getCode().equals(error.getCode()) ? supplier.get() : this;
+        }
+    }
+
+    public Result<T> orGet(Supplier<? extends Result<T>> supplier) {
+        if (success) {
+            return this;
+        } else {
+            return supplier.get();
         }
     }
 }
