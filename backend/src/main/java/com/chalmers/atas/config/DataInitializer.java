@@ -121,8 +121,8 @@ public class DataInitializer {
                 "This course is about volcano eruptions",
                 true,
                 true,
-                LocalDate.of(2026, 1, 19),
-                LocalDate.of(2026, 3, 22)
+                LocalDate.of(2026, 3, 19),
+                LocalDate.of(2026, 6, 10)
         );
         courseRepository.save(vol101);
 
