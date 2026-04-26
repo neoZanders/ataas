@@ -3,6 +3,8 @@ package com.chalmers.atas.domain.schedulesessionallocation;
 import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
+import com.chalmers.atas.domain.course.Course;
+import com.chalmers.atas.domain.courseassignment.CourseAuthorizationService;
 import com.chalmers.atas.domain.schedule.Schedule;
 import com.chalmers.atas.domain.schedule.ScheduleRepository;
 import com.chalmers.atas.domain.user.User;
@@ -18,11 +20,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ScheduleSessionAllocationService {
 
+    private final CourseAuthorizationService courseAuthorizationService;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleSessionAllocationRepository scheduleSessionAllocationRepository;
 
     public Result<List<ScheduleSessionAllocation>> getAllocations(UUID courseId, User user) {
-        return getScheduleIfOwnedByCr(courseId, user)
+        return getScheduleIfUserCanViewSchedule(courseId, user)
                 .map(scheduleSessionAllocationRepository::findBySchedule);
     }
 
@@ -61,5 +64,25 @@ public class ScheduleSessionAllocationService {
         }
 
         return Result.ok(schedule);
+    }
+
+    private Result<Schedule> getScheduleIfUserCanViewSchedule(UUID courseId, User user) {
+        Result<Course> maybeCourse;
+        if (user.getUserType().equals(User.UserType.CR)) {
+            maybeCourse = courseAuthorizationService.assertUserIsCrOfCourse(courseId, user);
+        } else if (user.getUserType().equals(User.UserType.TA)) {
+            maybeCourse = courseAuthorizationService.assertUserIsTaOfCourse(courseId, user);
+        } else {
+            return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+        }
+
+        if (!maybeCourse.isSuccess()) {
+            return Result.error(maybeCourse.getError());
+        }
+
+        return Result.ofOptional(
+                scheduleRepository.findFirstByCourse(maybeCourse.getData()),
+                ErrorCode.NOT_FOUND.toError("Schedule not found")
+        );
     }
 }

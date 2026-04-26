@@ -4,6 +4,7 @@ import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
 import com.chalmers.atas.domain.course.Course;
+import com.chalmers.atas.domain.courseassignment.CourseAuthorizationService;
 import com.chalmers.atas.domain.course.CourseRepository;
 import com.chalmers.atas.domain.user.User;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ScheduleService {
 
+    private final CourseAuthorizationService courseAuthorizationService;
     private final CourseRepository courseRepository;
     private final ScheduleRepository scheduleRepository;
 
@@ -36,8 +38,18 @@ public class ScheduleService {
     }
 
     public Result<List<Schedule>> getSchedule(UUID courseId, User user) {
-        return getCourseIfOwnedByCr(courseId, user)
+        return getCourseIfUserCanViewSchedule(courseId, user)
                 .map(scheduleRepository::findByCourse);
+    }
+
+    private Result<Course> getCourseIfUserCanViewSchedule(UUID courseId, User user) {
+        if (user.getUserType().equals(User.UserType.CR)) {
+            return courseAuthorizationService.assertUserIsCrOfCourse(courseId, user);
+        }
+        if (user.getUserType().equals(User.UserType.TA)) {
+            return courseAuthorizationService.assertUserIsTaOfCourse(courseId, user);
+        }
+        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
     }
 
     private Result<Course> getCourseIfOwnedByCr(UUID courseId, User user) {
