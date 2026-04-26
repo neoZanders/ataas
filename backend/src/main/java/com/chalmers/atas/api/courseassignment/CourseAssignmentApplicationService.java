@@ -13,8 +13,10 @@ import com.chalmers.atas.domain.user.CurrentUser;
 import com.chalmers.atas.domain.user.User;
 import com.chalmers.atas.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -73,20 +75,33 @@ public class CourseAssignmentApplicationService {
                 );
     }
 
-    public Result<CourseAssignmentsResponse> getAssignments(UUID courseId, CurrentUser currentUser) {
-        return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
-                .flatMap(course ->
-                        crCourseAssignmentService.getCourseAssignments(course)
-                                .flatMap(crCourseAssignments ->
-                                        taCourseAssignmentService.getCourseAssignments(course)
-                                                .map(taCourseAssignments ->
-                                                        CourseAssignmentsResponse.of(
-                                                                courseId,
-                                                                crCourseAssignments,
-                                                                taCourseAssignments
-                                                        )
+    public Result<CourseAssignmentsResponse> getAssignments(UUID courseId, String username, CurrentUser currentUser, Sort sort) {
+        Result<Course> courseResult;
+
+        if (currentUser.getUser().getUserType().equals(User.UserType.CR)) {
+            courseResult = courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser());
+        } else if (currentUser.getUser().getUserType().equals(User.UserType.TA)) {
+            courseResult = courseAuthorizationService.assertUserIsTaOfCourse(courseId, currentUser.getUser());
+        } else {
+            courseResult = Result.error(ErrorCode.USER_NOT_ALLOWED_TO_VIEW_COURSE.toError());
+        }
+
+        return courseResult.flatMap(course ->
+                        crCourseAssignmentService.getCourseAssignments(
+                                course
+                        ).flatMap(crCourseAssignments ->
+                                taCourseAssignmentService.getCourseAssignments(
+                                        course,
+                                        Optional.ofNullable(username),
+                                        sort
+                                ).map(taCourseAssignments ->
+                                                CourseAssignmentsResponse.of(
+                                                        courseId,
+                                                        crCourseAssignments,
+                                                        taCourseAssignments
                                                 )
                                 )
+                        )
                 );
     }
 

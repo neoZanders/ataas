@@ -2,8 +2,10 @@ package com.chalmers.atas.domain.tacourseassignment;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -146,8 +148,10 @@ public class TACourseAssignmentService {
         return false;
     }
 
-    public Result<List<TACourseAssignment>> getCourseAssignments(Course course){
-        return Result.ok(taCourseAssignmentRepository.findAllByCourse(course));
+    public Result<List<TACourseAssignment>> getCourseAssignments(Course course, Optional<String> maybeUsername, Sort sort) {
+        return Result.ok(maybeUsername.map(username ->
+                taCourseAssignmentRepository.findAllByCourseAndTaName(course, username, sort)
+        ).orElse(taCourseAssignmentRepository.findAllByCourse(course, sort)));
     }
 
     public Result<List<TACourseAssignment>> getTAAssignments(User ta){

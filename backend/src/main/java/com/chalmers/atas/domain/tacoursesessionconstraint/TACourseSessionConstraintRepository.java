@@ -14,4 +14,6 @@ public interface TACourseSessionConstraintRepository extends JpaRepository<TACou
             UUID taId,
             Course course
     );
+
+    List<TACourseSessionConstraint> findAllByTaCourseAssignmentCourseAndTaCourseAssignmentTaName(Course course, String username);
 }
