@@ -75,8 +75,6 @@ export function CourseResponsibleConstraintsPage() {
     const [sessionConstraints, setSessionConstraints] = useState<SessionConstraint[]>(initialSessionConstraints);
 
     const handleDeleteSession = (id: string) => {
-        if (!confirm("Are you sure you want to delete this session constraint?")) return;
-
         setSessionConstraints((prev) =>
             prev.filter((s) => s.id !== id)
         );
@@ -91,7 +89,7 @@ export function CourseResponsibleConstraintsPage() {
                     <div className="mb-6 text-center">
                         <h1 className="text-3xl font-bold text-slate-900">Constraints</h1>
                         <p className="mt-1 text-sm text-slate-500">
-                            Course responsible TA and session constraints overview
+                            Course responsible’s overview of TA and session constraints
                         </p>
                     </div>
 
@@ -100,8 +98,8 @@ export function CourseResponsibleConstraintsPage() {
 
                         <div className="grid grid-cols-2 rounded-2xl border border-slate-200 overflow-hidden">
                             <div className="bg-slate align-top border-r border-slate-200">
-                                <div className="bg-slate-50 border-b border-slate-200 px-5 py-4 h-28 space-y-3">
-                                    <p className="flex w-full items-center gap-2 text-left text-sm font-semibold text-slate-700">
+                                <div className="min-w-[340px] bg-slate-50 border-b border-slate-200 px-5 py-4 h-28 space-y-3">
+                                    <p className="flex w-full items-center gap-2 text-left text-sm font-semibold text-slate-700 transition hover:text-[#003b5c]">
                                         TA Constraints
                                     </p>
 
@@ -126,23 +124,16 @@ export function CourseResponsibleConstraintsPage() {
 
                                             {row.name}
                                         </div>
-                                        <div className="mt-2 flex flex-wrap gap-2 pl-1">
-                                            {row.constraints.map((c, i) => (
-                                                <span
-                                                    key={i}
-                                                    className="px-3 py-1 rounded-full bg-slate-50 text-slate-700 text-xs font-medium"
-                                                >
-                                                {c}
-                                                </span>
-                                            ))}
-                                        </div>
 
+                                        <ul className="mt-1 pl-5 space-y-0.5 list-disc text-sm text-slate-600">
+                                            {row.constraints.map((c, i) => <li key={i}>{c}</li>)}
+                                        </ul>
                                     </div>
                                 ))}
                                 </div>
 
                                 <div className="bg-slate align-top">
-                                    <div className="bg-slate-50 border-b border-slate-200 px-5 py-4 h-28">
+                                    <div className="min-w-[340px] bg-slate-50 border-b border-slate-200 px-5 py-4 h-28">
                                         <p className="flex w-full items-center gap-2 text-left text-sm font-semibold text-slate-700 transition hover:text-[#003b5c]">
                                             Session Constraints
                                         </p>
@@ -150,28 +141,16 @@ export function CourseResponsibleConstraintsPage() {
 
                                 {sessionConstraints.map((row) => (
                                     <div key={row.id} className="relative rounded-3xl border border-slate-200 p-4 bg-white m-2">
-                                        <div className="flex items-center justify-between">
-                                            <p className="flex pl-1 items-center gap-3 text-sm font-semibold text-slate-900">
-                                                {row.session}
-                                            </p>
-
-                                            <button
-                                                onClick={() => handleDeleteSession(row.id)}
-                                                className="text-slate-400 p-1.5 rounded-md hover:bg-red-100 transition"
-                                            >
-                                                <Trash2 className="h-4 w-4 text-red-700 hover:text-red-900" />
-                                            </button>
-                                        </div>
-                                        <p><span className="mt-3 pl-1 list-disc text-sm text-slate-600">{row.date}</span></p>
-                                        <div className="flex gap-2 mt-2 pl-1">
-                                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#003b5c] text-white">
-                                                Min {row.minTAs}
-                                            </span>
-
-                                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#003b5c] text-white">
-                                                Max {row.maxTAs}
-                                            </span>
-                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteSession(row.id)}
+                                            className="absolute inset-y-0 right-2 my-auto text-slate-400 hover:text-red-500 transition"
+                                        >
+                                            <Trash2 className="h-4 w-4 text-slate-600" />
+                                        </button>
+                                        <p className="flex items-center pl-1 gap-3 text-sm font-semibold text-slate-900">{row.session}</p>
+                                        <p><span className="mt-1 pl-1 space-y-0.5 list-disc text-sm text-slate-600">{row.date}</span></p>
+                                        <p><span className="mt-1 pl-1 space-y-0.5 list-disc text-sm text-slate-600">Min TAs: {row.minTAs}</span></p>
+                                        <p><span className="mt-1 pl-1 space-y-0.5 list-disc text-sm text-slate-600">Max TAs: {row.maxTAs}</span> </p>
                                     </div>
                                 ))}
 

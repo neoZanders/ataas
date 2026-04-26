@@ -6,13 +6,13 @@ import { SignUpPage } from "./Components/SignUpPage";
 import { ProfilePage } from "./Components/ProfilePage";
 import { CourseResponsibleMainPage } from "./Components/CR/CourseResponsibleMainPage.tsx";
 import { CourseResponsibleTAListPage } from "./Components/CR/CourseResponsibleTAListPage.tsx";
-import { CourseResponsibleAnnouncementPage } from "./Components/CR/CourseResponsibleAnnouncementPage.tsx";
+import { CourseResponsibleConstraintsPage } from "./Components/CourseResponsibleConstraintsPage";
 import { TAMainPage } from "./Components/TA/TAMainPage.tsx";
+import { CourseResponsibleAnnouncementPage } from "./Components/CR/CourseResponsibleAnnouncementPage.tsx";
 import { TAAnnouncementPage } from "./Components/TA/TAAnnouncementPage.tsx";
 import { TATaListPage} from "./Components/TA/TATaListPage.tsx";
 import {TAConstraintsPage} from "./Components/TA/TAConstraintsPage.tsx";
 import {CourseResponsibleCourse} from "./Components/CR/CourseResponsibleCourse.tsx";
-import {CourseResponsibleConstraintsPage} from "./Components/CourseResponsibleConstraintsPage.tsx";
 import {CurrentCourseProvider} from "./Components/CurrentCourseContext.tsx";
 
 function RootRedirect() {
@@ -38,7 +38,6 @@ function PublicOnlyRoute({ children }: { children: React.ReactElement }) {
 
 function App() {
     return (
-
         <AuthProvider>
             <CurrentCourseProvider >
             <Router>
@@ -106,6 +105,7 @@ function App() {
                             </RoleRoute>
                         }
                     />
+
                     <Route
                         path="cr/announcements"
                         element={
@@ -153,15 +153,6 @@ function App() {
                         element={
                             <RoleRoute allow={["TA"]}>
                                 <CourseResponsibleCourse />
-                            </RoleRoute>
-                        }
-                    />
-
-                    <Route
-                        path="/ta/constraints"
-                        element={
-                            <RoleRoute allow={["TA"]}>
-                                <div className="p-6">TA Constraints (placeholder)</div>
                             </RoleRoute>
                         }
                     />
