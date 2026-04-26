@@ -1,6 +1,7 @@
 import { authFetchJson } from "./authFetch.ts";
 import type { UserResponse} from "./authApi.ts";
 import type {CourseSessionType} from "./courseSessionsApi.ts";
+import type {CrCourseAssignment, TaCourseAssignment} from "./courseAssignmentApi.ts";
 
 
 export type CourseAssignmentConstraintsRequest = {
@@ -37,6 +38,13 @@ export type TAConstraintsTimeSlotsResponse = {
     isWeeklyRecurring: boolean;
 }
 
+export type GetCourseAssignmentConstraintsResponse = {
+    courseId: string;
+    crCourseAssignments: CrCourseAssignment[];
+    taCourseAssignments: TaCourseAssignment[];
+}
+
+
 export type PutTAConstraintsTimeSlotRequest = {
     taCourseConstraintId?: string;
     constraintType: "SOFT" | "HARD";
@@ -47,6 +55,31 @@ export type PutTAConstraintsTimeSlotRequest = {
 
 export type PutTAConstraintsTimeSlotsRequest = {
     requests: PutTAConstraintsTimeSlotRequest[];
+}
+
+export type GetTAConstraintsTimeSlotResponse = {
+    ta: UserResponse;
+    taConstraints: TAConstraintsTimeSlotsResponse[];
+}
+
+export async function getAllTAConstraintsTimeSlots(
+    courseId: string,
+    accessToken: string | null
+): Promise<GetTAConstraintsTimeSlotResponse[]>{
+    return authFetchJson<GetTAConstraintsTimeSlotResponse[]>(
+        `/api/courses/${courseId}/ta-constraints`, accessToken, {
+            method: "GET",
+        });
+}
+
+export async function getCourseAssignmentConstraintResponse(
+    courseId: string,
+    accessToken: string | null
+): Promise<GetCourseAssignmentConstraintsResponse>{
+    return authFetchJson<GetCourseAssignmentConstraintsResponse>(
+        `/api/courses/${courseId}/course-assignments`, accessToken, {
+            method: "GET",
+        });
 }
 
 export async function putTAConstraintsTimeSlots(
