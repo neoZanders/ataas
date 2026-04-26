@@ -10,7 +10,11 @@ const mockEvents: EventInput[] = [
     { id: "3", title: "TA Planning", start: "2026-02-27T13:00:00", end: "2026-02-27T14:30:00" },
 ];
 
-export default function Calendar() {
+type CalendarProps = {
+    events?: EventInput[];
+};
+
+export default function Calendar({ events = mockEvents }: CalendarProps) {
 
     return (
         <div className="calendar-theme rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5">
@@ -28,8 +32,7 @@ export default function Calendar() {
                     week: "Week",
                     day: "Day",
                 }}
-                events={mockEvents}
-                selectable
+                events={events}
                 editable={false}
                 dayMaxEvents={true}
                 weekends={true}
