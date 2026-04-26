@@ -90,6 +90,9 @@ function preferencesToRanking(form: CourseAssignmentConstraintsRequest): Ranking
     ];
 
     prefMap.forEach((pref, index) => {
+        if (pref === null){
+            pref="GRADING"
+        }
         const key = pref.toLowerCase() as SessionType;
         next[key] = index + 1;
     });
