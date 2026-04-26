@@ -64,4 +64,12 @@ public class TAConstraintController {
         CurrentUser currentUser) {
             return HttpResponse.fromResult(taConstraintApplicationService.deleteTAConstraint(courseId, taCourseSessionConstraintId, currentUser));
     }
+
+    @PostMapping("/import")
+    public HttpResponse<List<TAConstraintResponse>> importFromTimeEdit(
+            @PathVariable UUID courseId,
+            @RequestBody ImportTimeEditTAConstraintRequest request,
+            CurrentUser currentUser) {
+        return HttpResponse.fromResult(taConstraintApplicationService.importFromTimeEdit(courseId, request, currentUser));
+    }
 }

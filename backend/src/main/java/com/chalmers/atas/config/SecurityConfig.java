@@ -59,7 +59,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/swagger-ui/**"
                         ).permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/status").permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/courses",
                                 "/api/courses/{courseId}/details",
@@ -92,6 +92,7 @@ public class SecurityConfig {
                                 "/api/courses/{courseId}/ta-constraints/{taCourseSessionConstraintId}"
                         ).authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/courses/{courseId}/ta-constraints").hasRole("TA")
+                        .requestMatchers(HttpMethod.POST, "/api/courses/{courseId}/ta-constraints/import").hasRole("TA")
                         .requestMatchers("/api/courses/**").hasRole("CR")
                         .anyRequest().denyAll()
                 ).addFilterBefore(jwtAuthenticationFilter,
