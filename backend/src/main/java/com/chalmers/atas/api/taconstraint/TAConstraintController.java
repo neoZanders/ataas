@@ -26,7 +26,7 @@ public class TAConstraintController {
     }
 
     @GetMapping("/{taId}")
-    public HttpResponse<TAConstraintsResponse> getTAConstraints(
+    public HttpResponse<List<TAConstraintResponse>> getTAConstraints(
         @PathVariable UUID courseId,
         @PathVariable UUID taId,
         CurrentUser currentUser) {

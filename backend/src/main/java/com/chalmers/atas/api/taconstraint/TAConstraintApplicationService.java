@@ -44,14 +44,13 @@ public class TAConstraintApplicationService {
                                             .map(constraintsByTA ->
                                                     TAConstraintsResponse.of(
                                                         constraintsByTA.getKey(),
-                                                        course,
                                                         constraintsByTA.getValue()
                                                     )
                                             ).toList();
                                 }));
     }
 
-    public Result<TAConstraintsResponse> getTAConstraints(UUID courseId, UUID taId, CurrentUser currentUser){
+    public Result<List<TAConstraintResponse>> getTAConstraints(UUID courseId, UUID taId, CurrentUser currentUser){
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.TA)) {
             return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
@@ -65,7 +64,7 @@ public class TAConstraintApplicationService {
                 .flatMap(course ->
                         taCourseSessionConstraintService.getTAConstraints(course, taId)
                                 .map(constraints ->
-                                        TAConstraintsResponse.of(user, course, constraints)
+                                        constraints.stream().map(TAConstraintResponse::of).toList()
                                 ));
     }
 
