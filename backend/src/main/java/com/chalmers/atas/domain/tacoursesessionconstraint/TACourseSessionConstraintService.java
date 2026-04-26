@@ -2,6 +2,7 @@ package com.chalmers.atas.domain.tacoursesessionconstraint;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -22,8 +23,10 @@ public class TACourseSessionConstraintService {
 
     private final TACourseSessionConstraintRepository taCourseSessionConstraintRepository;
 
-    public Result<List<TACourseSessionConstraint>> getCourseConstraints(Course course) {
-        return Result.ok(taCourseSessionConstraintRepository.findAllByTaCourseAssignment_Course(course));
+    public Result<List<TACourseSessionConstraint>> getCourseConstraints(Course course, Optional<String> maybeUsername) {
+        return Result.ok(maybeUsername.map(username ->
+                taCourseSessionConstraintRepository.findAllByTaCourseAssignmentCourseAndTaCourseAssignmentTaName(course, username)
+        ).orElse(taCourseSessionConstraintRepository.findAllByTaCourseAssignment_Course(course)));
     }
 
     public Result<List<TACourseSessionConstraint>> getTAConstraints(Course course, UUID taId) {

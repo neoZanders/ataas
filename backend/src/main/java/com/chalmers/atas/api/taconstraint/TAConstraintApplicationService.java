@@ -25,7 +25,7 @@ public class TAConstraintApplicationService {
     private final CourseAuthorizationService courseAuthorizationService;
     private final TransactionHandler transactionHandler;
 
-    public Result<List<TAConstraintResponse>> getCourseConstraints(UUID courseId, CurrentUser currentUser){
+    public Result<List<TAConstraintsResponse>> getCourseConstraints(UUID courseId, String username, CurrentUser currentUser){
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.CR)) {
             return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
@@ -33,13 +33,25 @@ public class TAConstraintApplicationService {
 
         return courseAuthorizationService.assertUserIsCrOfCourse(courseId, user)
                 .flatMap(course ->
-                        taCourseSessionConstraintService.getCourseConstraints(course)
-                                .map(constraints ->
-                                        constraints.stream().map(TAConstraintResponse::of).toList()
-                                ));
+                        taCourseSessionConstraintService.getCourseConstraints(course, Optional.ofNullable(username))
+                                .map(constraints -> {
+                                    Map<User, List<TACourseSessionConstraint>> constraintsByTAs =
+                                            constraints.stream().collect(Collectors.groupingBy(
+                                                    constraint -> constraint.getTaCourseAssignment().getTa()
+                                            ));
+
+                                    return constraintsByTAs.entrySet().stream()
+                                            .map(constraintsByTA ->
+                                                    TAConstraintsResponse.of(
+                                                        constraintsByTA.getKey(),
+                                                        course,
+                                                        constraintsByTA.getValue()
+                                                    )
+                                            ).toList();
+                                }));
     }
 
-    public Result<List<TAConstraintResponse>> getTAConstraints(UUID courseId, UUID taId, CurrentUser currentUser){
+    public Result<TAConstraintsResponse> getTAConstraints(UUID courseId, UUID taId, CurrentUser currentUser){
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.TA)) {
             return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
@@ -53,7 +65,7 @@ public class TAConstraintApplicationService {
                 .flatMap(course ->
                         taCourseSessionConstraintService.getTAConstraints(course, taId)
                                 .map(constraints ->
-                                        constraints.stream().map(TAConstraintResponse::of).toList()
+                                        TAConstraintsResponse.of(user, course, constraints)
                                 ));
     }
 

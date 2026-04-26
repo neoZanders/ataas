@@ -3,6 +3,7 @@ package com.chalmers.atas.api.courseassignment;
 import com.chalmers.atas.common.HttpResponse;
 import com.chalmers.atas.domain.user.CurrentUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -41,8 +42,10 @@ public class CourseAssignmentController {
     @GetMapping
     public HttpResponse<CourseAssignmentsResponse> getAssignments(
             @PathVariable UUID courseId,
+            @RequestParam(required = false) String username,
+            Sort sort,
             CurrentUser currentUser) {
-        return HttpResponse.fromResult(courseAssignmentApplicationService.getAssignments(courseId, currentUser));
+        return HttpResponse.fromResult(courseAssignmentApplicationService.getAssignments(courseId, username, currentUser, sort));
     }
 
     @GetMapping("/tas/{taId}/details")

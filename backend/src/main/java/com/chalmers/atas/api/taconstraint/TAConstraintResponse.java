@@ -15,10 +15,6 @@ public class TAConstraintResponse {
 
     private UUID taCourseSessionConstraintId;
 
-    private UUID courseId;
-
-    private UUID taId;
-
     private ConstraintType constraintType;
 
     private LocalDateTime startDateTime;
@@ -30,8 +26,6 @@ public class TAConstraintResponse {
     public static TAConstraintResponse of(TACourseSessionConstraint constraint) {
         return new TAConstraintResponse(
                 constraint.getTaCourseSessionConstraintId(),
-                constraint.getTaCourseAssignment().getCourse().getCourseId(),
-                constraint.getTaCourseAssignment().getTa().getUserId(),
                 constraint.getConstraintType(),
                 constraint.getStartDateTime(),
                 constraint.getEndDateTime(),

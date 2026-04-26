@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.chalmers.atas.domain.course.Course;
@@ -16,7 +17,9 @@ public interface TACourseAssignmentRepository extends JpaRepository<TACourseAssi
 
     boolean existsByTaAndCourseAndStatus(User ta, Course course, CourseAssignmentStatus status);
 
-    List<TACourseAssignment> findAllByCourse(Course course);
+    List<TACourseAssignment> findAllByCourse(Course course, Sort sort);
 
     List<TACourseAssignment> findAllByTa(User ta);
+
+    List<TACourseAssignment> findAllByCourseAndTaName(Course course, String username, Sort sort);
 }

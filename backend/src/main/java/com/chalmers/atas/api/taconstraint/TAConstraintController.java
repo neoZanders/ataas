@@ -18,14 +18,15 @@ public class TAConstraintController {
     private final TAConstraintApplicationService taConstraintApplicationService;
 
     @GetMapping
-    public HttpResponse<List<TAConstraintResponse>> getCourseConstraints(
+    public HttpResponse<List<TAConstraintsResponse>> getCourseConstraints(
         @PathVariable UUID courseId,
+        @RequestParam(required = false) String username,
         CurrentUser currentUser) {
-        return HttpResponse.fromResult(taConstraintApplicationService.getCourseConstraints(courseId, currentUser));
+        return HttpResponse.fromResult(taConstraintApplicationService.getCourseConstraints(courseId, username, currentUser));
     }
 
     @GetMapping("/{taId}")
-    public HttpResponse<List<TAConstraintResponse>> getTAConstraints(
+    public HttpResponse<TAConstraintsResponse> getTAConstraints(
         @PathVariable UUID courseId,
         @PathVariable UUID taId,
         CurrentUser currentUser) {
