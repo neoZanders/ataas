@@ -108,7 +108,7 @@ export function TATaListPage() {
             <main className="min-h-screen pl-[104px] py-4">
                 <div className="mx-auto w-full max-w-[1500px]">
                     <div className="mb-6 text-center">
-                        <h1 className="text-3xl font-bold text-slate-900">TA List</h1>
+                        <h1 className="text-3xl font-bold text-slate-900">TA List {course?.courseCode}</h1>
                         <p className="mt-1 text-sm text-slate-500">
                             TA list overview
                         </p>

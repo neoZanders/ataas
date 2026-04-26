@@ -12,7 +12,7 @@ import { TAAnnouncementPage } from "./Components/TA/TAAnnouncementPage.tsx";
 import { TATaListPage} from "./Components/TA/TATaListPage.tsx";
 import {TAConstraintsPage} from "./Components/TA/TAConstraintsPage.tsx";
 import {CourseResponsibleCourse} from "./Components/CR/CourseResponsibleCourse.tsx";
-import {CourseResponsibleConstraintsPage} from "./Components/CourseResponsibleConstraintsPage.tsx";
+import {CourseResponsibleConstraintsPage} from "./Components/CR/CourseResponsibleConstraintsPage.tsx";
 import {CurrentCourseProvider} from "./Components/CurrentCourseContext.tsx";
 
 function RootRedirect() {
