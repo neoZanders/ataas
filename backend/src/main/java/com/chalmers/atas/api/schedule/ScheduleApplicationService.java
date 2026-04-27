@@ -27,9 +27,14 @@ import com.chalmers.atas.domain.user.CurrentUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -97,20 +102,33 @@ public class ScheduleApplicationService {
 
                                                 return validateHourBudgets(joinedAssignments)
                                                         .flatMap(ignored -> taCourseSessionConstraintService.getCourseConstraints(schedule.getCourse())
-                                                                .flatMap(constraints -> algorithmService
-                                                                        .runAlgorithm(toAlgorithmRequest(
-                                                                                courseSessions,
-                                                                                joinedAssignments,
-                                                                                constraints
-                                                                        ))
-                                                                        .flatMap(result -> saveAllocationsAndBuildResponse(
-                                                                                courseId,
-                                                                                currentUser,
-                                                                                schedule,
-                                                                                courseSessions,
-                                                                                joinedAssignments,
-                                                                                result
-                                                                        ))));
+                                                                .flatMap(constraints -> {
+                                                                    Set<UUID> joinedAssignmentIds = joinedAssignments.stream()
+                                                                            .map(TACourseAssignment::getTaCourseAssignmentId)
+                                                                            .collect(Collectors.toSet());
+
+                                                                    List<TACourseSessionConstraint> filteredConstraints = constraints.stream()
+                                                                            .filter(constraint -> joinedAssignmentIds.contains(
+                                                                                    constraint.getTaCourseAssignment().getTaCourseAssignmentId()
+                                                                            ))
+                                                                            .toList();
+
+                                                                    return algorithmService
+                                                                            .runAlgorithm(toAlgorithmRequest(
+                                                                                    schedule,
+                                                                                    courseSessions,
+                                                                                    joinedAssignments,
+                                                                                    filteredConstraints
+                                                                            ))
+                                                                            .flatMap(result -> saveAllocationsAndBuildResponse(
+                                                                                    courseId,
+                                                                                    currentUser,
+                                                                                    schedule,
+                                                                                    courseSessions,
+                                                                                    joinedAssignments,
+                                                                                    result
+                                                                            ));
+                                                                }));
                                             });
                                 }))
         );
@@ -141,6 +159,7 @@ public class ScheduleApplicationService {
     }
 
     private AlgorithmRequest toAlgorithmRequest(
+            Schedule schedule,
             List<CourseSession> courseSessions,
             List<TACourseAssignment> assignments,
             List<TACourseSessionConstraint> constraints
@@ -148,14 +167,8 @@ public class ScheduleApplicationService {
         return new AlgorithmRequest(
                 courseSessions.stream().map(this::toAlgorithmSession).toList(),
                 assignments.stream().map(this::toAlgorithmTA).toList(),
-                constraints.stream()
-                        .filter(constraint -> constraint.getConstraintType() == TACourseSessionConstraint.ConstraintType.HARD)
-                        .map(this::toHardConstraint)
-                        .toList(),
-                constraints.stream()
-                        .filter(constraint -> constraint.getConstraintType() == TACourseSessionConstraint.ConstraintType.SOFT)
-                        .map(this::toSoftConstraint)
-                        .toList()
+                toHardConstraints(constraints, schedule.getCourse().getEndDate()),
+                toSoftConstraints(constraints, schedule.getCourse().getEndDate())
         );
     }
 
@@ -218,6 +231,83 @@ public class ScheduleApplicationService {
                 new AlgorithmTimeInterval(constraint.getStartDateTime(), constraint.getEndDateTime()),
                 softConstraintWeight
         );
+    }
+
+    private List<AlgorithmHardSessionConstraint> toHardConstraints(
+            List<TACourseSessionConstraint> constraints,
+            LocalDate recurringEndDate
+    ) {
+        return constraints.stream()
+                .filter(constraint -> constraint.getConstraintType() == TACourseSessionConstraint.ConstraintType.HARD)
+                .flatMap(constraint -> expandHardConstraints(constraint, recurringEndDate).stream())
+                .toList();
+    }
+
+    private List<AlgorithmSoftSessionConstraint> toSoftConstraints(
+            List<TACourseSessionConstraint> constraints,
+            LocalDate recurringEndDate
+    ) {
+        return constraints.stream()
+                .filter(constraint -> constraint.getConstraintType() == TACourseSessionConstraint.ConstraintType.SOFT)
+                .flatMap(constraint -> expandSoftConstraints(constraint, recurringEndDate).stream())
+                .toList();
+    }
+
+    private List<AlgorithmHardSessionConstraint> expandHardConstraints(
+            TACourseSessionConstraint constraint,
+            LocalDate recurringEndDate
+    ) {
+        if (!constraint.isWeeklyRecurring()) {
+            return List.of(toHardConstraint(constraint));
+        }
+
+        List<AlgorithmHardSessionConstraint> expanded = new ArrayList<>();
+        LocalDate date = constraint.getStartDateTime().toLocalDate();
+        LocalTime startTime = constraint.getStartDateTime().toLocalTime();
+        LocalTime endTime = constraint.getEndDateTime().toLocalTime();
+        UUID taAssignmentId = constraint.getTaCourseAssignment().getTaCourseAssignmentId();
+
+        while (!date.isAfter(recurringEndDate)) {
+            expanded.add(new AlgorithmHardSessionConstraint(
+                    taAssignmentId,
+                    new AlgorithmTimeInterval(
+                            LocalDateTime.of(date, startTime),
+                            LocalDateTime.of(date, endTime)
+                    )
+            ));
+            date = date.plusWeeks(1);
+        }
+
+        return expanded;
+    }
+
+    private List<AlgorithmSoftSessionConstraint> expandSoftConstraints(
+            TACourseSessionConstraint constraint,
+            LocalDate recurringEndDate
+    ) {
+        if (!constraint.isWeeklyRecurring()) {
+            return List.of(toSoftConstraint(constraint));
+        }
+
+        List<AlgorithmSoftSessionConstraint> expanded = new ArrayList<>();
+        LocalDate date = constraint.getStartDateTime().toLocalDate();
+        LocalTime startTime = constraint.getStartDateTime().toLocalTime();
+        LocalTime endTime = constraint.getEndDateTime().toLocalTime();
+        UUID taAssignmentId = constraint.getTaCourseAssignment().getTaCourseAssignmentId();
+
+        while (!date.isAfter(recurringEndDate)) {
+            expanded.add(new AlgorithmSoftSessionConstraint(
+                    taAssignmentId,
+                    new AlgorithmTimeInterval(
+                            LocalDateTime.of(date, startTime),
+                            LocalDateTime.of(date, endTime)
+                    ),
+                    softConstraintWeight
+            ));
+            date = date.plusWeeks(1);
+        }
+
+        return expanded;
     }
 
     private Result<ScheduleResponse> saveAllocationsAndBuildResponse(
