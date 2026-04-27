@@ -13,7 +13,6 @@ export type ScheduleResponse = {
     allocations: ScheduleSessionAllocationResponse[];
 };
 
-<<<<<<< HEAD
 export async function createSchedule(
     courseId: string,
     accessToken: string | null
@@ -23,8 +22,6 @@ export async function createSchedule(
     });
 }
 
-=======
->>>>>>> d1266d3 (Connect TA schedule tab to backend)
 export async function getSchedule(
     courseId: string,
     accessToken: string | null
