@@ -71,6 +71,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/courses/{courseId}/course-assignments/join"
                         ).authenticated()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/courses/{courseId}/schedule"
+                        ).hasRole("CR")
                         .requestMatchers(HttpMethod.PATCH,
                                 "/api/courses/{courseId}/course-assignments/tas/{taId}"
                         ).authenticated()
