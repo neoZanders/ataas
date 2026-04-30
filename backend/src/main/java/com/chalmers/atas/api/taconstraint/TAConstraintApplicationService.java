@@ -1,15 +1,13 @@
 package com.chalmers.atas.api.taconstraint;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.chalmers.atas.common.*;
+import com.chalmers.atas.domain.course.CourseService;
 import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraint;
 import com.chalmers.atas.external.TimeEditClient;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
 import com.chalmers.atas.domain.courseassignment.CourseAuthorizationService;
@@ -237,35 +235,38 @@ public class TAConstraintApplicationService {
             return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
         }
 
+        String courseCode = request.getCourseCode().toUpperCase().strip();
+
+        if (!courseCode.matches(CourseService.COURSE_CODE_MATCHER)) {
+            return Result.error(ErrorCode.INVALID_COURSE_CODE.toError());
+        }
+
         return courseAuthorizationService.assertUserIsTaOfCourse(courseId, currentUser.getUser())
                 .flatMap(course -> taCourseAssignmentService.getAssignment(currentUser.getUser(), course)
                         .flatMap(taCourseAssignment -> timeEditClient.fetchCourseSessionStartAndEnds(
-                                                request.getCourseCode(),
+                                                courseCode,
                                                 course.getStartDate(),
                                                 course.getEndDate()
                                         ).flatMap(startAndEnds -> transactionHandler.executeInTransaction(() -> {
-                                            List<TAConstraintResponse> responses = new ArrayList<>();
+                                            List<TACourseSessionConstraintService.TAConstraintRequest> requests
+                                                    = new ArrayList<>();
 
-                                            for (Pair<LocalDateTime, LocalDateTime> startAndEnd : startAndEnds) {
-                                                TransactionalResult<TAConstraintResponse> createResult =
-                                                        TransactionalResult.from(
-                                                                taCourseSessionConstraintService.createConstraint(
-                                                                        taCourseAssignment,
-                                                                        TACourseSessionConstraint.ConstraintType.HARD,
-                                                                        startAndEnd.getLeft(),
-                                                                        startAndEnd.getRight(),
-                                                                        false
-                                                                ).map(TAConstraintResponse::of)
-                                                        );
+                                            startAndEnds.forEach(startAndEnd ->
+                                                    requests.add(new TACourseSessionConstraintService.TAConstraintRequest(
+                                                            TACourseSessionConstraint.ConstraintType.HARD,
+                                                            startAndEnd.getLeft(),
+                                                            startAndEnd.getRight(),
+                                                            false
+                                                    ))
+                                            );
 
-                                                if (!createResult.isSuccess()) {
-                                                    return TransactionalResult.rollbackFor(createResult.getError());
-                                                }
-
-                                                responses.add(createResult.getData());
-                                            }
-
-                                            return TransactionalResult.ok(responses);
+                                            return taCourseSessionConstraintService.createConstraints(
+                                                    taCourseAssignment,
+                                                    requests,
+                                                    course
+                                            ).map(constraints ->
+                                                    constraints.stream().map(TAConstraintResponse::of).toList()
+                                            );
                                         }))
                         ));
     }

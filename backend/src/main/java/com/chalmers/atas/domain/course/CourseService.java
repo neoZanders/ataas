@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CourseService {
 
-    private final static String courseCodeMatcher = "^[A-Za-z]{3}\\d{3}$";
+    public final static String COURSE_CODE_MATCHER = "^[A-Za-z]{3}\\d{3}$";
 
     private final CourseRepository courseRepository;
 
@@ -30,7 +30,7 @@ public class CourseService {
             LocalDate startDate,
             LocalDate endDate
     ) {
-        if (!courseCode.matches(courseCodeMatcher)) {
+        if (!courseCode.matches(COURSE_CODE_MATCHER)) {
             return TransactionalResult.rollbackFor(ErrorCode.INVALID_COURSE_CODE.toError());
         }
 

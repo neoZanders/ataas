@@ -33,12 +33,12 @@ volumes:
 
 secrets:
   spring.datasource.username:
-    file: ./secrets/spring.datasource.username
+    file: ./.secrets/spring.datasource.username
   spring.datasource.password:
-    file: ./secrets/spring.datasource.password
+    file: ./.secrets/spring.datasource.password
   app.jwt.secret:
-    file: ./secrets/app.jwt.secret
+    file: ./.secrets/app.jwt.secret
   app.timeedit.api-key:
-    file: ./secrets/app.timeedit.api-key
+    file: ./.secrets/app.timeedit.api-key
   app.timeedit.organization-id:
-    file: ./secrets/app.timeedit.organization-id
+    file: ./.secrets/app.timeedit.organization-id
