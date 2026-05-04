@@ -104,7 +104,7 @@ public abstract class AlgorithmTestBase {
                 LocalTime.of(13, 0),
                 LocalTime.of(15, 0),
                 LABORATION,
-                3,
+                2,
                 4
         ));
 
