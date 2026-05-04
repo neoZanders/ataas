@@ -243,7 +243,7 @@ public class DataInitializer {
                 LocalDateTime.of(2026, 1, 21, 13, 0),
                 LocalDateTime.of(2026, 1, 21, 15, 0),
                 CourseSession.CourseSessionType.LABORATION,
-                3,
+                2,
                 4,
                 true
         ));
