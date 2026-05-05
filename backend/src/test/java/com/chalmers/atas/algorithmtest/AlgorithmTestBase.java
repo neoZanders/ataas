@@ -42,42 +42,42 @@ public abstract class AlgorithmTestBase {
         return List.of(
                 new AlgorithmTA(
                         sebastiaanId,
-                        67,
+                        35,
                         120,
                         List.of(GRADING, LABORATION, HELP, EXERCISE),
                         false
                 ),
                 new AlgorithmTA(
                         yakovId,
-                        51,
+                        30,
                         80,
                         List.of(LABORATION, GRADING, HELP, EXERCISE),
                         true
                 ),
                 new AlgorithmTA(
                         leviId,
-                        51,
+                        30,
                         80,
                         List.of(GRADING, LABORATION, HELP, EXERCISE),
                         false
                 ),
                 new AlgorithmTA(
                         albericId,
-                        51,
+                        30,
                         80,
                         List.of(LABORATION, GRADING, HELP, EXERCISE),
                         true
                 ),
                 new AlgorithmTA(
                         phoebeId,
-                        51,
+                        30,
                         80,
                         List.of(LABORATION, GRADING, HELP, EXERCISE),
                         false
                 ),
                 new AlgorithmTA(
                         noelleId,
-                        51,
+                        30,
                         80,
                         List.of(LABORATION, GRADING, HELP, EXERCISE),
                         true
@@ -270,7 +270,7 @@ public abstract class AlgorithmTestBase {
                 LocalDateTime.of(2026, 3, 19, 8, 0),
                 LocalDateTime.of(2026, 3, 19, 17, 0),
                 GRADING,
-                4,
+                2,
                 6
         ));
         sessions.add(session(
@@ -278,7 +278,7 @@ public abstract class AlgorithmTestBase {
                 LocalDateTime.of(2026, 3, 20, 8, 0),
                 LocalDateTime.of(2026, 3, 20, 17, 0),
                 GRADING,
-                3,
+                1,
                 6
         ));
         sessions.add(session(
