@@ -45,7 +45,7 @@ export function CourseResponsibleConstraintsPage() {
 
     function mapResponseToTAConstraints(response: GetTAConstraintsTimeSlotResponse, responseHours: GetCourseAssignmentConstraintsResponse): TAConstraints {
         const taAssignment = responseHours.taCourseAssignments.find(
-            (assignment) => assignment.ta.id === response.ta.userId
+            (assignment) => assignment.ta.email === response.ta.email
         )
 
         return {
