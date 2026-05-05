@@ -120,7 +120,7 @@ export function CourseResponsibleConstraintsPage() {
             <main className="min-h-screen pl-[104px] py-4">
                 <div className="mx-auto w-full max-w-[1500px]">
                     <div className="mb-6 text-center">
-                        <h1 className="text-3xl font-bold text-slate-900">Constraints</h1>
+                        <h1 className="text-3xl font-bold text-slate-900">Constraints {course?.courseCode}</h1>
                         <p className="mt-1 text-sm text-slate-500">
                             Course responsible TA constraints overview
                         </p>
