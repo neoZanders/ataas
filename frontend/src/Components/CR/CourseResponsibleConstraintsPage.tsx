@@ -122,7 +122,7 @@ export function CourseResponsibleConstraintsPage() {
                     <div className="mb-6 text-center">
                         <h1 className="text-3xl font-bold text-slate-900">Constraints</h1>
                         <p className="mt-1 text-sm text-slate-500">
-                            Course responsible TA and session constraints overview
+                            Course responsible TA constraints overview
                         </p>
                     </div>
 
