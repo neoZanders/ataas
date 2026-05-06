@@ -1,6 +1,8 @@
 package com.chalmers.atas.api.course;
 
 import com.chalmers.atas.domain.coursesession.CourseSession;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -25,6 +27,7 @@ public class CourseSessionResponse {
 
     private int maxTAs;
 
+    @JsonProperty("isWeeklyRecurring")
     private boolean isWeeklyRecurring;
 
     public static CourseSessionResponse of(CourseSession courseSession) {
