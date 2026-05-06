@@ -144,7 +144,7 @@ function App() {
                         path="/ta/constraints"
                         element={
                             <RoleRoute allow={["TA"]}>
-                                <TAConstraintsPage />
+                                <TAConstraintspage2 />
                             </RoleRoute>
                         }
                     />
