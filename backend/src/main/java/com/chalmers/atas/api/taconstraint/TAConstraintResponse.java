@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraint;
 import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraint.ConstraintType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class TAConstraintResponse {
 
     private LocalDateTime endDateTime;
 
+    @JsonProperty("isWeeklyRecurring")
     private boolean isWeeklyRecurring;
 
     public static TAConstraintResponse of(TACourseSessionConstraint constraint) {
