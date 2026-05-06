@@ -64,7 +64,7 @@ export function CreateCoursePopUp({
                 <button
                     type="button"
                     onClick={onClose}
-                    className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                    className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
                     aria-label="Close popup"
                 >
                     <X className="h-4 w-4" />
@@ -147,7 +147,7 @@ export function CreateCoursePopUp({
                                     canTASeeAllSchedules: e.target.checked,
                                 }))
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#003b5c]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#003b5c] cursor-pointer"
                         />
                         TAs can see all schedules
                     </label>
@@ -162,7 +162,7 @@ export function CreateCoursePopUp({
                                     canTACreateAnnouncements: e.target.checked,
                                 }))
                             }
-                            className="h-4 w-4 rounded border-slate-300 accent-[#003b5c]"
+                            className="h-4 w-4 rounded border-slate-300 accent-[#003b5c] cursor-pointer"
                         />
                         TAs can create announcements
                     </label>
@@ -175,7 +175,7 @@ export function CreateCoursePopUp({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:border-[#003b5c] hover:text-[#003b5c]"
+                            className="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:border-[#003b5c] hover:text-[#003b5c] cursor-pointer"
                         >
                             Cancel
                         </button>
@@ -184,7 +184,7 @@ export function CreateCoursePopUp({
                             type="button"
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white hover:bg-[#002741] disabled:opacity-50"
+                            className="rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white hover:bg-[#002741] disabled:opacity-50 cursor-pointer"
                         >
                             {isSubmitting ? "Creating..." : "Create course"}
                         </button>

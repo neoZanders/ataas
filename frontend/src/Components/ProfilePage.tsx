@@ -68,7 +68,7 @@ export function ProfilePage() {
                             <button
                                 type="button"
                                 onClick={handleLogout}
-                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#003b5c] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49]"
+                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#003b5c] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] cursor-pointer"
                             >
                                 <LogOut className="h-4 w-4" />
                                 Log out

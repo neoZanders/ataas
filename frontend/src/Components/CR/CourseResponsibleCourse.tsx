@@ -309,7 +309,7 @@ export function CourseResponsibleCourse() {
                                             </button>
                                         ) : (
                                             <button
-                                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#002741] disabled:opacity-50"
+                                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#002741] disabled:opacity-50 cursor-pointer"
                                                 type="button"
                                                 onClick={handleArchiveCourse}
                                                 disabled={isArchiving}
@@ -319,7 +319,7 @@ export function CourseResponsibleCourse() {
                                             </button>
                                         )}
                                         <button
-                                            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-300 disabled:opacity-50"
+                                            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-300 disabled:opacity-50 cursor-pointer"
                                             type="button"
                                             onClick={handleDeleteCourse}
                                             disabled={isDeletingCourse}
@@ -403,7 +403,7 @@ export function CourseResponsibleCourse() {
                                                         courseSessionType: e.target.value as CourseSessionType,
                                                     }))
                                                 }
-                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
+                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#003b5c] cursor-pointer"
                                             >
                                                 <option value="GRADING">Grading</option>
                                                 <option value="LABORATION">Laboration</option>
@@ -459,7 +459,7 @@ export function CourseResponsibleCourse() {
                                                             isWeeklyRecurring: e.target.checked,
                                                         }))
                                                     }
-                                                    className="h-4 w-4 rounded border-slate-300 accent-[#003b5c]"
+                                                    className="h-4 w-4 rounded border-slate-300 accent-[#003b5c] cursor-pointer"
                                                 />
                                                 Weekly recurring
                                             </label>
@@ -468,7 +468,7 @@ export function CourseResponsibleCourse() {
                                                 type="button"
                                                 onClick={handleCreateSession}
                                                 disabled={isCreatingSession}
-                                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#003b5c] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#002741] disabled:opacity-50"
+                                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#003b5c] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#002741] disabled:opacity-50 cursor-pointer"
                                             >
                                                 <Plus className="h-4 w-4" />
                                                 {isCreatingSession ? "Creating..." : "Create"}
@@ -551,7 +551,7 @@ export function CourseResponsibleCourse() {
                                                         <button
                                                             type="button"
                                                             onClick={() => handleDeleteSession(session.courseSessionId)}
-                                                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                                                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600 cursor-pointer"
                                                         >
                                                             <Trash className="h-4 w-4" />
                                                             Delete

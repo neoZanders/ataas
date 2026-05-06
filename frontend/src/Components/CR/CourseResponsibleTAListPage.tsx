@@ -123,7 +123,7 @@ export function CourseResponsibleTAListPage() {
                         onClick={() => {
                             setIsPopUpOpen(true);
                         }}
-                        className="rounded-2xl bg-[#003b5c] text-xl font-medium text-slate-50 hover:bg-[#002741] px-10 py-2"
+                        className="rounded-2xl bg-[#003b5c] text-xl font-medium text-slate-50 hover:bg-[#002741] px-10 py-2 cursor-pointer"
                         >
                             Invite Ta's or course responsible Ta's
                         </button>

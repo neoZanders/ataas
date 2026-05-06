@@ -52,7 +52,7 @@ export function CoursesSidePanel({
                                         onOpenJoinCourse?.();
                                     }
                                 }}
-                                className="w-full rounded-xl px-4 py-3 text-center bg-slate-300 text-lg transition text-slate-700 hover:bg-slate-100"
+                                className="w-full rounded-xl px-4 py-3 text-center bg-slate-300 text-lg transition text-slate-700 hover:bg-slate-100 cursor-pointer"
                             >
                                 {option.label}
                             </button>
@@ -108,7 +108,7 @@ export function CoursesSidePanel({
                                             onJoinCourse?.(option.courseId);
                                         }}
                                         disabled={isJoining}
-                                        className="shrink-0 rounded-lg bg-[#003b5c] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#002741] disabled:opacity-50"
+                                        className="shrink-0 rounded-lg bg-[#003b5c] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#002741] disabled:opacity-50 cursor-pointer"
                                     >
                                         {isJoining ? "Joining..." : "Join"}
                                     </button>

@@ -98,7 +98,7 @@ export function LoginPage() {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#003b5c] py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:cursor-not-allowed disabled:opacity-70"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#003b5c] py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
                     >
                         <LogIn className="h-4 w-4" />
                         {isSubmitting ? "Logging in..." : "Log in"}
