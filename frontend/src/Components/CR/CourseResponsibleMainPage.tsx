@@ -1,5 +1,5 @@
 import type { EventInput } from "@fullcalendar/core";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCourseSessions, type CourseSessionResponse, type CourseSessionType } from "../../api/courseSessionsApi.ts";
 import { ApiError } from "../../api/http.ts";
 import { createSchedule, getSchedule } from "../../api/scheduleApi.ts";
@@ -32,7 +32,7 @@ export function CourseResponsibleMainPage() {
     const [isRunningAlgorithm, setIsRunningAlgorithm] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const loadSchedule = async () => {
+    const loadSchedule = useCallback(async () => {
         if (!currentCourseId || !accessToken) {
             setCourseSessions([]);
             setVisibleCourseSessionIds([]);
@@ -67,11 +67,11 @@ export function CourseResponsibleMainPage() {
         } finally {
             setIsLoadingSchedule(false);
         }
-    };
+    }, [currentCourseId, accessToken]);
 
     useEffect(() => {
         void loadSchedule();
-    }, [currentCourseId, accessToken]);
+    }, [loadSchedule]);
 
     const events = useMemo<EventInput[]>(() => {
         const visibleIds = new Set(visibleCourseSessionIds);
