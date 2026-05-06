@@ -109,7 +109,7 @@ export function CourseResponsibleMainPage() {
     return (
         <div className="min-h-screen bg-stone-50">
             <SideTabNav />
-            <main className="pl-[104px] pt-6">
+            <main className="pl-26 pt-6">
                 <div className="mb-6 flex flex-col items-center justify-center gap-3">
                 <button
                     className="rounded-2xl bg-[#003b5c] px-10 py-2 text-xl font-medium text-slate-50 hover:bg-[#002741] disabled:cursor-not-allowed disabled:opacity-60"
