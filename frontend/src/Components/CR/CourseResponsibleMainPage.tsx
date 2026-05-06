@@ -8,7 +8,7 @@ export function CourseResponsibleMainPage() {
             <main className="pl-[104px] pt-6">
                 <div className="flex items-center justify-center mb-6">
                 <button
-                    className="rounded-2xl bg-[#003b5c] text-xl font-medium text-slate-50 hover:bg-[#002741] px-10 py-2"
+                    className="rounded-2xl bg-[#003b5c] text-xl font-medium text-slate-50 hover:bg-[#002741] px-10 py-2 cursor-pointer"
                     type="button">
                     Run Algorithm
                 </button>
