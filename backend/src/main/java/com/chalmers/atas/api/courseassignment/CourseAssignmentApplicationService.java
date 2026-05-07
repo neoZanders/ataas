@@ -138,15 +138,17 @@ public class CourseAssignmentApplicationService {
                         taCourseAssignmentRepository.findByTaAndCourse(currentUser.getUser(), course),
                         ErrorCode.USER_HAS_NOT_JOINED_COURSE.toError()
                 ).flatMap(taCourseAssignment ->
-                        taCourseAssignmentService.updateAssignment(
-                                taCourseAssignment,
-                                request.getMinHours(),
-                                request.getMaxHours(),
-                                request.getSessionTypePreference1(),
-                                request.getSessionTypePreference2(),
-                                request.getSessionTypePreference3(),
-                                request.getSessionTypePreference4(),
-                                request.getIsCompactSchedule()
+                        Result.from(
+                                taCourseAssignmentService.updateAssignment(
+                                        taCourseAssignment,
+                                        request.getMinHours(),
+                                        request.getMaxHours(),
+                                        request.getSessionTypePreference1(),
+                                        request.getSessionTypePreference2(),
+                                        request.getSessionTypePreference3(),
+                                        request.getSessionTypePreference4(),
+                                        request.getIsCompactSchedule()
+                                )
                         ).map(TACourseAssignmentResponse::of)
                 )
         );

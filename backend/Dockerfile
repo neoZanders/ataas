@@ -3,6 +3,7 @@ WORKDIR /workspace
 
 COPY . .
 
+RUN ./gradlew test --tests "com.chalmers.atas.arch.*" --no-daemon
 RUN ./gradlew bootJar -x test --no-daemon
 
 FROM eclipse-temurin:21-jre

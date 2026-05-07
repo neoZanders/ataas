@@ -6,6 +6,7 @@ import com.chalmers.atas.common.TransactionalResult;
 import com.chalmers.atas.domain.course.Course;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +22,7 @@ public class CourseSessionService {
         return Result.ok(courseSessionRepository.findAllByCourseCourseId(courseId));
     }
 
+    @Transactional
     public TransactionalResult<CourseSession> createCourseSession(
             Course course,
             LocalDateTime startDateTime,
@@ -40,6 +42,7 @@ public class CourseSessionService {
         )));
     }
 
+    @Transactional
     public TransactionalResult<Void> deleteCourseSession(UUID courseSessionId) {
         return TransactionalResult.ofOptional(
                 courseSessionRepository.findById(courseSessionId), ErrorCode.COURSE_SESSION_NOT_FOUND.toError()
