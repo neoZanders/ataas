@@ -4,13 +4,17 @@ import {useCurrentCourse} from "../CurrentCourseContext.tsx";
 import {useEffect, useMemo, useState} from "react";
 import {type CourseResponse, getCourseById} from "../../api/coursesApi.ts";
 import {
-    type CourseAssignmentConstraintsRequest, createTAConstraintNotASession,
-    getCourseAssignmentConstraints, getTAConstraintsTimeSlots, putTAConstraintsTimeSlots,
+    type CourseAssignmentConstraintsRequest,
+    createTAConstraintNotASession,
+    getCourseAssignmentConstraints,
+    getTAConstraintsTimeSlots,
+    putTAConstraintsTimeSlots,
     type PutTAConstraintsTimeSlotsRequest,
     type TAConstraintsTimeSlotsResponse
 } from "../../api/taConstraintsApi.ts";
 import {Trash2} from "lucide-react";
 import SessionTypeRanker, {SessionType} from "./SessionRanking1to4.tsx";
+import type {CourseSessionType} from "../../api/courseSessionsApi.ts";
 
 export type TimeSlot = {
     id: string;
@@ -21,6 +25,16 @@ export type TimeSlot = {
     backendId?: string;
     isWeeklyRecurring: boolean;
 };
+
+export type CourseAssignmentConstraintsForm = {
+    minHours: string;
+    maxHours: string;
+    sessionTypePreference1: CourseSessionType;
+    sessionTypePreference2: CourseSessionType;
+    sessionTypePreference3: CourseSessionType;
+    sessionTypePreference4: CourseSessionType;
+    isCompactSchedule: boolean;
+}
 
 type RankingState = Record<SessionType, number | null>;
 
@@ -40,15 +54,25 @@ export function TAConstraintsPage2(){
     const [hasAddedRanking, setHasAddedRanking] = useState<boolean>(false);
     const [hasAddedSchedulePreference, setHasAddedSchedulePreference] = useState<boolean>(false);
 
-    const [form, setForm] = useState<CourseAssignmentConstraintsRequest>({
-        minHours: 0,
-        maxHours: 100,
+    const [form, setForm] = useState<CourseAssignmentConstraintsForm>({
+        minHours: "",
+        maxHours: "",
         sessionTypePreference1: "LABORATION",
         sessionTypePreference2: "LABORATION",
         sessionTypePreference3: "LABORATION",
         sessionTypePreference4: "LABORATION",
         isCompactSchedule: false,
     });
+
+    const request: CourseAssignmentConstraintsRequest = {
+        minHours: form.minHours === "" ? 0 : Number(form.minHours),
+        maxHours: form.maxHours === "" ? 0 : Number(form.maxHours),
+        sessionTypePreference1: form.sessionTypePreference1,
+        sessionTypePreference2: form.sessionTypePreference2,
+        sessionTypePreference3: form.sessionTypePreference3,
+        sessionTypePreference4: form.sessionTypePreference4,
+        isCompactSchedule: form.isCompactSchedule,
+    };
 
     // from backend res to UI
     function mapResponseToTimeSlot(slot: TAConstraintsTimeSlotsResponse): TimeSlot {
@@ -136,7 +160,7 @@ export function TAConstraintsPage2(){
         };
     }
 
-    const ranking = useMemo(() => preferencesToRanking(form), [form]);
+    const ranking = useMemo(() => preferencesToRanking(request), [form]);
 
     function toLocalDateInputValue(dateTime: string): string {
         return dateTime.slice(0, 10);
@@ -220,15 +244,15 @@ export function TAConstraintsPage2(){
 
         try {
             const response = await createTAConstraintNotASession(
-                form,
+                request,
                 currentCourseId,
                 user.id,
                 accessToken
             );
 
             setForm({
-                minHours: response.minHours,
-                maxHours: response.maxHours,
+                minHours: String(response.minHours),
+                maxHours: String(response.maxHours),
                 sessionTypePreference1: response.sessionTypePreference1,
                 sessionTypePreference2: response.sessionTypePreference2,
                 sessionTypePreference3: response.sessionTypePreference3,
@@ -317,8 +341,8 @@ export function TAConstraintsPage2(){
                 );
 
                 setForm({
-                    minHours: response.minHours,
-                    maxHours: response.maxHours,
+                    minHours: String(response.minHours),
+                    maxHours: String(response.maxHours),
                     sessionTypePreference1: response.sessionTypePreference1,
                     sessionTypePreference2: response.sessionTypePreference2,
                     sessionTypePreference3: response.sessionTypePreference3,
@@ -402,15 +426,12 @@ export function TAConstraintsPage2(){
                                 </label>
 
                                 <div className="flex items-center gap-3">
-                                    {/*    TODO: fix value bug ! */}
                                     <input
                                         value={form.minHours}
-                                        type="number"
-                                        min={0}
                                         onChange={(e) =>
                                             setForm((prev) => ({
                                                 ...prev,
-                                                minHours: Number(e.target.value),
+                                                minHours: e.target.value,
                                             }))
                                         }
                                         className="w-32 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
@@ -427,12 +448,10 @@ export function TAConstraintsPage2(){
                                 <div className="flex items-center gap-3">
                                     <input
                                         value={form.maxHours}
-                                        type="number"
-                                        min={0}
                                         onChange={(e) =>
                                             setForm((prev) => ({
                                                 ...prev,
-                                                maxHours: Number(e.target.value),
+                                                maxHours: e.target.value,
                                             }))
                                         }
                                         className="w-32 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#003b5c]"
