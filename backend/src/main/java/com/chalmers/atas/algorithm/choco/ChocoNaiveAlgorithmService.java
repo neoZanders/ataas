@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,6 +31,8 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
     protected final long timeoutMs;
     protected final long plateauMs;
     protected final boolean shouldOptimize;
+    protected final int compactScheduleViolationWeight = 1; // per hour
+    protected final int sessionPreferenceViolationWeight = 10;
 
     public ChocoNaiveAlgorithmService(
             @Value("${app.alg.timeout-ms}") long timeoutMs,
@@ -285,6 +289,7 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
         List<BoolVar> penaltyBools = new ArrayList<>();
         List<Integer> penaltyWeights = new ArrayList<>();
 
+        // Soft constraints
         for (AlgorithmSoftSessionConstraint constraint : request.softConstraints()) {
             int t = taIndexByAssignmentId.get(constraint.taAssignmentId());
 
@@ -296,13 +301,56 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
             }
         }
 
+        // Session prefs
         for (int t = 0; t < tas.size(); t++) {
             for (int s = 0; s < sessions.size(); s++) {
-                int weight = tas.get(t).sessionTypePreferences().indexOf(sessions.get(s).type()) * 10;
+                int weight = tas.get(t).sessionTypePreferences().indexOf(sessions.get(s).type())
+                        * sessionPreferenceViolationWeight;
 
                 if (weight > 0) {
                     penaltyBools.add(x[t][s]);
                     penaltyWeights.add(weight);
+                }
+            }
+        }
+
+        int averageSameDayGapHours = getAverageGapHours(sessions);
+
+        // Compact schedule
+        for (int t = 0; t < tas.size(); t++) {
+            Boolean preferCompact = tas.get(t).preferCompactSchedule();
+
+            if (preferCompact == null) {
+                continue;
+            }
+
+            for (int s1 = 0; s1 < sessions.size(); s1++) {
+                for (int s2 = s1 + 1; s2 < sessions.size(); s2++) {
+
+                    int gapHours = getGapHoursBetweenSessions(
+                            sessions.get(s1),
+                            sessions.get(s2)
+                    );
+
+                    if (gapHours < 0) {
+                        continue;
+                    }
+
+                    int weight = preferCompact
+                            ? gapHours * compactScheduleViolationWeight
+                            : Math.max(0, averageSameDayGapHours - gapHours)
+                            * compactScheduleViolationWeight;
+
+                    if (weight > 0) {
+                        BoolVar bothAssigned = model.boolVar(
+                                "compact_penalty_t" + t + "_s" + s1 + "_s" + s2
+                        );
+
+                        model.and(x[t][s1], x[t][s2]).reifyWith(bothAssigned);
+
+                        penaltyBools.add(bothAssigned);
+                        penaltyWeights.add(weight);
+                    }
                 }
             }
         }
@@ -320,6 +368,53 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
         }
 
         return new PenaltyModel(totalPenalty);
+    }
+
+    private int getGapHoursBetweenSessions(AlgorithmSession first, AlgorithmSession second) {
+        LocalDateTime firstStart = first.timeInterval().getStart();
+        LocalDateTime firstEnd = first.timeInterval().getEnd();
+
+        LocalDateTime secondStart = second.timeInterval().getStart();
+        LocalDateTime secondEnd = second.timeInterval().getEnd();
+
+        if (!firstStart.toLocalDate().equals(secondStart.toLocalDate())) {
+            return -1;
+        }
+
+        if (firstEnd.isBefore(secondStart) || firstEnd.isEqual(secondStart)) {
+            return (int) Duration.between(firstEnd, secondStart).toHours();
+        }
+
+        if (secondEnd.isBefore(firstStart) || secondEnd.isEqual(firstStart)) {
+            return (int) Duration.between(secondEnd, firstStart).toHours();
+        }
+
+        return 0;
+    }
+
+    private int getAverageGapHours(List<AlgorithmSession> sessions) {
+        int totalGapHours = 0;
+        int gapCount = 0;
+
+        for (int s1 = 0; s1 < sessions.size(); s1++) {
+            for (int s2 = s1 + 1; s2 < sessions.size(); s2++) {
+                int gapHours = getGapHoursBetweenSessions(
+                        sessions.get(s1),
+                        sessions.get(s2)
+                );
+
+                if (gapHours >= 0) {
+                    totalGapHours += gapHours;
+                    gapCount++;
+                }
+            }
+        }
+
+        if (gapCount == 0) {
+            return 0;
+        }
+
+        return totalGapHours / gapCount;
     }
 
     private List<AlgorithmSessionAllocation> extractAllocations(
@@ -376,7 +471,7 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
             if (current < bestPenalty.get()) {
                 bestPenalty.set(current);
                 lastImprovementMs.set(System.currentTimeMillis());
-                System.out.println("Improved penalty to " + current + " at " + solver.getTimeCount() + "s");
+                // System.out.println("Improved penalty to " + current + " at " + solver.getTimeCount() + "s");
             }
         });
 

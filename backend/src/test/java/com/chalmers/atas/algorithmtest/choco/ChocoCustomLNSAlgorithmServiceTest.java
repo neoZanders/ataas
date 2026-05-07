@@ -53,7 +53,7 @@ public class ChocoCustomLNSAlgorithmServiceTest extends ChocoAlgorithmTestBase {
 
     @Test
     public void testAllocate__mockScenario__ok() {
-        Result<AlgorithmResult> result = chocoCustomLNSAlgorithmService.runAlgorithm(request);
+        Result<AlgorithmResult> result = chocoCustomLNSAlgorithmService.runAlgorithm(mockRequest);
 
         System.out.println(
                 "totalPenalty=" + result.getData().totalPenalty() +

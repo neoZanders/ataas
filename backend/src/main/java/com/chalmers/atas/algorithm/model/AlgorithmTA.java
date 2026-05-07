@@ -10,5 +10,5 @@ public record AlgorithmTA(
         int minHours,
         int maxHours,
         List<CourseSession.CourseSessionType> sessionTypePreferences,
-        boolean preferCompactSchedule
+        Boolean preferCompactSchedule
 ) {}

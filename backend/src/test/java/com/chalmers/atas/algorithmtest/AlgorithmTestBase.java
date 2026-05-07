@@ -19,7 +19,7 @@ public abstract class AlgorithmTestBase {
     protected static final LocalDate RECURRING_END_DATE = LocalDate.of(2026, 3, 22);
     protected static final int DEFAULT_SOFT_WEIGHT = 100;
 
-    protected AlgorithmRequest request;
+    protected AlgorithmRequest mockRequest;
 
     protected UUID sebastiaanId = UUID.fromString("11111111-1111-1111-1111-111111111111");
     protected UUID yakovId = UUID.fromString("22222222-2222-2222-2222-222222222222");
@@ -30,7 +30,7 @@ public abstract class AlgorithmTestBase {
 
     @BeforeEach
     void setUpAlgorithmRequest() {
-        request = new AlgorithmRequest(
+        mockRequest = new AlgorithmRequest(
                 buildSessions(),
                 buildTAs(),
                 buildHardConstraints(),
