@@ -41,15 +41,15 @@ public class AnnouncementApplicationService {
     public Result<AnnouncementResponse> createAnnouncement(UUID courseId, CreateAnnouncementRequest request, CurrentUser currentUser){
         return courseService.getCourse(courseId).flatMap(course ->
                 assertUserCanCreateAnnouncements(course, currentUser.getUser())
-                        .flatMap(ignored ->
+                        .then(() ->
                                 announcementService.createAnnouncement(
                                         course,
                                         currentUser.getUser(),
                                         request.getTitle(),
                                         request.getBody(),
                                         request.getSendByEmail()
-                                ).map(AnnouncementResponse::of)
-                        ));
+                                )
+                        ).map(AnnouncementResponse::of));
     }
 
     private Result<Void> assertUserCanViewAnnouncements(Course course, User user) {

@@ -80,7 +80,7 @@ public class AuthApplicationService {
             return Result.error(UNAUTHORIZED.toError("Missing refresh token"));
         }
 
-        return refreshTokenService.rotateRefreshToken(maybeRefreshToken.get())
+        return Result.from(refreshTokenService.rotateRefreshToken(maybeRefreshToken.get()))
                 .map(rotated -> {
                     User user = rotated.getLeft();
                     String newRefreshToken = rotated.getRight();

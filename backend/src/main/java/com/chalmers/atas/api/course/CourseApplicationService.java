@@ -42,13 +42,11 @@ public class CourseApplicationService {
                         request.getCanTACreateAnnouncements(),
                         request.getStartDate(),
                         request.getEndDate()
-                ).flatMap(course ->
+                ).peek(course ->
                         crCourseAssignmentService.createOwnerAssignment(
                                 currentUser.getUser(),
-                                course
-                        ).map(ignored -> course)
-                ).map(CourseResponse::of)
-        );
+                                course))
+        ).map(CourseResponse::of);
     }
 
     public Result<List<CourseWithAssignmentStatusResponse>> getCourses(CurrentUser currentUser) {
@@ -102,7 +100,7 @@ public class CourseApplicationService {
     }
 
     public Result<CourseResponse> archiveCourse(UUID courseId, CurrentUser currentUser) {
-        return courseService.archiveCourse(courseId, currentUser.getUser()).map(CourseResponse::of);
+        return Result.from(courseService.archiveCourse(courseId, currentUser.getUser())).map(CourseResponse::of);
     }
 
     public Result<Void> deleteCourse(UUID courseId, CurrentUser currentUser) {
@@ -110,13 +108,13 @@ public class CourseApplicationService {
     }
 
     public Result<CourseResponse> updateCourse(UUID courseId, UpdateCourseRequest request, CurrentUser currentUser) {
-        return courseService.updateCourse(
+        return Result.from(courseService.updateCourse(
                 courseId,
                 currentUser.getUser(),
                 request.getDescription(),
                 request.getCanTASeeAllSchedules(),
                 request.getCanTACreateAnnouncements()
-        ).map(CourseResponse::of);
+        )).map(CourseResponse::of);
     }
 
     public Result<List<CourseSessionResponse>> getCourseSessions(UUID courseId, CurrentUser currentUser) {
@@ -146,7 +144,7 @@ public class CourseApplicationService {
     public Result<CourseSessionResponse> createCourseSession(UUID courseId, CreateCourseSessionRequest request, CurrentUser currentUser) {
         return Result.ofOptional(courseRepository.findById(courseId), ErrorCode.COURSE_NOT_FOUND.toError()).flatMap(course -> {
             if (crCourseAssignmentService.isUserCrOfCourse(currentUser.getUser(), course)) {
-                return courseSessionService.createCourseSession(
+                return Result.from(courseSessionService.createCourseSession(
                         course,
                         request.getStartDateTime(),
                         request.getEndDateTime(),
@@ -154,7 +152,7 @@ public class CourseApplicationService {
                         request.getMinTAs(),
                         request.getMaxTAs(),
                         request.getIsWeeklyRecurring()
-                ).map(CourseSessionResponse::of);
+                )).map(CourseSessionResponse::of);
             } else {
                 return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError());
             }
@@ -162,12 +160,13 @@ public class CourseApplicationService {
     }
 
     public Result<Void> deleteCourseSession(UUID courseId, UUID courseSessionId, CurrentUser currentUser) {
-        return Result.ofOptional(courseRepository.findById(courseId), ErrorCode.COURSE_NOT_FOUND.toError()).flatMap(course -> {
-            if (crCourseAssignmentService.isUserCrOfCourse(currentUser.getUser(), course)) {
-                return courseSessionService.deleteCourseSession(courseSessionId);
-            } else {
-                return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError());
-            }
-        });
+        return Result.ofOptional(courseRepository.findById(courseId), ErrorCode.COURSE_NOT_FOUND.toError())
+                .flatMap(course -> {
+                    if (crCourseAssignmentService.isUserCrOfCourse(currentUser.getUser(), course)) {
+                        return courseSessionService.deleteCourseSession(courseSessionId);
+                    } else {
+                        return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError());
+                    }
+                });
     }
 }

@@ -81,13 +81,13 @@ public class TAConstraintApplicationService {
                 .flatMap(course ->
                         taCourseAssignmentService.getAssignment(user, course)
                                 .flatMap(taCourseAssignment ->
-                                        taCourseSessionConstraintService.createConstraint(
+                                        Result.from(taCourseSessionConstraintService.createConstraint(
                                                 taCourseAssignment,
                                                 request.getConstraintType(),
                                                 request.getStartDateTime(),
                                                 request.getEndDateTime(),
                                                 request.getIsWeeklyRecurring()
-                                        ).map(ignored -> null)
+                                        )).map(ignored -> null)
                                 ));
     }
 
@@ -111,7 +111,7 @@ public class TAConstraintApplicationService {
                                                     taCourseSessionConstraintService.getTAConstraints(course, currentUser.getUserId());
 
                                             if (!existingConstraintsResult.isSuccess()) {
-                                                return TransactionalResult.rollbackFor(existingConstraintsResult.getError());
+                                                return transactionHandler.rollbackFor(existingConstraintsResult.getError());
                                             }
 
                                             Map<UUID, TACourseSessionConstraint> remainingConstraints =
@@ -139,7 +139,7 @@ public class TAConstraintApplicationService {
                                                             remainingConstraints.remove(constraintRequest.getTaCourseConstraintId());
 
                                                     if (existingConstraint == null) {
-                                                        return TransactionalResult.rollbackFor(
+                                                        return transactionHandler.rollbackFor(
                                                                 ErrorCode.TA_CONSTRAINT_NOT_FOUND.toError(
                                                                         "TA course session constraint with id="
                                                                                 + constraintRequest.getTaCourseConstraintId()
@@ -158,7 +158,7 @@ public class TAConstraintApplicationService {
                                                 }
 
                                                 if (!constraintResult.isSuccess()) {
-                                                    return TransactionalResult.rollbackFor(constraintResult.getError());
+                                                    return transactionHandler.rollbackFor(constraintResult.getError());
                                                 }
 
                                                 responses.add(TAConstraintResponse.of(constraintResult.getData()));
@@ -169,11 +169,11 @@ public class TAConstraintApplicationService {
                                                         taCourseSessionConstraintService.deleteConstraint(constraintToDelete);
 
                                                 if (!deleteResult.isSuccess()) {
-                                                    return TransactionalResult.rollbackFor(deleteResult.getError());
+                                                    return transactionHandler.rollbackFor(deleteResult.getError());
                                                 }
                                             }
 
-                                            return TransactionalResult.ok(responses);
+                                            return transactionHandler.ok(responses);
                                         })
                                 )
                 );
@@ -198,13 +198,13 @@ public class TAConstraintApplicationService {
                     if (!constraint.getTaCourseAssignment().getTa().getUserId().equals(user.getUserId())) {
                         return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
                     }
-                    return taCourseSessionConstraintService.updateConstraint(
+                    return Result.from(taCourseSessionConstraintService.updateConstraint(
                             constraint,
                             request.getConstraintType(),
                             request.getStartDateTime(),
                             request.getEndDateTime(),
                             request.getIsWeeklyRecurring()
-                    ).map(TAConstraintResponse::of);
+                    )).map(TAConstraintResponse::of);
                 });
     }
 
@@ -264,10 +264,10 @@ public class TAConstraintApplicationService {
                                                     taCourseAssignment,
                                                     requests,
                                                     course
-                                            ).map(constraints ->
-                                                    constraints.stream().map(TAConstraintResponse::of).toList()
                                             );
-                                        }))
+                                        }).map(constraints ->
+                                        constraints.stream().map(TAConstraintResponse::of).toList()
+                                ))
                         ));
     }
 }

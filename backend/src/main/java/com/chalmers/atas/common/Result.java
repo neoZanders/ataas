@@ -103,4 +103,12 @@ public class Result<T> {
             return supplier.get();
         }
     }
+
+    public static <T> Result<T> from(Result<T> result) {
+        if (result.isSuccess()) {
+            return Result.ok(result.getData());
+        }
+
+        return Result.error(result.getError());
+    }
 }
