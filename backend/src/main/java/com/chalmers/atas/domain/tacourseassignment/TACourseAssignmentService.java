@@ -131,9 +131,9 @@ public class TACourseAssignmentService {
         if (sessionTypePreference4 != null) {
             taCourseAssignment.setSessionTypePreference4(sessionTypePreference4);
         }
-        if (isCompactSchedule != null) {
-            taCourseAssignment.setIsCompactSchedule(isCompactSchedule);
-        }
+
+        taCourseAssignment.setIsCompactSchedule(isCompactSchedule);
+
 
         return TransactionalResult.ok(taCourseAssignmentRepository.save(taCourseAssignment));
     }
