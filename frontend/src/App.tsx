@@ -14,7 +14,7 @@ import { TATaListPage} from "./Components/TA/TATaListPage.tsx";
 import {TAConstraintsPage} from "./Components/TA/TAConstraintsPage.tsx";
 import {CourseResponsibleCourse} from "./Components/CR/CourseResponsibleCourse.tsx";
 import {CurrentCourseProvider} from "./Components/CurrentCourseContext.tsx";
-import {TAConstraintspage2} from "./Components/TA/TAConstraintspage2.tsx";
+import {TAConstraintsPage2} from "./Components/TA/TAConstraintsPage2.tsx";
 
 function RootRedirect() {
     const { user, isAuthReady } = useAuth();
@@ -144,7 +144,7 @@ function App() {
                         path="/ta/constraints"
                         element={
                             <RoleRoute allow={["TA"]}>
-                                <TAConstraintspage2 />
+                                <TAConstraintsPage2 />
                             </RoleRoute>
                         }
                     />
