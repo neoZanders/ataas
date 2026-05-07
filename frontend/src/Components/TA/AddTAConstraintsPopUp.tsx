@@ -23,7 +23,7 @@ export type TimeSlot = {
 
 interface AddTAConstraintsPopUpProps {
     isOpen: boolean;
-    onClose: () => void;
+    // onClose: () => void;
 
     form: CourseAssignmentConstraintsRequest;
     setForm: React.Dispatch<React.SetStateAction<CourseAssignmentConstraintsRequest>>;
@@ -191,7 +191,7 @@ export function AddTAConstraintsPopUp({
 
     const addConstraint = (kind: ConstraintKind) => {
         setEnabled((prev) => ({ ...prev, [kind]: true }));
-        
+
     };
 
     const removeConstraint = (kind: ConstraintKind) => {

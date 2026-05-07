@@ -1,31 +1,44 @@
 import SideTabNav from "../SideTabNav.tsx";
 import {useAuth} from "../AuthContext.tsx";
 import {useCurrentCourse} from "../CurrentCourseContext.tsx";
-import React, {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {type CourseResponse, getCourseById} from "../../api/coursesApi.ts";
-import type {TimeSlot} from "./AddTAConstraintsPopUp.tsx";
 import {
-    type CourseAssignmentConstraintsRequest, createTAConstraintNotASession, putTAConstraintsTimeSlots,
+    type CourseAssignmentConstraintsRequest, createTAConstraintNotASession,
+    getCourseAssignmentConstraints, getTAConstraintsTimeSlots, putTAConstraintsTimeSlots,
     type PutTAConstraintsTimeSlotsRequest,
     type TAConstraintsTimeSlotsResponse
 } from "../../api/taConstraintsApi.ts";
 import {Trash2} from "lucide-react";
+import SessionTypeRanker, {SessionType} from "./SessionRanking1to4.tsx";
 
+export type TimeSlot = {
+    id: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    constraintType: "SOFT" | "HARD";
+    backendId?: string;
+    isWeeklyRecurring: boolean;
+};
 
+type RankingState = Record<SessionType, number | null>;
 
-
-export function TAConstraintspage2(){
+export function TAConstraintsPage2(){
     const { accessToken, user } = useAuth();
     const { currentCourseId } = useCurrentCourse();
     const [course, setCourse] = useState<CourseResponse | null>(null);
 
     const [isSaving, setIsSaving] = useState(false);
+    const [isSavingTimeSlots, setIsSavingTimeSlots] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
 
     const [hardTimeSlots, setHardTimeSlots] = useState<TimeSlot[]>([]);
     const [softTimeSlots, setSoftTimeSlots] = useState<TimeSlot[]>([]);
 
+    const [hasAddedRanking, setHasAddedRanking] = useState<boolean>(false);
+    const [hasAddedSchedulePreference, setHasAddedSchedulePreference] = useState<boolean>(false);
 
     const [form, setForm] = useState<CourseAssignmentConstraintsRequest>({
         minHours: 0,
@@ -68,6 +81,63 @@ export function TAConstraintspage2(){
         };
     }
 
+    function preferencesToRanking(form: CourseAssignmentConstraintsRequest): RankingState {
+        const next: RankingState = {
+            [SessionType.grading]: null,
+            [SessionType.laboration]: null,
+            [SessionType.help]: null,
+            [SessionType.exercise]: null,
+        };
+
+        const prefMap = [
+            form.sessionTypePreference1,
+            form.sessionTypePreference2,
+            form.sessionTypePreference3,
+            form.sessionTypePreference4,
+        ];
+
+        prefMap.forEach((pref, index) => {
+            if (pref === null){
+                pref="GRADING"
+            }
+            const key = pref.toLowerCase() as SessionType;
+            next[key] = index + 1;
+        });
+
+        return next;
+    }
+
+    function rankingToPreferences(ranking: RankingState) {
+        const rankedItems: { type: string; rank: number }[] = [];
+
+        for (const type in ranking) {
+            const rank = ranking[type as SessionType];
+
+            if (rank !== null) {
+                rankedItems.push({
+                    type: type.toUpperCase(),
+                    rank: rank,
+                });
+            }
+        }
+        rankedItems.sort((a, b) => a.rank - b.rank);
+        return {
+            sessionTypePreference1:
+                (rankedItems[0]?.type ?? "LABORATION") as CourseAssignmentConstraintsRequest["sessionTypePreference1"],
+
+            sessionTypePreference2:
+                (rankedItems[1]?.type ?? "HELP") as CourseAssignmentConstraintsRequest["sessionTypePreference2"],
+
+            sessionTypePreference3:
+                (rankedItems[2]?.type ?? "EXERCISE") as CourseAssignmentConstraintsRequest["sessionTypePreference3"],
+
+            sessionTypePreference4:
+                (rankedItems[3]?.type ?? "GRADING") as CourseAssignmentConstraintsRequest["sessionTypePreference4"],
+        };
+    }
+
+    const ranking = useMemo(() => preferencesToRanking(form), [form]);
+
     function toLocalDateInputValue(dateTime: string): string {
         return dateTime.slice(0, 10);
     }
@@ -82,7 +152,6 @@ export function TAConstraintspage2(){
 
     const removeHardTimeSlotRow = (id: string) => {
         setHardTimeSlots((prev) => prev.filter((slot) => slot.id !== id));
-
     };
 
     const removeSoftTimeSlotRow = (id: string) => {
@@ -100,7 +169,6 @@ export function TAConstraintspage2(){
             prev.map((slot) => (slot.id === id ? {...slot, ...updates} : slot))
         );
     };
-
 
     const addHardTimeSlotRow = () => {
         setHardTimeSlots((prev) => [
@@ -141,6 +209,11 @@ export function TAConstraintspage2(){
             return;
         }
 
+        if (!accessToken) {
+            setSaveError("You are not logged in. Please log in again.");
+            return;
+        }
+
         setIsSaving(true);
         setSaveError(null);
         setSaveSuccess(null);
@@ -163,6 +236,29 @@ export function TAConstraintspage2(){
                 isCompactSchedule: response.isCompactSchedule,
             });
 
+            setSaveSuccess("Constraints saved.");
+        } catch (error) {
+            console.error("Failed to save constraints", error);
+            setSaveError("Could not save constraints.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleSaveConstraintsTimeSlots = async () => {
+        if (!currentCourseId) {
+            setSaveError("No course selected, go to courses and select a course!");
+            return;
+        }
+        if (!accessToken) {
+            setSaveError("You are not logged in. Please log in again.");
+            return;
+        }
+        setIsSavingTimeSlots(true);
+        setSaveError(null);
+        setSaveSuccess(null);
+
+        try {
             const timeSlotRequest = mapTimeSlotsToPutRequest(hardTimeSlots, softTimeSlots);
 
             const savedTimeSlots = await putTAConstraintsTimeSlots(
@@ -180,13 +276,14 @@ export function TAConstraintspage2(){
                 mappedSavedSlots.filter((slot) => slot.constraintType === "SOFT")
             );
 
-            setSaveSuccess("Constraints saved.");
+        setSaveSuccess("Constraints saved.");
         } catch (error) {
-            console.error("Failed to save constraints", error);
-            setSaveError("Could not save constraints.");
+        console.error("Failed to save constraints", error);
+        setSaveError("Could not save constraints.");
         } finally {
-            setIsSaving(false);
+        setIsSavingTimeSlots(false);
         }
+
     };
 
     useEffect(() => {
@@ -205,6 +302,64 @@ export function TAConstraintspage2(){
         };
         loadCourse();
     }, [currentCourseId, accessToken]);
+
+    useEffect(() => {
+        const loadConstraints = async () => {
+            if (!currentCourseId || !accessToken || !user?.id) {
+                return;
+            }
+
+            try {
+                const response = await getCourseAssignmentConstraints(
+                    user.id,
+                    currentCourseId,
+                    accessToken
+                );
+
+                setForm({
+                    minHours: response.minHours,
+                    maxHours: response.maxHours,
+                    sessionTypePreference1: response.sessionTypePreference1,
+                    sessionTypePreference2: response.sessionTypePreference2,
+                    sessionTypePreference3: response.sessionTypePreference3,
+                    sessionTypePreference4: response.sessionTypePreference4,
+                    isCompactSchedule: response.isCompactSchedule,
+                });
+            } catch (error) {
+                console.error("Failed to load TA constraints", error);
+            }
+        };
+
+        loadConstraints();
+    }, [currentCourseId, accessToken, user?.id]);
+
+    useEffect(() => {
+        const loadTimeSlotConstraints = async () => {
+            if (!currentCourseId || !accessToken || !user?.id) return;
+
+            try {
+                const response = await getTAConstraintsTimeSlots(
+                    currentCourseId,
+                    user.id,
+                    accessToken
+                );
+
+                const mappedSlots = response.map(mapResponseToTimeSlot);
+
+                setHardTimeSlots(
+                    mappedSlots.filter((slot) => slot.constraintType === "HARD")
+                );
+                setSoftTimeSlots(
+                    mappedSlots.filter((slot) => slot.constraintType === "SOFT")
+                );
+            } catch (error) {
+                console.error("Failed to load timeslot constraints", error);
+            }
+        };
+
+        loadTimeSlotConstraints();
+    }, [currentCourseId, accessToken, user?.id]);
+
 
     return (
         <div className="min-h-screen bg-stone-50">
@@ -247,8 +402,11 @@ export function TAConstraintspage2(){
                                 </label>
 
                                 <div className="flex items-center gap-3">
+                                    {/*    TODO: fix value bug ! */}
                                     <input
                                         value={form.minHours}
+                                        type="number"
+                                        min={0}
                                         onChange={(e) =>
                                             setForm((prev) => ({
                                                 ...prev,
@@ -269,6 +427,8 @@ export function TAConstraintspage2(){
                                 <div className="flex items-center gap-3">
                                     <input
                                         value={form.maxHours}
+                                        type="number"
+                                        min={0}
                                         onChange={(e) =>
                                             setForm((prev) => ({
                                                 ...prev,
@@ -382,7 +542,7 @@ export function TAConstraintspage2(){
                         <div className="mt-6 flex justify-end">
                             {hardTimeSlots.length > 0 && (
                                 <button className="mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
-                                        onClick={() => {}}
+                                        onClick={() => handleSaveConstraintsTimeSlots()}
                                 >
                                     Save
                                 </button>
@@ -497,7 +657,7 @@ export function TAConstraintspage2(){
                         <div className="mt-6 flex justify-end">
                             {softTimeSlots.length > 0 && (
                                 <button className="mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
-                                        onClick={addSoftTimeSlotRow}
+                                        onClick={() => {handleSaveConstraintsTimeSlots()}}
                                 >
                                     Save
                                 </button>
@@ -513,28 +673,120 @@ export function TAConstraintspage2(){
 
                     <section className="rounded-3xl mt-4 bg-sky-50 p-6 shadow-sm ring-1 ring-slate-200">
                         <h2 className="mt-1 text-lg font-semibold text-slate-900">Session type ranking</h2>
-                        <p className="mt-1 text-sm text-slate-500">No session ranking added yet, add session preference between lab, grading, exercise and help session types?</p>
+                        <p className="mt-1 mb-4 text-sm text-slate-500">
+                            {hasAddedRanking ? "Save or delete ranking?" : "No session ranking added yet, add session preference between lab, grading, exercise and help session types?"}
+                        </p>
+
+                        { hasAddedRanking && (
+                            <SessionTypeRanker
+                                value={ranking}
+                                onChange={(nextRanking) => {
+                                    const prefs = rankingToPreferences(nextRanking);
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        ...prefs,
+                                    }));
+                                }}
+                            />
+                        )}
+
                         <div className="mt-6 flex justify-end">
-                            <button className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
-                                    onClick={() => {}}
-                            >
-                                Add ranking
-                            </button>
+                            {! hasAddedRanking && (
+                                <button className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                        onClick={() => {setHasAddedRanking(true)}}
+                                >
+                                    Add ranking
+                                </button>
+                            )}
+
+                            {hasAddedRanking && (
+                                <button className="mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                        onClick={() => {setHasAddedRanking(false)}}
+                                >
+                                    Delete
+                                </button>
+
+                            )}
+                            {hasAddedRanking && (
+                                <button className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                        onClick={() => {handleSaveConstraintsNotTimeslots()}}
+                                >
+                                    Save
+                                </button>
+                            )}
+
                         </div>
                     </section>
 
                     <section className="rounded-3xl mt-4 bg-sky-50 p-6 shadow-sm ring-1 ring-slate-200">
                         <h2 className="mt-1 text-lg font-semibold text-slate-900">Compact or spread out schedule</h2>
-                        <p className="mt-1 text-sm text-slate-500">No choice selected yet, add preference for a compact schedule with more sessions during a single day or a spread out schedule over the week?</p>
+                        <p className="mt-1 mb-4 text-sm text-slate-500">
+                            {hasAddedSchedulePreference ? "Save or delete schedule?" :
+                                "No choice selected yet, add preference for a compact schedule with more sessions during a single day or a spread out schedule over the week?"}
+                            </p>
+
+                        {hasAddedSchedulePreference && (
+                        <div className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                            <div>
+                                <p className="text-sm font-medium text-slate-900">
+                                    {form.isCompactSchedule ? "Compact schedule" : "Spread out schedule"}
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                    Toggle how tightly you prefer sessions scheduled.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        isCompactSchedule: !prev.isCompactSchedule,
+                                    }))
+                                }
+                                className={[
+                                    "relative inline-flex h-8 w-14 items-center rounded-full transition",
+                                    form.isCompactSchedule ? "bg-[#003b5c]" : "bg-slate-300",
+                                ].join(" ")}
+                                aria-pressed={form.isCompactSchedule}
+                            >
+                                        <span
+                                            className={[
+                                                "inline-block h-6 w-6 transform rounded-full bg-white transition",
+                                                form.isCompactSchedule ? "translate-x-7" : "translate-x-1",
+                                            ].join(" ")}
+                                        />
+                            </button>
+                        </div>
+                        )}
+
                         <div className="mt-6 flex justify-end">
+                        {!hasAddedSchedulePreference && (
                             <button className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
-                                    onClick={() => {}}
+                                    onClick={() => {setHasAddedSchedulePreference(true)}}
                             >
                                 Add selection
                             </button>
-                        </div>
-                    </section>
+                        )}
 
+                        {hasAddedSchedulePreference && (
+                                <button className="mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                        onClick={() => {setHasAddedSchedulePreference(false)}}
+                                >
+                                    Delete
+                                </button>
+                        )}
+
+                        {hasAddedSchedulePreference && (
+                                <button className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                        onClick={() => {handleSaveConstraintsNotTimeslots()}}
+                                >
+                                    Save
+                                </button>
+                        )}
+                        </div>
+
+                    </section>
                 </section>
             </main>
         </div>
