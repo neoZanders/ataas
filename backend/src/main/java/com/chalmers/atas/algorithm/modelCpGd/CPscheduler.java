@@ -1,7 +1,10 @@
 package com.chalmers.atas.algorithm.modelCpGd;
 
+import com.chalmers.atas.algorithm.AlgorithmService;
+import com.chalmers.atas.algorithm.AlgorithmType;
+import com.chalmers.atas.algorithm.model.*;
+import com.chalmers.atas.common.Result;
 import com.google.ortools.Loader;
-
 import com.google.ortools.sat.*;
 
 import java.util.*;
@@ -19,17 +22,16 @@ public class CPscheduler implements AlgorithmService {
     }
 
     @Override
-    public AlgorithmResult run(List<TA> tas, List<Sessions> sessions){
+    public Result<AlgorithmResult> runAlgorithm(AlgorithmRequest request){
+        List<AlgorithmTA> tas          = request.tas();
+        List<AlgorithmSession> sessions = request.sessions();
+        List<AlgorithmHardSessionConstraint> hardConstraints = request.hardConstraints();
 
-        //recurring into week instance
-        List<Sessions> moreSessions = sessions.stream().flatMap(session -> session.recurring().stream())
-                .collect(Collectors.toList());
 
+        int numTas = tas.size();
+        int numSessions = sessions.size();
 
         CpModel model = new CpModel();
-        int numTas = tas.size();
-        int numSessions = moreSessions.size();
-
 
         //creates variables
         IntVar[][] shifts = new IntVar[numTas][numSessions];
@@ -41,35 +43,42 @@ public class CPscheduler implements AlgorithmService {
 
         //timeMatching constraint availability.
         for(int i = 0; i < numTas; i++){
-            for(int y = 0; y < numSessions; y++){
-                if(!tas.get(i).isAvailableAt(moreSessions.get(y).getTimeslot())){
-                    model.addEquality(shifts[i][y], 0);
+            AlgorithmTA ta = tas.get(i);
+            final UUID taID = ta.taAssignmentId();
+                List<AlgorithmTimeInterval> blocked = hardConstraints.stream()
+                        .filter(c -> c.taAssignmentId().equals(ta.taAssignmentId()))
+                        .map(AlgorithmHardSessionConstraint::timeInterval)
+                        .collect(Collectors.toList());
+            for(int j = 0; j < numSessions; j++){
+                AlgorithmTimeInterval sessionInterval = sessions.get(j).timeInterval();
+                boolean unavaiable = blocked.stream().anyMatch(b -> b.isOverlappingWith(sessionInterval));
+                if(unavaiable){
+                    model.addEquality(shifts[i][j], 0);
                 }
             }
         }
 
         //min max per TA
         for(int i = 0; i < numTas; i++){
-            TA ta = tas.get(i);
+            AlgorithmTA ta = tas.get(i);
             IntVar[] taVar = new IntVar[numSessions];
             long[] durations = new long [numSessions];
             for(int j = 0; j< numSessions; j++){
                 taVar[j] = shifts[i][j];
-                durations[j] = moreSessions.get(j).getDurationTime();
+                durations[j] = sessions.get(j).timeInterval().getDurationMinutes();
             }
-            model.addLinearConstraint(LinearExpr.weightedSum(taVar, durations), ta.getMinHoursPerLp(), ta.getMaxHoursPerLp()
-            );
+            model.addLinearConstraint(LinearExpr.weightedSum(shifts[i], durations), ta.minHours()*60L, ta.maxHours()*60L);
         }
 
 
         //min max per Session
         for(int i = 0; i < numSessions; i++){
-            Sessions session = moreSessions.get(i);
+            AlgorithmSession session = sessions.get(i);
             IntVar[] sessionVar = new IntVar[numTas];
             for(int j = 0; j < numTas; j++){
                 sessionVar[j] = shifts[j][i];
             }
-            model.addLinearConstraint(LinearExpr.sum(sessionVar), session.getMinTa(), session.getMaxTA()
+            model.addLinearConstraint(LinearExpr.sum(sessionVar), session.minTAs(), session.maxTAs()
             );
         }
 
@@ -77,7 +86,7 @@ public class CPscheduler implements AlgorithmService {
         for(int i = 0; i < numTas; i++){
             for(int j = 0; j < numSessions; j++){
                 for(int k = j + 1;k < numSessions; k++ ){
-                    if(moreSessions.get(j).getTimeslot().overLapsWith(moreSessions.get(k).getTimeslot())){
+                    if(sessions.get(j).timeInterval().isOverlappingWith(sessions.get(k).timeInterval())){
                         model.addLinearConstraint(LinearExpr.sum(new IntVar[]{shifts[i][j], shifts[i][k]}), 0,1);
                     }
                 }
@@ -90,15 +99,13 @@ public class CPscheduler implements AlgorithmService {
 
 
         Map<UUID, List<UUID>> assignmentMap = new HashMap<>();
-        moreSessions.forEach(s -> assignmentMap.put(s.getSessionId(), new ArrayList<>()));
+        sessions.forEach(s -> assignmentMap.put(s.sessionId(), new ArrayList<>()));
 
         if(status == CpSolverStatus.FEASIBLE || status == CpSolverStatus.OPTIMAL){
             for(int i = 0; i < numTas; i++){
                 for(int j = 0; j < numSessions; j++){
                 if(solver.value(shifts[i][j]) == 1){
-                    UUID sessionsID = moreSessions.get(j).getSessionId();
-                    assignmentMap.get(sessionsID).add(tas.get(i).getTaID());
-                    tas.get(i).addAssignedHours(moreSessions.get(j).getDurationTime());
+                    assignmentMap.get(sessions.get(j).sessionId()).add(tas.get(i).taAssignmentId());
                 }
             }
         }
@@ -106,15 +113,19 @@ public class CPscheduler implements AlgorithmService {
         }else {
             System.out.println("Warning: CP Solver status: " + status);
         }
-        List<ScheduleResult> results = moreSessions.stream()
-                .map(session -> new ScheduleResult(session, assignmentMap.get(session.getSessionId())))
+        List<AlgorithmSessionAllocation> allocations = sessions.stream()
+                .map(session -> new AlgorithmSessionAllocation(session.sessionId(), assignmentMap.get(session.sessionId())))
                 .collect(Collectors.toList());
 
-        boolean allStaffed = results.stream().allMatch(ScheduleResult::isFullyStaffed);
-        if(allStaffed)
-            return AlgorithmResult.feasible(results);
-        else
-            return AlgorithmResult.infeasible(results);
+        boolean feasible = allocations.stream().allMatch(
+                a -> {AlgorithmSession s = sessions.stream().
+                filter(x -> x.sessionId().equals(a.sessionId())).findFirst().orElseThrow();
+                return a.taAssignmentIds().size() >= s.minTAs();
+                });
+
+
+        AlgorithmResult result = new AlgorithmResult(allocations, 0,feasible, status == CpSolverStatus.OPTIMAL);
+        return Result.ok(result);
     }
 
 }

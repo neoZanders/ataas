@@ -1,33 +1,67 @@
 package com.chalmers.atas.algorithm.modelCpGd;
 
-import com.chalmers.atas.algorithm.modelCpGd.AlgorithmResult;
+
+import com.chalmers.atas.algorithm.AlgorithmService;
+import com.chalmers.atas.algorithm.AlgorithmType;
+import com.chalmers.atas.algorithm.model.*;
+import com.chalmers.atas.common.Result;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SchedulerChannel implements AlgorithmService {
     private final CPscheduler cPscheduler = new CPscheduler();
     private final Greedy greedy = new Greedy();
 
     @Override
-    public AlgorithmType getType(){
+    public AlgorithmType getType() {
         return AlgorithmType.HYBRID;
     }
+
     @Override
-    public AlgorithmResult run(List<TA> tas, List<Sessions> sessions){
-        AlgorithmResult cpResult = cPscheduler.run(tas, sessions);
+    public Result<AlgorithmResult> runAlgorithm(AlgorithmRequest request) {
 
+        Result<AlgorithmResult> cpResultWrapper = cPscheduler.runAlgorithm(request);
 
-        Map<UUID, List<UUID>> cpAssignment = new HashMap<>();
-        for(ScheduleResult sr : cpResult.getAllocations()){
-            cpAssignment.put(sr.getSession().getSessionId(), new ArrayList<>(sr.getAssignedTaIds()));
+        if (!cpResultWrapper.isSuccess()) {
+            System.out.println("Failed CP (" + cpResultWrapper.getError().getMessage());
         }
 
-        List<Sessions> moreSessions = cpResult.getAllocations().stream()
-                .map(ScheduleResult::getSession)
-                .collect(Collectors.toList());
+        Map<UUID, List<UUID>> emptyAssignment = new HashMap<>();
+        for (AlgorithmSession sr : request.sessions()) {
+            UUID sessionId = sr.sessionId();
+            ArrayList<UUID> emptyList = new ArrayList<>();
+            emptyAssignment.put(sessionId, emptyList);
+        }
 
-        return greedy.fillingTheRest(tas, moreSessions,cpAssignment);
+        Map<UUID, Integer> emptyMinutes = new HashMap<>();
+        for (AlgorithmTA ta : request.tas()) {
+            UUID taID = ta.taAssignmentId();
+            emptyMinutes.put(taID, 0);
+
+
+            AlgorithmResult greedyOnly = greedy.fillingTheRest(request, emptyAssignment, emptyMinutes);
+            return Result.ok(greedyOnly);
+        }
+
+        AlgorithmResult cpResult = cpResultWrapper.getData();
+        Map<UUID, List<UUID>> cpAssignment = new HashMap<>();
+        for (AlgorithmSessionAllocation allocation : cpResult.allocations()) {
+            cpAssignment.put(allocation.sessionId(), new ArrayList<>(allocation.taAssignmentIds()));
+        }
+
+        Map<UUID, Integer> assignedMinutes = new HashMap<>();
+        request.tas().forEach(ta -> assignedMinutes.put(ta.taAssignmentId(), 0));
+
+        for (AlgorithmSessionAllocation alloc : cpResult.allocations()) {
+            AlgorithmSession session = request.sessions().stream()
+                    .filter(s -> s.sessionId().equals(alloc.sessionId()))
+                    .findFirst().orElseThrow();
+            int durationMinutes = session.timeInterval().getDurationMinutes();
+            for (UUID taId : alloc.taAssignmentIds()) {
+                assignedMinutes.merge(taId, durationMinutes, Integer::sum);
+            }
+        }
+        AlgorithmResult greedyResult = greedy.fillingTheRest(request,cpAssignment,assignedMinutes);
+        return Result.ok(greedyResult);
     }
-
 }
