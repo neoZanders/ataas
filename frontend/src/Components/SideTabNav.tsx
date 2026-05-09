@@ -43,7 +43,7 @@ type CoursesSidePanelOption =
     | {
     type: "action";
     label: string;
-    action: "create-course" | "join-course";
+    action: "create-course" ;
 };
 
 
@@ -106,12 +106,10 @@ function SideTabNav() {
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const staticCourseActionOptions: CoursesSidePanelOption[] =
-        user?.userType === "CR"
+    const staticCourseActionOptions: CoursesSidePanelOption[] = (user?.userType === "CR")
             ? [{ type: "action", label: "Create course", action: "create-course" }]
-            : (user?.userType === "TA")
-                ? [{ type: "action", label: "Join course", action: "join-course" }]
-                : [];
+            : []
+
 
     const coursePanelOptions = useMemo(
         () => [...apiCourseOptions, ...staticCourseActionOptions],
