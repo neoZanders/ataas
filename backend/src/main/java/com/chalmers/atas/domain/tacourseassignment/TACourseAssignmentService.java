@@ -28,12 +28,12 @@ public class TACourseAssignmentService {
     public TransactionalResult<Void> createInviteAssignment(User ta, Course course){
         if (!ta.getUserType().equals(User.UserType.TA)) {
             return TransactionalResult.rollbackFor(
-                ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError()
+                ErrorCode.USER_NOT_TEACHING_ASSISTANT
             );
         }
         if (taCourseAssignmentRepository.findByTaAndCourse(ta, course).isPresent()) {
             return TransactionalResult.rollbackFor(
-                ErrorCode.USER_ALREADY_HAS_COURSE_ASSIGNMENT.toError()
+                ErrorCode.USER_ALREADY_HAS_COURSE_ASSIGNMENT
             );
         }
 
@@ -59,7 +59,7 @@ public class TACourseAssignmentService {
     public TransactionalResult<Void> join(TACourseAssignment taCourseAssignment){
         if (!taCourseAssignment.getStatus().equals(CourseAssignmentStatus.INVITED)) {
             return TransactionalResult.rollbackFor(
-                ErrorCode.INVALID_COURSE_ASSIGNMENT_STATUS.toError()
+                ErrorCode.INVALID_COURSE_ASSIGNMENT_STATUS
             );
         }
 
@@ -81,7 +81,7 @@ public class TACourseAssignmentService {
     ){
         if (!taCourseAssignment.getStatus().equals(CourseAssignmentStatus.JOINED)) {
             return TransactionalResult.rollbackFor(
-                ErrorCode.INVALID_COURSE_ASSIGNMENT_STATUS.toError()
+                ErrorCode.INVALID_COURSE_ASSIGNMENT_STATUS
             );
         }
 
@@ -98,7 +98,7 @@ public class TACourseAssignmentService {
 
         if (updatedMinHours != null && updatedMaxHours != null && updatedMaxHours < updatedMinHours) {
             return TransactionalResult.rollbackFor(
-                ErrorCode.BAD_REQUEST.toError("maxHours cannot be less than minHours")
+                ErrorCode.INVALID_MIN_MAX_HOURS
             );
         }
 
@@ -109,7 +109,7 @@ public class TACourseAssignmentService {
                 updatedPreference4
         )) {
             return TransactionalResult.rollbackFor(
-                ErrorCode.BAD_REQUEST.toError("session type preferences must be unique")
+                ErrorCode.DUPLICATE_SESSION_TYPE_PREFERENCES
             );
         }
 
@@ -161,7 +161,7 @@ public class TACourseAssignmentService {
     public Result<TACourseAssignment> getAssignment(User ta, Course course) {
         return Result.ofOptional(
                 taCourseAssignmentRepository.findByTaAndCourse(ta, course),
-                ErrorCode.USER_HAS_NOT_JOINED_COURSE.toError()
+                ErrorCode.USER_HAS_NOT_JOINED_COURSE
         );
     }
 

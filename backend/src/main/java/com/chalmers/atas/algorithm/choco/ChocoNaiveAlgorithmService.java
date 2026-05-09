@@ -52,7 +52,7 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
 
         Result<Void> validationResult = validateRequest(request, sessions, tas);
         if (!validationResult.isSuccess()) {
-            return Result.error(validationResult.getError());
+            return Result.error(validationResult.getError().getErrorCode());
         }
 
         Model model = new Model("TA Scheduling");
@@ -99,9 +99,9 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
 
         if (sol == null) {
             if (shouldOptimize && timeoutMs > 0) {
-                return Result.error(ErrorCode.SCHEDULE_GENERATION_TIMED_OUT.toError());
+                return Result.error(ErrorCode.SCHEDULE_GENERATION_TIMED_OUT);
             } else {
-                return Result.error(ErrorCode.SCHEDULE_INFEASIBLE.toError());
+                return Result.error(ErrorCode.SCHEDULE_INFEASIBLE);
             }
         }
 
@@ -123,51 +123,51 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
         Set<UUID> taIds = new HashSet<>();
         for (AlgorithmTA ta : tas) {
             if (!taIds.add(ta.taAssignmentId())) {
-                return Result.error(ErrorCode.BAD_REQUEST.toError(
+                return Result.error(ErrorCode.DUPLICATE_TA_ASSIGNMENT_ID,
                         "Duplicate TA assignment id: " + ta.taAssignmentId()
-                ));
+                );
             }
             if (ta.minHours() > ta.maxHours()) {
-                return Result.error(ErrorCode.BAD_REQUEST.toError(
+                return Result.error(ErrorCode.INVALID_MIN_MAX_HOURS,
                         "TA minHours cannot exceed maxHours for TA assignment: " + ta.taAssignmentId()
-                ));
+                );
             }
             if (ta.sessionTypePreferences().size() != 4 ||
                     ta.sessionTypePreferences().stream().distinct().count() != 4) {
-                return Result.error(ErrorCode.BAD_REQUEST.toError(
+                return Result.error(ErrorCode.INVALID_TA_PREFERENCES,
                         "TA model preferences does not contain ranking for all session types for " +
                                 "TA assignment: " + ta.taAssignmentId()
-                ));
+                );
             }
         }
 
         Set<UUID> sessionIds = new HashSet<>();
         for (AlgorithmSession session : sessions) {
             if (!sessionIds.add(session.sessionId())) {
-                return Result.error(ErrorCode.BAD_REQUEST.toError(
+                return Result.error(ErrorCode.DUPLICATE_SESSION_ID,
                         "Duplicate session id: " + session.sessionId()
-                ));
+                );
             }
             if (session.minTAs() > session.maxTAs()) {
-                return Result.error(ErrorCode.BAD_REQUEST.toError(
+                return Result.error(ErrorCode.INVALID_SESSION_TA_RANGE,
                         "Session minTAs cannot exceed maxTAs for session: " + session.sessionId()
-                ));
+                );
             }
         }
 
         for (AlgorithmHardSessionConstraint constraint : request.hardConstraints()) {
             if (!taIds.contains(constraint.taAssignmentId())) {
-                return Result.error(ErrorCode.BAD_REQUEST.toError(
+                return Result.error(ErrorCode.INVALID_HARD_CONSTRAINT_TA_REFERENCE,
                         "Hard constraint refers to unknown TA assignment: " + constraint.taAssignmentId()
-                ));
+                );
             }
         }
 
         for (AlgorithmSoftSessionConstraint constraint : request.softConstraints()) {
             if (!taIds.contains(constraint.taAssignmentId())) {
-                return Result.error(ErrorCode.BAD_REQUEST.toError(
+                return Result.error(ErrorCode.INVALID_SOFT_CONSTRAINT_TA_REFERENCE,
                         "Soft constraint refers to unknown TA assignment: " + constraint.taAssignmentId()
-                ));
+                );
             }
         }
 
