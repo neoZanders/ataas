@@ -62,8 +62,9 @@ export function TAConstraintsPage2() {
     const [softTimeSlots, setSoftTimeSlots] = useState<TimeSlot[]>([]);
 
     const [hasAddedRanking, setHasAddedRanking] = useState<boolean>(false);
-    const [hasAddedSchedulePreference, setHasAddedSchedulePreference] =
-        useState<boolean>(false);
+    const [hasAddedSchedulePreference, setHasAddedSchedulePreference] = useState<boolean>(false);
+    const [hasAddedHardDescription, setHasAddedHardDescription] = useState<boolean>(false);
+    const [hasAddedSoftDescription, setHasAddedSoftDescription] = useState<boolean>(false);
 
     const [form, setForm] = useState<CourseAssignmentConstraintsForm>({
         minHours: "",
@@ -499,12 +500,20 @@ export function TAConstraintsPage2() {
                         Input your hard constraints below:
                     </h1>
 
+
                     <button
-                        className="mt-1 text-sm mb-4 text-slate-500 w-full flex items-center justify-center underline hover:text-slate-700"
-                        onClick={() => {}}
+                        className="cursor-pointer mt-1 text-sm mb-4 text-slate-500 w-full flex items-center justify-center underline hover:text-slate-700"
+                        onClick={() => {setHasAddedHardDescription(true)}}
                     >
                         Description of hard constraints usage
                     </button>
+
+                    {hasAddedHardDescription && (
+                        <p className="mt-1 text-sm mb-4 text-slate-500 w-full flex items-center justify-center ">
+                            The algorithm will guarantee fulfilling hard constraints.
+                            You will never have to work more than your max hours or less than your min hours and you can't be scheduled during your specified timeslots.
+                        </p>
+                    )}
 
                     <section className="rounded-3xl bg-red-50 p-6 shadow-sm ring-1 ring-slate-200">
                         <h2 className="text-lg font-semibold text-slate-900">
@@ -512,8 +521,7 @@ export function TAConstraintsPage2() {
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-500">
-                            Set your preferred minimum and maximum number of working
-                            hours.
+                            Set your preferred minimum and maximum number of working hours.
                         </p>
 
                         <SaveStatus section="hours" />
@@ -573,7 +581,7 @@ export function TAConstraintsPage2() {
                                     handleSaveConstraintsNotTimeslots("hours")
                                 }
                                 disabled={savingSection === "hours"}
-                                className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                             >
                                 {savingSection === "hours"
                                     ? "Saving..."
@@ -679,7 +687,7 @@ export function TAConstraintsPage2() {
                                             onClick={() =>
                                                 removeHardTimeSlotRow(slot.id)
                                             }
-                                            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                                            className="cursor-pointer inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
                                             aria-label="Remove timeslot"
                                         >
                                             <Trash2 className="h-4 w-4" />
@@ -692,7 +700,7 @@ export function TAConstraintsPage2() {
                         <div className="mt-6 flex justify-end">
                             {hardTimeSlots.length > 0 && (
                                 <button
-                                    className="mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() =>
                                         handleSaveConstraintsTimeSlots(
                                             "hardTimeslots"
@@ -707,7 +715,7 @@ export function TAConstraintsPage2() {
                             )}
 
                             <button
-                                className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                 onClick={addHardTimeSlotRow}
                             >
                                 Add timeslot
@@ -722,11 +730,17 @@ export function TAConstraintsPage2() {
                     </h1>
 
                     <button
-                        className="mt-1 text-sm mb-4 text-slate-500 w-full flex items-center justify-center underline hover:text-slate-700"
-                        onClick={() => {}}
+                        className="cursor-pointer mt-1 text-sm mb-4 text-slate-500 w-full flex items-center justify-center underline hover:text-slate-700"
+                        onClick={() => {setHasAddedSoftDescription(true)}}
                     >
                         Description of soft constraints usage
                     </button>
+
+                    {hasAddedSoftDescription && (
+                        <p className="mt-1 text-sm mb-4 text-slate-500 w-full flex items-center justify-center ">
+                            The algorithm will try to fulfilling soft constraints.
+                        </p>
+                    )}
 
                     <section className="rounded-3xl mt-4 bg-sky-50 p-6 shadow-sm ring-1 ring-slate-200">
                         <h2 className="mt-1 text-lg font-semibold text-slate-900">
@@ -825,7 +839,7 @@ export function TAConstraintsPage2() {
                                             onClick={() =>
                                                 removeSoftTimeSlotRow(slot.id)
                                             }
-                                            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                                            className="cursor-pointer inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
                                             aria-label="Remove timeslot"
                                         >
                                             <Trash2 className="h-4 w-4" />
@@ -838,7 +852,7 @@ export function TAConstraintsPage2() {
                         <div className="mt-6 flex justify-end">
                             {softTimeSlots.length > 0 && (
                                 <button
-                                    className="mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() =>
                                         handleSaveConstraintsTimeSlots(
                                             "softTimeslots"
@@ -853,7 +867,7 @@ export function TAConstraintsPage2() {
                             )}
 
                             <button
-                                className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                 onClick={addSoftTimeSlotRow}
                             >
                                 Add timeslot
@@ -892,7 +906,7 @@ export function TAConstraintsPage2() {
                         <div className="mt-6 flex justify-end">
                             {!hasAddedRanking && (
                                 <button
-                                    className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() => {
                                         setHasAddedRanking(true);
 
@@ -919,7 +933,7 @@ export function TAConstraintsPage2() {
 
                             {hasAddedRanking && (
                                 <button
-                                    className="mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() => {
                                         setHasAddedRanking(false);
 
@@ -938,7 +952,7 @@ export function TAConstraintsPage2() {
 
                             {hasAddedRanking && (
                                 <button
-                                    className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={handleSaveRanking}
                                     disabled={savingSection === "ranking"}
                                 >
@@ -989,7 +1003,7 @@ export function TAConstraintsPage2() {
                                         }))
                                     }
                                     className={[
-                                        "relative inline-flex h-8 w-14 items-center rounded-full transition",
+                                        "cursor-pointer relative inline-flex h-8 w-14 items-center rounded-full transition",
                                         (form.isCompactSchedule ?? false)
                                             ? "bg-[#003b5c]"
                                             : "bg-slate-300",
@@ -1011,7 +1025,7 @@ export function TAConstraintsPage2() {
                         <div className="mt-6 flex justify-end">
                             {!hasAddedSchedulePreference && (
                                 <button
-                                    className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() => {
                                         setHasAddedSchedulePreference(true);
 
@@ -1028,7 +1042,7 @@ export function TAConstraintsPage2() {
 
                             {hasAddedSchedulePreference && (
                                 <button
-                                    className="mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() => {
                                         setHasAddedSchedulePreference(false);
 
@@ -1044,7 +1058,7 @@ export function TAConstraintsPage2() {
 
                             {hasAddedSchedulePreference && (
                                 <button
-                                    className="inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={handleSaveSchedulePreference}
                                     disabled={savingSection === "schedule"}
                                 >
