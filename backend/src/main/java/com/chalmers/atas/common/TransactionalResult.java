@@ -22,7 +22,7 @@ public class TransactionalResult<T> extends Result<T> {
     }
 
     @RequiresTransaction
-    public static <T> TransactionalResult<T> rollbackFor(Error error) {
+    private static <T> TransactionalResult<T> rollbackFor(Error error) {
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             TransactionAspectSupport
                     .currentTransactionStatus()
@@ -30,6 +30,16 @@ public class TransactionalResult<T> extends Result<T> {
         }
 
         return new TransactionalResult<>(false, null, error);
+    }
+
+    @RequiresTransaction
+    public static <T> TransactionalResult<T> rollbackFor(ErrorCode errorCode) {
+        return rollbackFor(errorCode.toError());
+    }
+
+    @RequiresTransaction
+    public static <T> TransactionalResult<T> rollbackFor(ErrorCode errorCode, String details) {
+        return rollbackFor(errorCode.toError(details));
     }
 
     @RequiresTransaction
@@ -82,11 +92,11 @@ public class TransactionalResult<T> extends Result<T> {
     }
 
     @RequiresTransaction
-    public static <T> TransactionalResult<T> ofOptional(Optional<T> maybeData, Error notFoundError) {
+    public static <T> TransactionalResult<T> ofOptional(Optional<T> maybeData, ErrorCode notFoundErrorCode) {
         if (maybeData.isPresent()) {
             return TransactionalResult.ok(maybeData.get());
         }
 
-        return TransactionalResult.rollbackFor(notFoundError);
+        return TransactionalResult.rollbackFor(notFoundErrorCode);
     }
 }

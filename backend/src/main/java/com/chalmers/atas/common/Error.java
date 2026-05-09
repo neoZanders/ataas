@@ -21,4 +21,8 @@ public class Error {
     public String getCode() {
         return code.getCode();
     }
+
+    public ErrorCode getErrorCode() {
+        return code;
+    }
 }
