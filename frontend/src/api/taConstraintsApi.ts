@@ -11,7 +11,7 @@ export type CourseAssignmentConstraintsRequest = {
     sessionTypePreference2: CourseSessionType;
     sessionTypePreference3: CourseSessionType;
     sessionTypePreference4: CourseSessionType;
-    isCompactSchedule: boolean;
+    isCompactSchedule: boolean | null;
 
 }
 
@@ -25,7 +25,7 @@ export type CourseAssignmentConstraintsResponse = {
     sessionTypePreference2: CourseSessionType;
     sessionTypePreference3: CourseSessionType;
     sessionTypePreference4: CourseSessionType;
-    isCompactSchedule: boolean;
+    isCompactSchedule: boolean | null;
 }
 
 export type TAConstraintsTimeSlotsResponse = {

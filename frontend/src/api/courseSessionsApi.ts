@@ -1,6 +1,6 @@
 import { authFetchJson } from "./authFetch.ts";
 
-export type CourseSessionType = "GRADING" | "LABORATION" | "HELP" | "EXERCISE";
+export type CourseSessionType = "GRADING" | "LABORATION" | "HELP" | "EXERCISE" | null;
 
 export type CourseSessionResponse = {
     courseSessionId: string;
