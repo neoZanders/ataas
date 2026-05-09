@@ -21,16 +21,32 @@ public class Result<T> {
         return new Result<>(true, null, null);
     }
 
-    public static <T> Result<T> error(Error error) {
+    private static <T> Result<T> error(Error error) {
         return new Result<>(false, null, error);
     }
 
-    public static <T> Result<T> ofOptional(Optional<T> maybeData, Error notFoundError) {
+    public static <T> Result<T> error(ErrorCode errorCode) {
+        return error(errorCode.toError());
+    }
+
+    public static <T> Result<T> error(ErrorCode errorCode, String details) {
+        return error(errorCode.toError(details));
+    }
+
+    private static <T> Result<T> ofOptional(Optional<T> maybeData, Error notFoundError) {
         if (maybeData.isPresent()) {
             return new Result<>(true, maybeData.get(), null);
         } else {
             return new Result<>(false, null, notFoundError);
         }
+    }
+
+    public static <T> Result<T> ofOptional(Optional<T> maybeData, ErrorCode notFoundErrorCode) {
+       return ofOptional(maybeData, notFoundErrorCode.toError());
+    }
+
+    public static <T> Result<T> ofOptional(Optional<T> maybeData, ErrorCode notFoundErrorCode, String details) {
+       return ofOptional(maybeData, notFoundErrorCode.toError(details));
     }
 
     public <R> Result<R> map(Function<T, R> mapper) {
@@ -88,7 +104,7 @@ public class Result<T> {
         return success ? data : fallback;
     }
 
-    public Result<T> orGetIfError(Error error, Supplier<? extends Result<T>> supplier) {
+    public Result<T> orGetIfError(ErrorCode errorCode, Supplier<? extends Result<T>> supplier) {
         if (success) {
             return this;
         } else {
