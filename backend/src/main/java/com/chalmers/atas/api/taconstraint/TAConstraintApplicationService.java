@@ -31,7 +31,7 @@ public class TAConstraintApplicationService {
     public Result<List<TAConstraintsResponse>> getCourseConstraints(UUID courseId, String username, CurrentUser currentUser){
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.CR)) {
-            return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+            return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
         }
 
         return courseAuthorizationService.assertUserIsCrOfCourse(courseId, user)
@@ -56,11 +56,11 @@ public class TAConstraintApplicationService {
     public Result<List<TAConstraintResponse>> getTAConstraints(UUID courseId, UUID taId, CurrentUser currentUser){
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.TA)) {
-            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
+            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT);
         }
 
         if (!user.getUserId().equals(taId)) {
-            return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+            return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
         }
 
         return courseAuthorizationService.assertUserIsTaOfCourse(courseId, user)
@@ -74,7 +74,7 @@ public class TAConstraintApplicationService {
     public Result<Void> createTAConstraint(UUID courseId, CreateTAConstraintRequest request, CurrentUser currentUser){
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.TA)) {
-            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
+            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT);
         }
 
         return courseAuthorizationService.assertUserIsTaOfCourse(courseId, user)
@@ -99,7 +99,7 @@ public class TAConstraintApplicationService {
         User user = currentUser.getUser();
 
         if (!user.getUserType().equals(User.UserType.TA)) {
-            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
+            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT);
         }
 
         return courseAuthorizationService.assertUserIsTaOfCourse(courseId, user)
@@ -111,7 +111,7 @@ public class TAConstraintApplicationService {
                                                     taCourseSessionConstraintService.getTAConstraints(course, currentUser.getUserId());
 
                                             if (!existingConstraintsResult.isSuccess()) {
-                                                return transactionHandler.rollbackFor(existingConstraintsResult.getError());
+                                                return transactionHandler.rollbackFor(existingConstraintsResult.getError().getErrorCode());
                                             }
 
                                             Map<UUID, TACourseSessionConstraint> remainingConstraints =
@@ -140,11 +140,10 @@ public class TAConstraintApplicationService {
 
                                                     if (existingConstraint == null) {
                                                         return transactionHandler.rollbackFor(
-                                                                ErrorCode.TA_CONSTRAINT_NOT_FOUND.toError(
+                                                                ErrorCode.TA_CONSTRAINT_NOT_FOUND,
                                                                         "TA course session constraint with id="
                                                                                 + constraintRequest.getTaCourseConstraintId()
                                                                                 + " could not be found!"
-                                                                )
                                                         );
                                                     }
 
@@ -158,7 +157,7 @@ public class TAConstraintApplicationService {
                                                 }
 
                                                 if (!constraintResult.isSuccess()) {
-                                                    return transactionHandler.rollbackFor(constraintResult.getError());
+                                                    return transactionHandler.rollbackFor(constraintResult.getError().getErrorCode());
                                                 }
 
                                                 responses.add(TAConstraintResponse.of(constraintResult.getData()));
@@ -169,7 +168,7 @@ public class TAConstraintApplicationService {
                                                         taCourseSessionConstraintService.deleteConstraint(constraintToDelete);
 
                                                 if (!deleteResult.isSuccess()) {
-                                                    return transactionHandler.rollbackFor(deleteResult.getError());
+                                                    return transactionHandler.rollbackFor(deleteResult.getError().getErrorCode());
                                                 }
                                             }
 
@@ -187,16 +186,16 @@ public class TAConstraintApplicationService {
     ){
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.TA)) {
-            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
+            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT);
         }
 
         return taCourseSessionConstraintService.getConstraint(taCourseSessionConstraintId)
                 .flatMap(constraint -> {
                     if (!constraint.getTaCourseAssignment().getCourse().getCourseId().equals(courseId)) {
-                        return Result.error(ErrorCode.TA_CONSTRAINT_NOT_FOUND.toError());
+                        return Result.error(ErrorCode.TA_CONSTRAINT_NOT_FOUND);
                     }
                     if (!constraint.getTaCourseAssignment().getTa().getUserId().equals(user.getUserId())) {
-                        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+                        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
                     }
                     return Result.from(taCourseSessionConstraintService.updateConstraint(
                             constraint,
@@ -211,16 +210,16 @@ public class TAConstraintApplicationService {
     public Result<Void> deleteTAConstraint(UUID courseId, UUID taCourseSessionConstraintId, CurrentUser currentUser){
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.TA)) {
-            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
+            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT);
         }
 
         return taCourseSessionConstraintService.getConstraint(taCourseSessionConstraintId)
                 .flatMap(constraint -> {
                     if (!constraint.getTaCourseAssignment().getCourse().getCourseId().equals(courseId)) {
-                        return Result.error(ErrorCode.TA_CONSTRAINT_NOT_FOUND.toError());
+                        return Result.error(ErrorCode.TA_CONSTRAINT_NOT_FOUND);
                     }
                     if (!constraint.getTaCourseAssignment().getTa().getUserId().equals(user.getUserId())) {
-                        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+                        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
                     }
                     return taCourseSessionConstraintService.deleteConstraint(constraint);
                 });
@@ -232,13 +231,13 @@ public class TAConstraintApplicationService {
             CurrentUser currentUser
     ) {
         if (!currentUser.getUser().getUserType().equals(User.UserType.TA)) {
-            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
+            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT);
         }
 
         String courseCode = request.getCourseCode().toUpperCase().strip();
 
         if (!courseCode.matches(CourseService.COURSE_CODE_MATCHER)) {
-            return Result.error(ErrorCode.INVALID_COURSE_CODE.toError());
+            return Result.error(ErrorCode.INVALID_COURSE_CODE);
         }
 
         return courseAuthorizationService.assertUserIsTaOfCourse(courseId, currentUser.getUser())

@@ -43,7 +43,7 @@ public class ChocoCustomLNSAlgorithmService extends ChocoNaiveAlgorithmService {
 
         Result<Void> validationResult = validateRequest(request, sessions, tas);
         if (!validationResult.isSuccess()) {
-            return Result.error(validationResult.getError());
+            return Result.error(validationResult.getError().getErrorCode());
         }
 
         Model model = new Model("TA Scheduling");

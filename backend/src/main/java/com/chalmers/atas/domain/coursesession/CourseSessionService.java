@@ -45,7 +45,7 @@ public class CourseSessionService {
     @Transactional
     public TransactionalResult<Void> deleteCourseSession(UUID courseSessionId) {
         return TransactionalResult.ofOptional(
-                courseSessionRepository.findById(courseSessionId), ErrorCode.COURSE_SESSION_NOT_FOUND.toError()
+                courseSessionRepository.findById(courseSessionId), ErrorCode.COURSE_SESSION_NOT_FOUND
         ).then(courseSessionRepository::delete);
     }
 }

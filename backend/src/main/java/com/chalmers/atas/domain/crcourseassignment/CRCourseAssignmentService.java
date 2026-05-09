@@ -22,13 +22,13 @@ public class CRCourseAssignmentService {
     public TransactionalResult<Void> createOwnerAssignment(User cr, Course course) {
         if (!cr.getUserType().equals(User.UserType.CR)) {
             return TransactionalResult.rollbackFor(
-                    ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError()
+                    ErrorCode.USER_NOT_COURSE_RESPONSIBLE
             );
         }
 
         if (crCourseAssignmentRepository.findByCrAndCourse(cr, course).isPresent()) {
             return TransactionalResult.rollbackFor(
-                    ErrorCode.USER_ALREADY_HAS_COURSE_ASSIGNMENT.toError()
+                    ErrorCode.USER_ALREADY_HAS_COURSE_ASSIGNMENT
             );
         }
 
@@ -42,13 +42,13 @@ public class CRCourseAssignmentService {
     public TransactionalResult<Void> createInviteAssignment(User cr, Course course) {
         if (!cr.getUserType().equals(User.UserType.CR)) {
             return TransactionalResult.rollbackFor(
-                    ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError()
+                    ErrorCode.USER_NOT_COURSE_RESPONSIBLE
             );
         }
 
         if (crCourseAssignmentRepository.findByCrAndCourse(cr, course).isPresent()) {
             return TransactionalResult.rollbackFor(
-                    ErrorCode.USER_ALREADY_HAS_COURSE_ASSIGNMENT.toError()
+                    ErrorCode.USER_ALREADY_HAS_COURSE_ASSIGNMENT
             );
         }
 
@@ -62,7 +62,7 @@ public class CRCourseAssignmentService {
     public TransactionalResult<Void> join(CRCourseAssignment crCourseAssignment) {
         if (!crCourseAssignment.getStatus().equals(CourseAssignmentStatus.INVITED)) {
             return TransactionalResult.rollbackFor(
-                    ErrorCode.INVALID_COURSE_ASSIGNMENT_STATUS.toError()
+                    ErrorCode.INVALID_COURSE_ASSIGNMENT_STATUS
             );
         }
 
@@ -94,7 +94,7 @@ public class CRCourseAssignmentService {
     public TransactionalResult<Void> deleteAssignment(CRCourseAssignment crCourseAssignment) {
         if (crCourseAssignment.getStatus().equals(CourseAssignmentStatus.OWNER)) {
             return TransactionalResult.rollbackFor(
-                    ErrorCode.CANNOT_DELETE_COURSE_OWNER.toError()
+                    ErrorCode.CANNOT_DELETE_COURSE_OWNER
             );
         }
 

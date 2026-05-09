@@ -46,7 +46,7 @@ public class TACourseSessionConstraintService {
     public Result<TACourseSessionConstraint> getConstraint(UUID taCourseSessionConstraintId) {
         return Result.ofOptional(
                 taCourseSessionConstraintRepository.findById(taCourseSessionConstraintId),
-                ErrorCode.TA_CONSTRAINT_NOT_FOUND.toError()
+                ErrorCode.TA_CONSTRAINT_NOT_FOUND
         );
     }
 
@@ -59,7 +59,7 @@ public class TACourseSessionConstraintService {
             boolean isWeeklyRecurring
     ) {
         if (startDateTime.isAfter(endDateTime)) {
-            return TransactionalResult.rollbackFor(ErrorCode.START_AFTER_END.toError());
+            return TransactionalResult.rollbackFor(ErrorCode.START_AFTER_END);
         }
 
         return TransactionalResult.ok(taCourseSessionConstraintRepository.save(
@@ -109,7 +109,7 @@ public class TACourseSessionConstraintService {
         }
 
         if (constraint.getStartDateTime().isAfter(constraint.getEndDateTime())) {
-            return TransactionalResult.rollbackFor(ErrorCode.START_AFTER_END.toError());
+            return TransactionalResult.rollbackFor(ErrorCode.START_AFTER_END);
         }
 
         return TransactionalResult.ok(taCourseSessionConstraintRepository.save(constraint));

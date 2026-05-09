@@ -47,7 +47,7 @@ public class RefreshTokenService {
     public TransactionalResult<Pair<User, String>> rotateRefreshToken(String rawToken) {
         Result<Claims> jwtCheck = jwtService.parseRefreshClaims(rawToken);
         if (!jwtCheck.isSuccess()) {
-            return TransactionalResult.rollbackFor(jwtCheck.getError());
+            return TransactionalResult.rollbackFor(jwtCheck.getError().getErrorCode());
         }
 
         String tokenHash = hashToken(rawToken);
@@ -56,17 +56,17 @@ public class RefreshTokenService {
                 refreshTokenRepository.findByTokenHashWithUser(tokenHash);
 
         if (maybeRefreshToken.isEmpty()) {
-            return TransactionalResult.rollbackFor(ErrorCode.REFRESH_TOKEN_NOT_FOUND.toError());
+            return TransactionalResult.rollbackFor(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
         }
 
         RefreshToken current = maybeRefreshToken.get();
 
         if (current.isRevoked()) {
-            return TransactionalResult.rollbackFor(ErrorCode.REFRESH_TOKEN_REVOKED.toError());
+            return TransactionalResult.rollbackFor(ErrorCode.REFRESH_TOKEN_REVOKED);
         }
 
         if (current.getExpiresAt().isBefore(Instant.now())) {
-            return TransactionalResult.rollbackFor(ErrorCode.REFRESH_TOKEN_EXPIRED.toError());
+            return TransactionalResult.rollbackFor(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
         current.setRevoked(true);
