@@ -60,7 +60,7 @@ public class TimeEditClient {
                     fetchReservations(courseOfferingId, activityId, startDate, endDate);
 
             if (!result.isSuccess()) {
-                return Result.error(result.getError());
+                return Result.error(result.getError().getErrorCode());
             }
 
             allReservations.addAll(result.getData());
@@ -139,17 +139,17 @@ public class TimeEditClient {
                 JsonNode tokenNode = root.get("token");
 
                 if (tokenNode == null || tokenNode.isNull() || tokenNode.asText().isBlank()) {
-                    return Result.error(ErrorCode.INTERNAL_SERVER_ERROR.toError(
+                    return Result.error(ErrorCode.TIMEEDIT_AUTHENTICATION_FAILED,
                             "TimeEdit authentication response did not contain token"
-                    ));
+                    );
                 }
 
                 accessToken = tokenNode.asText();
                 return Result.ok();
             } catch (IOException e) {
-                return Result.error(ErrorCode.INTERNAL_SERVER_ERROR.toError(
+                return Result.error(ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
                         "Failed to parse TimeEdit authentication response"
-                ));
+                );
             }
         });
     }
@@ -190,14 +190,13 @@ public class TimeEditClient {
                                 .filter(offering -> overlaps(offering, startDate, endDate))
                                 .map(CourseOfferingResponse::id)
                                 .findFirst(),
-                        ErrorCode.INTERNAL_SERVER_ERROR.toError(
+                        ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
                                 "Could not find course offering matching provided code and dates in TimeEdit response"
-                        )
                 );
             } catch (IOException e) {
-                return Result.error(ErrorCode.INTERNAL_SERVER_ERROR.toError(
+                return Result.error(ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
                         "Failed to parse TimeEdit course offering response"
-                ));
+                );
             }
         });
     }
@@ -241,9 +240,9 @@ public class TimeEditClient {
 
             return Result.ok(response.results() != null ? response.results() : List.of());
         } catch (IOException e) {
-            return Result.error(ErrorCode.INTERNAL_SERVER_ERROR.toError(
+            return Result.error(ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
                     "Failed to parse TimeEdit reservations response"
-            ));
+            );
         }
     }
 
@@ -253,20 +252,20 @@ public class TimeEditClient {
 
             if (!response.isSuccessful()) {
                 return Result.error(
-                        ErrorCode.fromHttpStatus(HttpStatus.valueOf(response.code()))
-                                .toError("TimeEdit error " + body)
+                        ErrorCode.fromHttpStatus(HttpStatus.valueOf(response.code())),
+                                "TimeEdit error " + body
                 );
             }
 
             return Result.ok(body);
         } catch (IOException e) {
-            return Result.error(ErrorCode.REQUEST_TIMED_OUT.toError());
+            return Result.error(ErrorCode.REQUEST_TIMED_OUT);
         }
     }
 
     private Result<String> ensureAuthAndExecute(Request request) {
         return execute(request).orGetIfError(
-                ErrorCode.FORBIDDEN.toError(),
+                ErrorCode.TIMEEDIT_AUTHENTICATION_FAILED,
                 () -> authenticate().then(() -> execute(request))
         );
     }
