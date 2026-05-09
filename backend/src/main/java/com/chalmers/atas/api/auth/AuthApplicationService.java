@@ -47,7 +47,7 @@ public class AuthApplicationService {
 
     public Result<AuthResponse> register(AuthRegisterRequest request, HttpServletResponse servletResponse) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            return Result.error(EMAIL_TAKEN.toError());
+            return Result.error(EMAIL_TAKEN);
         }
 
         try {
@@ -60,7 +60,7 @@ public class AuthApplicationService {
                     )
             );
         } catch (DataIntegrityViolationException e) {
-            return Result.error(EMAIL_TAKEN.toError());
+            return Result.error(EMAIL_TAKEN);
         }
 
         return login(request.getEmail(), request.getPassword(), servletResponse)
@@ -77,7 +77,7 @@ public class AuthApplicationService {
     public Result<AuthResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         Optional<String> maybeRefreshToken = extractRefreshToken(request);
         if (maybeRefreshToken.isEmpty()) {
-            return Result.error(UNAUTHORIZED.toError("Missing refresh token"));
+            return Result.error(UNAUTHORIZED, "Missing refresh token");
         }
 
         return Result.from(refreshTokenService.rotateRefreshToken(maybeRefreshToken.get()))
@@ -103,14 +103,14 @@ public class AuthApplicationService {
                     new UsernamePasswordAuthenticationToken(email, password)
             );
         } catch (AuthenticationException e) {
-            return Result.error(UNAUTHORIZED.toError());
+            return Result.error(UNAUTHORIZED);
         }
 
         UserDetails principal = (UserDetails) authentication.getPrincipal();
         Optional<User> maybeUser = userRepository.findByEmail(principal.getUsername());
 
         if (maybeUser.isEmpty()) {
-            return Result.error(NOT_FOUND.toError());
+            return Result.error(NOT_FOUND);
         }
 
         User user = maybeUser.get();

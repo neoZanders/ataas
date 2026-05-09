@@ -31,11 +31,11 @@ public class CourseService {
             LocalDate endDate
     ) {
         if (!courseCode.matches(COURSE_CODE_MATCHER)) {
-            return TransactionalResult.rollbackFor(ErrorCode.INVALID_COURSE_CODE.toError());
+            return TransactionalResult.rollbackFor(ErrorCode.INVALID_COURSE_CODE);
         }
 
         if (startDate.isAfter(endDate)) {
-            return TransactionalResult.rollbackFor(ErrorCode.START_AFTER_END.toError());
+            return TransactionalResult.rollbackFor(ErrorCode.START_AFTER_END);
         }
 
         return TransactionalResult.ok(courseRepository.save(
@@ -82,14 +82,14 @@ public class CourseService {
     private Result<Course> getCourseIfOwnedByCr(UUID courseId, User user) {
         Optional<Course> maybeCourse = courseRepository.findById(courseId);
         if (maybeCourse.isEmpty()) {
-            return Result.error(ErrorCode.COURSE_NOT_FOUND.toError());
+            return Result.error(ErrorCode.COURSE_NOT_FOUND);
         }
 
         Course course = maybeCourse.get();
 
         if (!course.getOwner().getUserId().equals(user.getUserId())) {
             return Result.error(
-                    ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError()
+                    ErrorCode.USER_NOT_COURSE_RESPONSIBLE
             );
         }
         return Result.ok(course);
@@ -98,7 +98,7 @@ public class CourseService {
     public Result<Course> getCourse(UUID courseId) {
         Optional<Course> maybeCourse = courseRepository.findById(courseId);
         if (maybeCourse.isEmpty()) {
-            return Result.error(ErrorCode.COURSE_NOT_FOUND.toError());
+            return Result.error(ErrorCode.COURSE_NOT_FOUND);
         }
         return Result.ok(maybeCourse.get());
     }

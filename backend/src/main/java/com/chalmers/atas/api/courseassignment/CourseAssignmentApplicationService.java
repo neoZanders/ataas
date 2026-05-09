@@ -37,7 +37,7 @@ public class CourseAssignmentApplicationService {
                         .flatMap(course ->
                                         Result.ofOptional(
                                                 crCourseAssignmentRepository.findByCrAndCourse(currentUser.getUser(), course),
-                                                ErrorCode.COURSE_INVITE_NOT_FOUND.toError())
+                                                ErrorCode.COURSE_INVITE_NOT_FOUND)
                         ).flatMap(crCourseAssignmentService::join);           
         }
         if (currentUser.getUser().getUserType().equals(User.UserType.TA)) {
@@ -45,11 +45,11 @@ public class CourseAssignmentApplicationService {
                         .flatMap(course ->
                                         Result.ofOptional(
                                                 taCourseAssignmentRepository.findByTaAndCourse(currentUser.getUser(), course),
-                                                ErrorCode.COURSE_INVITE_NOT_FOUND.toError())
+                                                ErrorCode.COURSE_INVITE_NOT_FOUND)
                         ).flatMap(taCourseAssignmentService::join); 
         }
 
-        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
 
     }
 
@@ -58,7 +58,7 @@ public class CourseAssignmentApplicationService {
                 .flatMap(course ->
                                 Result.ofOptional(
                                         userRepository.findByEmail(request.getCrEmail()),
-                                        ErrorCode.USER_NOT_FOUND.toError()
+                                        ErrorCode.USER_NOT_FOUND
                                 ).flatMap(user ->
                                         crCourseAssignmentService.createInviteAssignment(user, course)));
     }
@@ -68,7 +68,7 @@ public class CourseAssignmentApplicationService {
                 .flatMap(course ->
                                 Result.ofOptional(
                                         userRepository.findByEmail(request.getTaEmail()),
-                                        ErrorCode.USER_NOT_FOUND.toError()
+                                        ErrorCode.USER_NOT_FOUND
                                 ).flatMap(user ->
                                         taCourseAssignmentService.createInviteAssignment(user, course)
                                 )
@@ -83,7 +83,7 @@ public class CourseAssignmentApplicationService {
         } else if (currentUser.getUser().getUserType().equals(User.UserType.TA)) {
             courseResult = courseAuthorizationService.assertUserIsTaOfCourse(courseId, currentUser.getUser());
         } else {
-            courseResult = Result.error(ErrorCode.USER_NOT_ALLOWED_TO_VIEW_COURSE.toError());
+            courseResult = Result.error(ErrorCode.USER_NOT_ALLOWED_TO_VIEW_COURSE);
         }
 
         return courseResult.flatMap(course ->
@@ -106,7 +106,7 @@ public class CourseAssignmentApplicationService {
     }
 
     public Result<TACourseAssignmentResponse> getTAAssignment(UUID courseId, UUID taId, CurrentUser currentUser) {
-        return Result.ofOptional(userRepository.findById(taId), ErrorCode.USER_NOT_FOUND.toError())
+        return Result.ofOptional(userRepository.findById(taId), ErrorCode.USER_NOT_FOUND)
                 .flatMap(ta -> {
                     if (currentUser.getUser().getUserType().equals(User.UserType.CR)) {
                         return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
@@ -115,7 +115,7 @@ public class CourseAssignmentApplicationService {
                         return courseAuthorizationService.assertUserIsTaOfCourse(courseId, ta)
                                 .flatMap(course -> taCourseAssignmentService.getAssignment(ta, course));
                     }
-                    return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+                    return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
                 }).map(TACourseAssignmentResponse::of);
     }
 
@@ -126,17 +126,17 @@ public class CourseAssignmentApplicationService {
             UpdateTAAssignmentRequest request
     ){
         if (!currentUser.getUser().getUserType().equals(User.UserType.TA)) {
-            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT.toError());
+            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT);
         }
 
         if (!currentUser.getUser().getUserId().equals(taId)) {
-            return Result.error(ErrorCode.USER_NOT_ALLOWED_TO_UPDATE_ASSIGNMENT.toError());
+            return Result.error(ErrorCode.USER_NOT_ALLOWED_TO_UPDATE_ASSIGNMENT);
         }
 
         return resolveCourse(courseId).flatMap(course ->
                 Result.ofOptional(
                         taCourseAssignmentRepository.findByTaAndCourse(currentUser.getUser(), course),
-                        ErrorCode.USER_HAS_NOT_JOINED_COURSE.toError()
+                        ErrorCode.USER_HAS_NOT_JOINED_COURSE
                 ).flatMap(taCourseAssignment ->
                         Result.from(
                                 taCourseAssignmentService.updateAssignment(
@@ -159,11 +159,11 @@ public class CourseAssignmentApplicationService {
                 .flatMap(course ->
                                 Result.ofOptional(
                                         userRepository.findById(userId),
-                                        ErrorCode.USER_NOT_FOUND.toError()
+                                        ErrorCode.USER_NOT_FOUND
                                 ).flatMap(cr ->
                                         Result.ofOptional(
                                                 crCourseAssignmentRepository.findByCrAndCourse(cr, course),
-                                                ErrorCode.USER_HAS_NOT_JOINED_COURSE.toError()))
+                                                ErrorCode.USER_HAS_NOT_JOINED_COURSE))
                 ).flatMap(crCourseAssignmentService::deleteAssignment);
     }
 
@@ -172,11 +172,11 @@ public class CourseAssignmentApplicationService {
                 .flatMap(course ->
                                 Result.ofOptional(
                                         userRepository.findById(userId),
-                                        ErrorCode.USER_NOT_FOUND.toError()
+                                        ErrorCode.USER_NOT_FOUND
                                 ).flatMap(ta ->
                                         Result.ofOptional(
                                                 taCourseAssignmentRepository.findByTaAndCourse(ta, course), 
-                                        ErrorCode.USER_HAS_NOT_JOINED_COURSE.toError())
+                                        ErrorCode.USER_HAS_NOT_JOINED_COURSE)
                                 )
                 ).flatMap(taCourseAssignmentService::deleteAssignment);
     }
@@ -185,7 +185,7 @@ public class CourseAssignmentApplicationService {
     private Result<Course> resolveCourse(UUID courseId) {
         return Result.ofOptional(
                 courseRepository.findById(courseId),
-                ErrorCode.COURSE_NOT_FOUND.toError()
+                ErrorCode.COURSE_NOT_FOUND
         );
     }
 }
