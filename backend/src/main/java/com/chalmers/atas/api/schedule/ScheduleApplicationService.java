@@ -25,7 +25,9 @@ import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstra
 import com.chalmers.atas.domain.tacoursesessionconstraint.TACourseSessionConstraintService;
 import com.chalmers.atas.domain.user.CurrentUser;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -74,6 +77,7 @@ public class ScheduleApplicationService {
         this.transactionHandler = transactionHandler;
     }
 
+    @Transactional
     public Result<ScheduleResponse> createSchedule(
             UUID courseId,
             CurrentUser currentUser) {
@@ -90,7 +94,11 @@ public class ScheduleApplicationService {
                                         return Result.error(ErrorCode.BAD_REQUEST.toError("Course has no course sessions"));
                                     }
 
-                                    return taCourseAssignmentService.getCourseAssignments(schedule.getCourse())
+                                    return taCourseAssignmentService.getCourseAssignments(
+                                                    schedule.getCourse(),
+                                                    Optional.empty(),
+                                                    Sort.unsorted()
+                                            )
                                             .flatMap(assignments -> {
                                                 List<TACourseAssignment> joinedAssignments = assignments.stream()
                                                         .filter(assignment -> assignment.getStatus() == CourseAssignmentStatus.JOINED)
@@ -101,7 +109,10 @@ public class ScheduleApplicationService {
                                                 }
 
                                                 return validateHourBudgets(joinedAssignments)
-                                                        .flatMap(ignored -> taCourseSessionConstraintService.getCourseConstraints(schedule.getCourse())
+                                                        .flatMap(ignored -> taCourseSessionConstraintService.getCourseConstraints(
+                                                                        schedule.getCourse(),
+                                                                        Optional.empty()
+                                                                )
                                                                 .flatMap(constraints -> {
                                                                     Set<UUID> joinedAssignmentIds = joinedAssignments.stream()
                                                                             .map(TACourseAssignment::getTaCourseAssignmentId)
@@ -310,6 +321,7 @@ public class ScheduleApplicationService {
         return expanded;
     }
 
+    @Transactional
     private Result<ScheduleResponse> saveAllocationsAndBuildResponse(
             UUID courseId,
             CurrentUser currentUser,
