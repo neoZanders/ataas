@@ -49,7 +49,7 @@ public class CourseAssignmentApplicationService {
                         ).flatMap(taCourseAssignmentService::join); 
         }
 
-        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
+        return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
 
     }
 
@@ -83,7 +83,7 @@ public class CourseAssignmentApplicationService {
         } else if (currentUser.getUser().getUserType().equals(User.UserType.TA)) {
             courseResult = courseAuthorizationService.assertUserIsTaOfCourse(courseId, currentUser.getUser());
         } else {
-            courseResult = Result.error(ErrorCode.USER_NOT_ALLOWED_TO_VIEW_COURSE);
+            courseResult = Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_TO_VIEW_COURSE);
         }
 
         return courseResult.flatMap(course ->
@@ -115,7 +115,7 @@ public class CourseAssignmentApplicationService {
                         return courseAuthorizationService.assertUserIsTaOfCourse(courseId, ta)
                                 .flatMap(course -> taCourseAssignmentService.getAssignment(ta, course));
                     }
-                    return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
+                    return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
                 }).map(TACourseAssignmentResponse::of);
     }
 
@@ -126,11 +126,11 @@ public class CourseAssignmentApplicationService {
             UpdateTAAssignmentRequest request
     ){
         if (!currentUser.getUser().getUserType().equals(User.UserType.TA)) {
-            return Result.error(ErrorCode.USER_NOT_TEACHING_ASSISTANT);
+            return Result.errorFromCode(ErrorCode.USER_NOT_TEACHING_ASSISTANT);
         }
 
         if (!currentUser.getUser().getUserId().equals(taId)) {
-            return Result.error(ErrorCode.USER_NOT_ALLOWED_TO_UPDATE_ASSIGNMENT);
+            return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_TO_UPDATE_ASSIGNMENT);
         }
 
         return resolveCourse(courseId).flatMap(course ->

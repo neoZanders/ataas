@@ -47,7 +47,7 @@ public class RefreshTokenService {
     public TransactionalResult<Pair<User, String>> rotateRefreshToken(String rawToken) {
         Result<Claims> jwtCheck = jwtService.parseRefreshClaims(rawToken);
         if (!jwtCheck.isSuccess()) {
-            return TransactionalResult.rollbackFor(jwtCheck.getError().getErrorCode());
+            return TransactionalResult.rollbackFor(jwtCheck.getError());
         }
 
         String tokenHash = hashToken(rawToken);

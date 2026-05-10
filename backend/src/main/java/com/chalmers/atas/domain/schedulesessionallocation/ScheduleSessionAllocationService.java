@@ -1,6 +1,5 @@
 package com.chalmers.atas.domain.schedulesessionallocation;
 
-import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
 import com.chalmers.atas.domain.course.Course;
@@ -15,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.chalmers.atas.common.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,26 +42,33 @@ public class ScheduleSessionAllocationService {
         }
 
         Schedule schedule = maybeSchedule.getData();
+
         boolean mismatchedSchedule = allocations.stream()
                 .anyMatch(allocation -> !allocation.getSchedule().getScheduleId().equals(schedule.getScheduleId()));
+
         if (mismatchedSchedule) {
-            return TransactionalResult.rollbackFor(ErrorCode.BAD_REQUEST.toError(
-                    "All allocations must belong to the requested schedule"));
+            return TransactionalResult.rollbackFor(BAD_REQUEST,
+                    "All allocations must belong to the requested schedule"
+            );
         }
 
         scheduleSessionAllocationRepository.deleteBySchedule(schedule);
-        return TransactionalResult.ok(scheduleSessionAllocationRepository.saveAll(allocations));
+
+        return TransactionalResult.ok(
+                scheduleSessionAllocationRepository.saveAll(allocations)
+        );
     }
 
     private Result<Schedule> getScheduleIfOwnedByCr(UUID courseId, User user) {
         Optional<Schedule> maybeSchedule = scheduleRepository.findFirstByCourseCourseId(courseId);
         if (maybeSchedule.isEmpty()) {
-            return Result.error(ErrorCode.NOT_FOUND.toError("Schedule not found"));
+            return Result.errorFromCode(NOT_FOUND, "Schedule not found");
         }
 
         Schedule schedule = maybeSchedule.get();
+
         if (!schedule.getCourse().getOwner().getUserId().equals(user.getUserId())) {
-            return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError());
+            return Result.errorFromCode(USER_NOT_COURSE_RESPONSIBLE);
         }
 
         return Result.ok(schedule);
@@ -68,12 +76,13 @@ public class ScheduleSessionAllocationService {
 
     private Result<Schedule> getScheduleIfUserCanViewSchedule(UUID courseId, User user) {
         Result<Course> maybeCourse;
+
         if (user.getUserType().equals(User.UserType.CR)) {
             maybeCourse = courseAuthorizationService.assertUserIsCrOfCourse(courseId, user);
         } else if (user.getUserType().equals(User.UserType.TA)) {
             maybeCourse = courseAuthorizationService.assertUserIsTaOfCourse(courseId, user);
         } else {
-            return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+            return Result.errorFromCode(USER_NOT_ALLOWED_FOR_COURSE_ACTION);
         }
 
         if (!maybeCourse.isSuccess()) {
@@ -82,7 +91,7 @@ public class ScheduleSessionAllocationService {
 
         return Result.ofOptional(
                 scheduleRepository.findFirstByCourse(maybeCourse.getData()),
-                ErrorCode.NOT_FOUND.toError("Schedule not found")
+                NOT_FOUND,"Schedule not found"
         );
     }
 }

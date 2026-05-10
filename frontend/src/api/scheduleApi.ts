@@ -1,9 +1,12 @@
 import { authFetchJson } from "./authFetch.ts";
+import type { CourseSessionType } from "./courseSessionsApi.ts";
 
 export type ScheduleSessionAllocationResponse = {
-    scheduleSessionAllocationsId: string;
+    scheduleSessionAllocationId: string;
     scheduleId: string;
-    courseSessionId: string;
+    startDateTime: string;
+    endDateTime: string;
+    courseSessionType: CourseSessionType;
     taCourseAssignmentId: string;
 };
 

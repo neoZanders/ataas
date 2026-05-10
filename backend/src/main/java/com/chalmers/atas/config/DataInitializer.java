@@ -137,7 +137,7 @@ public class DataInitializer {
         crCourseAssignmentRepository.save(CRCourseAssignment.of(
                 sebastiaanCR,
                 vol101,
-                CourseAssignmentStatus.INVITED
+                CourseAssignmentStatus.JOINED
         ));
 
         // TACourseAssignment
@@ -145,7 +145,7 @@ public class DataInitializer {
         TACourseAssignment sebTAAssignment = TACourseAssignment.of(
                 sebastiaanTA,
                 vol101,
-                CourseAssignmentStatus.INVITED,
+                CourseAssignmentStatus.JOINED,
                 35,
                 120,
                 CourseSessionType.GRADING,
@@ -159,7 +159,7 @@ public class DataInitializer {
         TACourseAssignment yakAssignment = TACourseAssignment.of(
                 yakov,
                 vol101,
-                CourseAssignmentStatus.INVITED,
+                CourseAssignmentStatus.JOINED,
                 30,
                 80,
                 CourseSessionType.LABORATION,
@@ -173,7 +173,7 @@ public class DataInitializer {
         TACourseAssignment levAssignment = TACourseAssignment.of(
                 levi,
                 vol101,
-                CourseAssignmentStatus.INVITED,
+                CourseAssignmentStatus.JOINED,
                 30,
                 80,
                 CourseSessionType.GRADING,
@@ -187,7 +187,7 @@ public class DataInitializer {
         TACourseAssignment albAssignment = TACourseAssignment.of(
                 alberic,
                 vol101,
-                CourseAssignmentStatus.INVITED,
+                CourseAssignmentStatus.JOINED,
                 30,
                 80,
                 CourseSessionType.LABORATION,
@@ -201,7 +201,7 @@ public class DataInitializer {
         TACourseAssignment phoAssignment = TACourseAssignment.of(
                 phoebe,
                 vol101,
-                CourseAssignmentStatus.INVITED,
+                CourseAssignmentStatus.JOINED,
                 30,
                 80,
                 CourseSessionType.LABORATION,
@@ -215,7 +215,7 @@ public class DataInitializer {
         TACourseAssignment noeAssignment = TACourseAssignment.of(
                 noelle,
                 vol101,
-                CourseAssignmentStatus.INVITED,
+                CourseAssignmentStatus.JOINED,
                 30,
                 80,
                 CourseSessionType.LABORATION,

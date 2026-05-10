@@ -57,17 +57,17 @@ public class AnnouncementApplicationService {
             if (crCourseAssignmentService.isUserCrOfCourse(user, course)) {
                 return Result.ok();
             }
-            return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
+            return Result.errorFromCode(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
         }
 
         if (user.getUserType().equals(User.UserType.TA)) {
             if (!taCourseAssignmentService.isUserTaOfCourse(user, course)) {
-                return Result.error(ErrorCode.USER_HAS_NOT_JOINED_COURSE);
+                return Result.errorFromCode(ErrorCode.USER_HAS_NOT_JOINED_COURSE);
             }
             return Result.ok();
         }
 
-        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
+        return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
     }
 
     private Result<Void> assertUserCanCreateAnnouncements(Course course, User user) {
@@ -75,20 +75,20 @@ public class AnnouncementApplicationService {
             if (crCourseAssignmentService.isUserCrOfCourse(user, course)) {
                 return Result.ok();
             }
-            return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
+            return Result.errorFromCode(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
         }
 
         if (user.getUserType().equals(User.UserType.TA)) {
             if (!taCourseAssignmentService.isUserTaOfCourse(user, course)) {
-                return Result.error(ErrorCode.USER_HAS_NOT_JOINED_COURSE);
+                return Result.errorFromCode(ErrorCode.USER_HAS_NOT_JOINED_COURSE);
             }
             if (!course.isCanTACreateAnnouncements()) {
-                return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
+                return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
             }
             return Result.ok();
         }
 
-        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
+        return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
     }
 
 }

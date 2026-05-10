@@ -60,7 +60,7 @@ public class TimeEditClient {
                     fetchReservations(courseOfferingId, activityId, startDate, endDate);
 
             if (!result.isSuccess()) {
-                return Result.error(result.getError().getErrorCode());
+                return Result.error(result.getError());
             }
 
             allReservations.addAll(result.getData());
@@ -139,7 +139,7 @@ public class TimeEditClient {
                 JsonNode tokenNode = root.get("token");
 
                 if (tokenNode == null || tokenNode.isNull() || tokenNode.asText().isBlank()) {
-                    return Result.error(ErrorCode.TIMEEDIT_AUTHENTICATION_FAILED,
+                    return Result.errorFromCode(ErrorCode.TIMEEDIT_AUTHENTICATION_FAILED,
                             "TimeEdit authentication response did not contain token"
                     );
                 }
@@ -147,7 +147,7 @@ public class TimeEditClient {
                 accessToken = tokenNode.asText();
                 return Result.ok();
             } catch (IOException e) {
-                return Result.error(ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
+                return Result.errorFromCode(ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
                         "Failed to parse TimeEdit authentication response"
                 );
             }
@@ -194,7 +194,7 @@ public class TimeEditClient {
                                 "Could not find course offering matching provided code and dates in TimeEdit response"
                 );
             } catch (IOException e) {
-                return Result.error(ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
+                return Result.errorFromCode(ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
                         "Failed to parse TimeEdit course offering response"
                 );
             }
@@ -240,7 +240,7 @@ public class TimeEditClient {
 
             return Result.ok(response.results() != null ? response.results() : List.of());
         } catch (IOException e) {
-            return Result.error(ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
+            return Result.errorFromCode(ErrorCode.TIMEEDIT_JSON_PARSE_ERROR,
                     "Failed to parse TimeEdit reservations response"
             );
         }
@@ -251,7 +251,7 @@ public class TimeEditClient {
             String body = response.body() != null ? response.body().string() : "";
 
             if (!response.isSuccessful()) {
-                return Result.error(
+                return Result.errorFromCode(
                         ErrorCode.fromHttpStatus(HttpStatus.valueOf(response.code())),
                                 "TimeEdit error " + body
                 );
@@ -259,7 +259,7 @@ public class TimeEditClient {
 
             return Result.ok(body);
         } catch (IOException e) {
-            return Result.error(ErrorCode.REQUEST_TIMED_OUT);
+            return Result.errorFromCode(ErrorCode.REQUEST_TIMED_OUT);
         }
     }
 

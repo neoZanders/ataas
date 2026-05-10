@@ -1,41 +1,24 @@
 import type { EventInput } from "@fullcalendar/core";
-import { useEffect, useMemo, useState } from "react";
-import { getCourseSessions, type CourseSessionResponse, type CourseSessionType } from "../../api/courseSessionsApi.ts";
+import { useEffect, useState } from "react";
 import { ApiError } from "../../api/http.ts";
 import { getSchedule } from "../../api/scheduleApi.ts";
+import { mapScheduleToEvents } from "../../utils/scheduleCalendarMapper.ts";
 import { useAuth } from "../AuthContext.tsx";
 import Calendar from "../Calendar.tsx";
 import { useCurrentCourse } from "../CurrentCourseContext.tsx";
 import SideTabNav from "../SideTabNav.tsx";
 
-function sessionTypeLabel(type: CourseSessionType) {
-    switch (type) {
-        case "GRADING":
-            return "Grading";
-        case "LABORATION":
-            return "Laboration";
-        case "HELP":
-            return "Help";
-        case "EXERCISE":
-            return "Exercise";
-        default:
-            return type;
-    }
-}
-
 export function TAMainPage() {
     const { accessToken } = useAuth();
     const { currentCourseId } = useCurrentCourse();
 
-    const [courseSessions, setCourseSessions] = useState<CourseSessionResponse[]>([]);
-    const [visibleCourseSessionIds, setVisibleCourseSessionIds] = useState<string[]>([]);
+    const [events, setEvents] = useState<EventInput[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!currentCourseId || !accessToken) {
-            setCourseSessions([]);
-            setVisibleCourseSessionIds([]);
+            setEvents([]);
             setIsLoading(false);
             setError(null);
             return;
@@ -48,19 +31,13 @@ export function TAMainPage() {
             setError(null);
 
             try {
-                const [schedule, sessions] = await Promise.all([
-                    getSchedule(currentCourseId, accessToken),
-                    getCourseSessions(currentCourseId, accessToken),
-                ]);
+                const schedule = await getSchedule(currentCourseId, accessToken);
 
                 if (!isMounted) {
                     return;
                 }
 
-                setCourseSessions(sessions);
-                setVisibleCourseSessionIds(
-                    Array.from(new Set(schedule.allocations.map((allocation) => allocation.courseSessionId)))
-                );
+                setEvents(mapScheduleToEvents(schedule));
             } catch (loadError) {
                 console.error("Failed to load TA schedule", loadError);
 
@@ -69,12 +46,10 @@ export function TAMainPage() {
                 }
 
                 if (loadError instanceof ApiError && loadError.status === 404) {
-                    setCourseSessions([]);
-                    setVisibleCourseSessionIds([]);
+                    setEvents([]);
                     setError(null);
                 } else {
-                    setCourseSessions([]);
-                    setVisibleCourseSessionIds([]);
+                    setEvents([]);
                     setError("Could not load schedule.");
                 }
             } finally {
@@ -90,19 +65,6 @@ export function TAMainPage() {
             isMounted = false;
         };
     }, [currentCourseId, accessToken]);
-
-    const events = useMemo<EventInput[]>(() => {
-        const visibleIds = new Set(visibleCourseSessionIds);
-
-        return courseSessions
-            .filter((session) => visibleIds.has(session.courseSessionId))
-            .map((session) => ({
-                id: session.courseSessionId,
-                title: `Session: ${sessionTypeLabel(session.courseSessionType)}`,
-                start: session.startDateTime,
-                end: session.endDateTime,
-            }));
-    }, [courseSessions, visibleCourseSessionIds]);
 
     return (
         <div className="min-h-screen bg-stone-50">

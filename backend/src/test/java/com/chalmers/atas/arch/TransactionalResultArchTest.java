@@ -1,6 +1,7 @@
 package com.chalmers.atas.arch;
 
 import com.chalmers.atas.common.RequiresTransaction;
+import com.chalmers.atas.common.TransactionHandler;
 import com.chalmers.atas.common.TransactionalResult;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
@@ -58,7 +59,8 @@ public class TransactionalResultArchTest {
         return isInsideTransactionalMethod(call)
                 || isInsideTransactionalClass(call)
                 || isInsideTransactionHandler(call)
-                || isInsideTransactionalResultItself(call);
+                || isInsideTransactionalResultItself(call)
+                || isInsideMethodUsingTransactionHandler(call);
     }
 
     private boolean isInsideTransactionalMethod(JavaMethodCall call) {
@@ -71,10 +73,23 @@ public class TransactionalResultArchTest {
     }
 
     private boolean isInsideTransactionHandler(JavaMethodCall call) {
-        return call.getOriginOwner().getSimpleName().equals("TransactionHandler");
+        return call.getOriginOwner().isAssignableTo(TransactionHandler.class);
     }
 
     private boolean isInsideTransactionalResultItself(JavaMethodCall call) {
         return call.getOriginOwner().isAssignableTo(TransactionalResult.class);
+    }
+
+    private boolean isInsideMethodUsingTransactionHandler(JavaMethodCall call) {
+        JavaCodeUnit origin = call.getOrigin();
+
+        return call.getOriginOwner()
+                .getMethodCallsFromSelf()
+                .stream()
+                .anyMatch(methodCall ->
+                        methodCall.getOrigin().equals(origin)
+                                && methodCall.getTargetOwner().isAssignableTo(TransactionHandler.class)
+                                && methodCall.getTarget().getName().equals("executeInTransaction")
+                );
     }
 }
