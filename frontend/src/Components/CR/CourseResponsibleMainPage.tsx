@@ -45,7 +45,7 @@ export function CourseResponsibleMainPage() {
                 <div className="mb-6 flex flex-col items-center justify-center gap-3">
                 <button
                     className="rounded-2xl bg-[#003b5c] text-xl font-medium text-slate-50 hover:bg-[#002741] px-10 py-2 cursor-pointer"
-                    type="button">
+                    type="button"
                     onClick={handleRunAlgorithm}
                     disabled={isRunningAlgorithm}>
                     {isRunningAlgorithm ? "Running..." : "Run Algorithm"}
