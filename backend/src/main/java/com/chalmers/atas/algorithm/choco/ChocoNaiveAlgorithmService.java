@@ -56,7 +56,7 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
 
         Result<Void> validationResult = validateRequest(request, sessions, tas);
         if (!validationResult.isSuccess()) {
-            return Result.error(validationResult.getError().getErrorCode());
+            return Result.error(validationResult.getError());
         }
 
         Model model = new Model("TA Scheduling");
@@ -103,9 +103,9 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
 
         if (sol == null) {
             if (shouldOptimize && timeoutMs > 0) {
-                return Result.error(ErrorCode.SCHEDULE_GENERATION_TIMED_OUT);
+                return Result.errorFromCode(ErrorCode.SCHEDULE_GENERATION_TIMED_OUT);
             } else {
-                return Result.error(ErrorCode.SCHEDULE_INFEASIBLE);
+                return Result.errorFromCode(ErrorCode.SCHEDULE_INFEASIBLE);
             }
         }
 
@@ -127,18 +127,18 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
         Set<UUID> taIds = new HashSet<>();
         for (AlgorithmTA ta : tas) {
             if (!taIds.add(ta.taAssignmentId())) {
-                return Result.error(ErrorCode.DUPLICATE_TA_ASSIGNMENT_ID,
+                return Result.errorFromCode(ErrorCode.DUPLICATE_TA_ASSIGNMENT_ID,
                         "Duplicate TA assignment id: " + ta.taAssignmentId()
                 );
             }
             if (ta.minHours() > ta.maxHours()) {
-                return Result.error(ErrorCode.INVALID_MIN_MAX_HOURS,
+                return Result.errorFromCode(ErrorCode.INVALID_MIN_MAX_HOURS,
                         "TA minHours cannot exceed maxHours for TA assignment: " + ta.taAssignmentId()
                 );
             }
             if (ta.sessionTypePreferences().size() != 4 ||
                     ta.sessionTypePreferences().stream().distinct().count() != 4) {
-                return Result.error(ErrorCode.INVALID_TA_PREFERENCES,
+                return Result.errorFromCode(ErrorCode.INVALID_TA_PREFERENCES,
                         "TA model preferences does not contain ranking for all session types for " +
                                 "TA assignment: " + ta.taAssignmentId()
                 );
@@ -148,12 +148,12 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
         Set<UUID> sessionIds = new HashSet<>();
         for (AlgorithmSession session : sessions) {
             if (!sessionIds.add(session.sessionId())) {
-                return Result.error(ErrorCode.DUPLICATE_SESSION_ID,
+                return Result.errorFromCode(ErrorCode.DUPLICATE_SESSION_ID,
                         "Duplicate session id: " + session.sessionId()
                 );
             }
             if (session.minTAs() > session.maxTAs()) {
-                return Result.error(ErrorCode.INVALID_SESSION_TA_RANGE,
+                return Result.errorFromCode(ErrorCode.INVALID_SESSION_TA_RANGE,
                         "Session minTAs cannot exceed maxTAs for session: " + session.sessionId()
                 );
             }
@@ -161,7 +161,7 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
 
         for (AlgorithmHardSessionConstraint constraint : request.hardConstraints()) {
             if (!taIds.contains(constraint.taAssignmentId())) {
-                return Result.error(ErrorCode.INVALID_HARD_CONSTRAINT_TA_REFERENCE,
+                return Result.errorFromCode(ErrorCode.INVALID_HARD_CONSTRAINT_TA_REFERENCE,
                         "Hard constraint refers to unknown TA assignment: " + constraint.taAssignmentId()
                 );
             }
@@ -169,7 +169,7 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
 
         for (AlgorithmSoftSessionConstraint constraint : request.softConstraints()) {
             if (!taIds.contains(constraint.taAssignmentId())) {
-                return Result.error(ErrorCode.INVALID_SOFT_CONSTRAINT_TA_REFERENCE,
+                return Result.errorFromCode(ErrorCode.INVALID_SOFT_CONSTRAINT_TA_REFERENCE,
                         "Soft constraint refers to unknown TA assignment: " + constraint.taAssignmentId()
                 );
             }

@@ -25,7 +25,7 @@ public class CourseAuthorizationService {
     public Result<Course> assertUserIsCrOfCourse(UUID courseId, User user) {
         return courseService.getCourse(courseId).flatMap(course -> {
             if (!crCourseAssignmentService.isUserCrOfCourse(user, course)) {
-                return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
+                return Result.errorFromCode(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
             }
             return Result.ok(course);
         });
@@ -34,7 +34,7 @@ public class CourseAuthorizationService {
     public Result<Course> assertUserIsTaOfCourse(UUID courseId, User user) {
         return courseService.getCourse(courseId).flatMap(course -> {
             if (!taCourseAssignmentService.isUserTaOfCourse(user, course)) {
-                return Result.error(ErrorCode.USER_HAS_NOT_JOINED_COURSE);
+                return Result.errorFromCode(ErrorCode.USER_HAS_NOT_JOINED_COURSE);
             }
             return Result.ok(course);
         });

@@ -72,7 +72,7 @@ public class CourseApplicationService {
                                 .toList()
                 );    
         }
-        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
+        return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
     }
 
     public Result<CourseResponse> getCourse(UUID courseId, CurrentUser currentUser) {
@@ -94,7 +94,7 @@ public class CourseApplicationService {
             if (isUserAllowedToViewCourse) {
                 return Result.ok(CourseResponse.of(course));
             } else {
-                return Result.error(ErrorCode.USER_NOT_ALLOWED_TO_VIEW_COURSE);
+                return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_TO_VIEW_COURSE);
             }
         });
     }
@@ -122,7 +122,7 @@ public class CourseApplicationService {
             User user = currentUser.getUser();
             if (user.getUserType().equals(User.UserType.CR)) {
                 if (!crCourseAssignmentService.isUserCrOfCourse(user, course)) {
-                    return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
+                    return Result.errorFromCode(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
                 }
                 return courseSessionService.getCourseSessions(courseId).map(courseSessions ->
                         courseSessions.stream().map(CourseSessionResponse::of).toList());
@@ -130,18 +130,22 @@ public class CourseApplicationService {
 
             if (user.getUserType().equals(User.UserType.TA)) {
                 if (!taCourseAssignmentService.isUserTaOfCourse(user, course)) {
-                    return Result.error(ErrorCode.USER_HAS_NOT_JOINED_COURSE);
+                    return Result.errorFromCode(ErrorCode.USER_HAS_NOT_JOINED_COURSE);
                 }
                 return courseSessionService.getCourseSessions(courseId).map(courseSessions ->
                         courseSessions.stream().map(CourseSessionResponse::of).toList());
             }
 
-            return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
+            return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION);
         });
     }
 
 
     public Result<CourseSessionResponse> createCourseSession(UUID courseId, CreateCourseSessionRequest request, CurrentUser currentUser) {
+        if (request.getStartDateTime().isAfter(request.getEndDateTime())) {
+            return Result.errorFromCode(ErrorCode.START_AFTER_END);
+        }
+
         return Result.ofOptional(courseRepository.findById(courseId), ErrorCode.COURSE_NOT_FOUND).flatMap(course -> {
             if (crCourseAssignmentService.isUserCrOfCourse(currentUser.getUser(), course)) {
                 return Result.from(courseSessionService.createCourseSession(
@@ -154,7 +158,7 @@ public class CourseApplicationService {
                         request.getIsWeeklyRecurring()
                 )).map(CourseSessionResponse::of);
             } else {
-                return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
+                return Result.errorFromCode(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
             }
         });
     }
@@ -165,7 +169,7 @@ public class CourseApplicationService {
                     if (crCourseAssignmentService.isUserCrOfCourse(currentUser.getUser(), course)) {
                         return courseSessionService.deleteCourseSession(courseSessionId);
                     } else {
-                        return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
+                        return Result.errorFromCode(ErrorCode.USER_NOT_COURSE_RESPONSIBLE);
                     }
                 });
     }

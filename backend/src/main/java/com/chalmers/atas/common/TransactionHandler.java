@@ -13,6 +13,10 @@ public class TransactionHandler {
         return Result.from(action.get());
     }
 
+    public <T> TransactionalResult<T> rollbackFor(Error error) {
+        return TransactionalResult.rollbackFor(error);
+    }
+
     public <T> TransactionalResult<T> rollbackFor(ErrorCode errorCode) {
         return TransactionalResult.rollbackFor(errorCode);
     }

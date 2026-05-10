@@ -82,13 +82,13 @@ public class CourseService {
     private Result<Course> getCourseIfOwnedByCr(UUID courseId, User user) {
         Optional<Course> maybeCourse = courseRepository.findById(courseId);
         if (maybeCourse.isEmpty()) {
-            return Result.error(ErrorCode.COURSE_NOT_FOUND);
+            return Result.errorFromCode(ErrorCode.COURSE_NOT_FOUND);
         }
 
         Course course = maybeCourse.get();
 
         if (!course.getOwner().getUserId().equals(user.getUserId())) {
-            return Result.error(
+            return Result.errorFromCode(
                     ErrorCode.USER_NOT_COURSE_RESPONSIBLE
             );
         }
@@ -98,7 +98,7 @@ public class CourseService {
     public Result<Course> getCourse(UUID courseId) {
         Optional<Course> maybeCourse = courseRepository.findById(courseId);
         if (maybeCourse.isEmpty()) {
-            return Result.error(ErrorCode.COURSE_NOT_FOUND);
+            return Result.errorFromCode(ErrorCode.COURSE_NOT_FOUND);
         }
         return Result.ok(maybeCourse.get());
     }

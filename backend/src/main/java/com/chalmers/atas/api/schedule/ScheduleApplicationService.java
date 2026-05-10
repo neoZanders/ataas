@@ -11,6 +11,7 @@ import com.chalmers.atas.algorithm.model.AlgorithmTA;
 import com.chalmers.atas.algorithm.model.AlgorithmTimeInterval;
 import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
+import com.chalmers.atas.common.TransactionHandler;
 import com.chalmers.atas.common.TransactionalResult;
 import com.chalmers.atas.domain.course.Course;
 import com.chalmers.atas.domain.courseassignment.CourseAuthorizationService;
@@ -29,13 +30,11 @@ import com.chalmers.atas.domain.user.CurrentUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +42,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.chalmers.atas.common.ErrorCode.*;
 
 @Service
 public class ScheduleApplicationService {
@@ -56,6 +58,7 @@ public class ScheduleApplicationService {
     private final ScheduleSessionAllocationService scheduleSessionAllocationService;
     private final TACourseAssignmentService taCourseAssignmentService;
     private final TACourseSessionConstraintService taCourseSessionConstraintService;
+    private final TransactionHandler transactionHandler;
 
     public ScheduleApplicationService(
             List<AlgorithmService> algorithmServices,
@@ -66,7 +69,8 @@ public class ScheduleApplicationService {
             ScheduleService scheduleService,
             ScheduleSessionAllocationService scheduleSessionAllocationService,
             TACourseAssignmentService taCourseAssignmentService,
-            TACourseSessionConstraintService taCourseSessionConstraintService
+            TACourseSessionConstraintService taCourseSessionConstraintService,
+            TransactionHandler transactionHandler
     ) {
         this.algorithmServices = algorithmServices;
         this.algorithmType = algorithmType;
@@ -77,23 +81,25 @@ public class ScheduleApplicationService {
         this.scheduleSessionAllocationService = scheduleSessionAllocationService;
         this.taCourseAssignmentService = taCourseAssignmentService;
         this.taCourseSessionConstraintService = taCourseSessionConstraintService;
+        this.transactionHandler = transactionHandler;
     }
 
-    @Transactional
-    public Result<ScheduleResponse> createSchedule(
-            UUID courseId,
-            CurrentUser currentUser) {
+    public Result<ScheduleResponse> createSchedule(UUID courseId, CurrentUser currentUser) {
         AlgorithmService algorithmService = resolveChocoAlgorithmService();
         if (algorithmService == null) {
-            return Result.error(ErrorCode.INTERNAL_SERVER_ERROR.toError("No Choco algorithm service configured"));
+            return Result.errorFromCode(INTERNAL_SERVER_ERROR, "No Choco algorithm service configured");
         }
 
-        Result<Course> courseResult = courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser());
+        Result<Course> courseResult = courseAuthorizationService.assertUserIsCrOfCourse(
+                courseId,
+                currentUser.getUser()
+        );
         if (!courseResult.isSuccess()) {
             return Result.error(courseResult.getError());
         }
 
         Course course = courseResult.getData();
+
         Result<List<CourseSession>> courseSessionsResult = courseSessionService.getCourseSessions(courseId);
         if (!courseSessionsResult.isSuccess()) {
             return Result.error(courseSessionsResult.getError());
@@ -101,7 +107,16 @@ public class ScheduleApplicationService {
 
         List<CourseSession> courseSessions = courseSessionsResult.getData();
         if (courseSessions.isEmpty()) {
-            return Result.error(ErrorCode.BAD_REQUEST.toError("Course has no course sessions"));
+            return Result.errorFromCode(BAD_REQUEST, "Course has no course sessions");
+        }
+
+        List<AlgorithmSession> algorithmSessions = toAlgorithmSessions(
+                courseSessions,
+                course.getEndDate()
+        );
+
+        if (algorithmSessions.isEmpty()) {
+            return Result.errorFromCode(BAD_REQUEST, "Course has no schedulable course session occurrences");
         }
 
         Result<List<TACourseAssignment>> assignmentsResult = taCourseAssignmentService.getCourseAssignments(
@@ -116,8 +131,9 @@ public class ScheduleApplicationService {
         List<TACourseAssignment> joinedAssignments = assignmentsResult.getData().stream()
                 .filter(assignment -> assignment.getStatus() == CourseAssignmentStatus.JOINED)
                 .toList();
+
         if (joinedAssignments.isEmpty()) {
-            return Result.error(ErrorCode.BAD_REQUEST.toError("Course has no joined TA course assignments"));
+            return Result.errorFromCode(BAD_REQUEST, "Course has no joined TA course assignments");
         }
 
         Result<Void> budgetValidation = validateHourBudgets(joinedAssignments);
@@ -125,10 +141,9 @@ public class ScheduleApplicationService {
             return Result.error(budgetValidation.getError());
         }
 
-        Result<List<TACourseSessionConstraint>> constraintsResult = taCourseSessionConstraintService.getCourseConstraints(
-                course,
-                Optional.empty()
-        );
+        Result<List<TACourseSessionConstraint>> constraintsResult = taCourseSessionConstraintService
+                .getCourseConstraints(course, Optional.empty());
+
         if (!constraintsResult.isSuccess()) {
             return Result.error(constraintsResult.getError());
         }
@@ -136,18 +151,21 @@ public class ScheduleApplicationService {
         Set<UUID> joinedAssignmentIds = joinedAssignments.stream()
                 .map(TACourseAssignment::getTaCourseAssignmentId)
                 .collect(Collectors.toSet());
+
         List<TACourseSessionConstraint> filteredConstraints = constraintsResult.getData().stream()
                 .filter(constraint -> joinedAssignmentIds.contains(
                         constraint.getTaCourseAssignment().getTaCourseAssignmentId()
                 ))
                 .toList();
 
-        Result<AlgorithmResult> algorithmResult = algorithmService.runAlgorithm(toAlgorithmRequest(
+        AlgorithmRequest algorithmRequest = toAlgorithmRequest(
                 course,
-                courseSessions,
+                algorithmSessions,
                 joinedAssignments,
                 filteredConstraints
-        ));
+        );
+
+        Result<AlgorithmResult> algorithmResult = algorithmService.runAlgorithm(algorithmRequest);
         if (!algorithmResult.isSuccess()) {
             return Result.error(algorithmResult.getError());
         }
@@ -155,7 +173,7 @@ public class ScheduleApplicationService {
         return saveAllocationsAndBuildResponse(
                 courseId,
                 currentUser,
-                courseSessions,
+                algorithmSessions,
                 joinedAssignments,
                 algorithmResult.getData()
         );
@@ -165,15 +183,18 @@ public class ScheduleApplicationService {
         return scheduleService.getSchedule(courseId, currentUser.getUser())
                 .flatMap(schedules -> {
                     if (schedules.isEmpty()) {
-                        return Result.error(ErrorCode.NOT_FOUND.toError("Schedule not found"));
+                        return Result.errorFromCode(NOT_FOUND, "Schedule not found");
                     }
 
                     Schedule schedule = schedules.getFirst();
+
                     return scheduleSessionAllocationService
                             .getAllocations(courseId, currentUser.getUser())
                             .map(allocations -> ScheduleResponse.of(
                                     schedule,
-                                    allocations.stream().map(ScheduleSessionAllocationResponse::of).toList()
+                                    allocations.stream()
+                                            .map(ScheduleSessionAllocationResponse::of)
+                                            .toList()
                             ));
                 });
     }
@@ -187,25 +208,78 @@ public class ScheduleApplicationService {
 
     private AlgorithmRequest toAlgorithmRequest(
             Course course,
-            List<CourseSession> courseSessions,
+            List<AlgorithmSession> algorithmSessions,
             List<TACourseAssignment> assignments,
             List<TACourseSessionConstraint> constraints
     ) {
         return new AlgorithmRequest(
-                courseSessions.stream().map(this::toAlgorithmSession).toList(),
+                algorithmSessions,
                 assignments.stream().map(this::toAlgorithmTA).toList(),
                 toHardConstraints(constraints, course.getEndDate()),
                 toSoftConstraints(constraints, course.getEndDate())
         );
     }
 
-    private AlgorithmSession toAlgorithmSession(CourseSession courseSession) {
+    private List<AlgorithmSession> toAlgorithmSessions(
+            List<CourseSession> courseSessions,
+            LocalDate recurringEndDate
+    ) {
+        return courseSessions.stream()
+                .flatMap(session -> expandCourseSession(session, recurringEndDate).stream())
+                .toList();
+    }
+
+    private List<AlgorithmSession> expandCourseSession(
+            CourseSession session,
+            LocalDate recurringEndDate
+    ) {
+        if (!session.isWeeklyRecurring()) {
+            return List.of(toAlgorithmSession(
+                    session.getCourseSessionId(),
+                    session.getStartDateTime(),
+                    session.getEndDateTime(),
+                    session.getCourseSessionType(),
+                    session.getMinTAs(),
+                    session.getMaxTAs()
+            ));
+        }
+
+        List<AlgorithmSession> expanded = new ArrayList<>();
+
+        LocalDate date = session.getStartDateTime().toLocalDate();
+        LocalTime startTime = session.getStartDateTime().toLocalTime();
+        LocalTime endTime = session.getEndDateTime().toLocalTime();
+
+        while (!date.isAfter(recurringEndDate)) {
+            expanded.add(toAlgorithmSession(
+                    UUID.randomUUID(),
+                    LocalDateTime.of(date, startTime),
+                    LocalDateTime.of(date, endTime),
+                    session.getCourseSessionType(),
+                    session.getMinTAs(),
+                    session.getMaxTAs()
+            ));
+
+            date = date.plusWeeks(1);
+        }
+
+        return expanded;
+    }
+
+    private AlgorithmSession toAlgorithmSession(
+            UUID sessionId,
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime,
+            CourseSession.CourseSessionType courseSessionType,
+            int minTAs,
+            int maxTAs
+    ) {
         return new AlgorithmSession(
-                courseSession.getCourseSessionId(),
-                new AlgorithmTimeInterval(courseSession.getStartDateTime(), courseSession.getEndDateTime()),
-                courseSession.getCourseSessionType(),
-                courseSession.getMinTAs(),
-                courseSession.getMaxTAs()
+                sessionId,
+                new AlgorithmTimeInterval(startDateTime, endDateTime),
+                courseSessionType,
+                minTAs,
+                maxTAs
         );
     }
 
@@ -222,40 +296,64 @@ public class ScheduleApplicationService {
     private Result<Void> validateHourBudgets(List<TACourseAssignment> assignments) {
         for (TACourseAssignment assignment : assignments) {
             if (assignment.getMinHours() == null || assignment.getMaxHours() == null) {
-                return Result.error(ErrorCode.BAD_REQUEST.toError(
-                        "TA course assignment is missing hour budget: " + assignment.getTaCourseAssignmentId()));
+                return Result.errorFromCode(BAD_REQUEST,
+                        "TA course assignment is missing hour budget: " + assignment.getTaCourseAssignmentId()
+                );
+            }
+
+            if (assignment.getMinHours() < 0 || assignment.getMaxHours() < 0) {
+                return Result.errorFromCode(BAD_REQUEST,
+                        "TA course assignment has negative hour budget: " + assignment.getTaCourseAssignmentId()
+                );
+            }
+
+            if (assignment.getMinHours() > assignment.getMaxHours()) {
+                return Result.errorFromCode(BAD_REQUEST,
+                        "TA min hours cannot be greater than max hours: " + assignment.getTaCourseAssignmentId()
+                );
             }
         }
+
         return Result.ok();
     }
 
     private List<CourseSession.CourseSessionType> orderedPreferences(TACourseAssignment assignment) {
-        List<CourseSession.CourseSessionType> ranked = Arrays.asList(
-                assignment.getSessionTypePreference1(),
-                assignment.getSessionTypePreference2(),
-                assignment.getSessionTypePreference3(),
-                assignment.getSessionTypePreference4()
-        ).stream().filter(java.util.Objects::nonNull).distinct().collect(Collectors.toList());
+        List<CourseSession.CourseSessionType> ranked = Stream.of(
+                        assignment.getSessionTypePreference1(),
+                        assignment.getSessionTypePreference2(),
+                        assignment.getSessionTypePreference3(),
+                        assignment.getSessionTypePreference4()
+                )
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
 
         for (CourseSession.CourseSessionType type : CourseSession.CourseSessionType.values()) {
             if (!ranked.contains(type)) {
                 ranked.add(type);
             }
         }
+
         return ranked;
     }
 
     private AlgorithmHardSessionConstraint toHardConstraint(TACourseSessionConstraint constraint) {
         return new AlgorithmHardSessionConstraint(
                 constraint.getTaCourseAssignment().getTaCourseAssignmentId(),
-                new AlgorithmTimeInterval(constraint.getStartDateTime(), constraint.getEndDateTime())
+                new AlgorithmTimeInterval(
+                        constraint.getStartDateTime(),
+                        constraint.getEndDateTime()
+                )
         );
     }
 
     private AlgorithmSoftSessionConstraint toSoftConstraint(TACourseSessionConstraint constraint) {
         return new AlgorithmSoftSessionConstraint(
                 constraint.getTaCourseAssignment().getTaCourseAssignmentId(),
-                new AlgorithmTimeInterval(constraint.getStartDateTime(), constraint.getEndDateTime()),
+                new AlgorithmTimeInterval(
+                        constraint.getStartDateTime(),
+                        constraint.getEndDateTime()
+                ),
                 softConstraintWeight
         );
     }
@@ -289,6 +387,7 @@ public class ScheduleApplicationService {
         }
 
         List<AlgorithmHardSessionConstraint> expanded = new ArrayList<>();
+
         LocalDate date = constraint.getStartDateTime().toLocalDate();
         LocalTime startTime = constraint.getStartDateTime().toLocalTime();
         LocalTime endTime = constraint.getEndDateTime().toLocalTime();
@@ -302,6 +401,7 @@ public class ScheduleApplicationService {
                             LocalDateTime.of(date, endTime)
                     )
             ));
+
             date = date.plusWeeks(1);
         }
 
@@ -317,6 +417,7 @@ public class ScheduleApplicationService {
         }
 
         List<AlgorithmSoftSessionConstraint> expanded = new ArrayList<>();
+
         LocalDate date = constraint.getStartDateTime().toLocalDate();
         LocalTime startTime = constraint.getStartDateTime().toLocalTime();
         LocalTime endTime = constraint.getEndDateTime().toLocalTime();
@@ -331,17 +432,17 @@ public class ScheduleApplicationService {
                     ),
                     softConstraintWeight
             ));
+
             date = date.plusWeeks(1);
         }
 
         return expanded;
     }
 
-    @Transactional
     private Result<ScheduleResponse> saveAllocationsAndBuildResponse(
             UUID courseId,
             CurrentUser currentUser,
-            List<CourseSession> courseSessions,
+            List<AlgorithmSession> algorithmSessions,
             List<TACourseAssignment> assignments,
             AlgorithmResult algorithmResult
     ) {
@@ -349,43 +450,56 @@ public class ScheduleApplicationService {
             return Result.error(ErrorCode.SCHEDULE_INFEASIBLE.toError());
         }
 
-        TransactionalResult<Schedule> scheduleResult = scheduleService.createSchedule(courseId, currentUser.getUser());
-        if (!scheduleResult.isSuccess()) {
-            return Result.error(scheduleResult.getError());
-        }
+        return transactionHandler.executeInTransaction(() ->
+                scheduleService.createSchedule(courseId, currentUser.getUser()).flatMap(schedule -> {
+                    Map<UUID, AlgorithmSession> algorithmSessionById = algorithmSessions.stream()
+                            .collect(Collectors.toMap(AlgorithmSession::sessionId, Function.identity()));
 
-        Schedule schedule = scheduleResult.getData();
+                    Map<UUID, TACourseAssignment> assignmentById = assignments.stream()
+                            .collect(Collectors.toMap(TACourseAssignment::getTaCourseAssignmentId, Function.identity()));
 
-        Map<UUID, CourseSession> courseSessionById = courseSessions.stream()
-                .collect(Collectors.toMap(CourseSession::getCourseSessionId, Function.identity()));
-        Map<UUID, TACourseAssignment> assignmentById = assignments.stream()
-                .collect(Collectors.toMap(TACourseAssignment::getTaCourseAssignmentId, Function.identity()));
+                    List<ScheduleSessionAllocation> allocations = algorithmResult.allocations().stream()
+                            .flatMap(allocation -> allocation.taAssignmentIds().stream()
+                                    .map(taAssignmentId -> {
+                                        AlgorithmSession session = algorithmSessionById.get(allocation.sessionId());
+                                        TACourseAssignment assignment = assignmentById.get(taAssignmentId);
 
-        List<ScheduleSessionAllocation> allocations = algorithmResult.allocations().stream()
-                .flatMap(allocation -> allocation.taAssignmentIds().stream()
-                        .map(taAssignmentId -> ScheduleSessionAllocation.of(
-                                schedule,
-                                courseSessionById.get(allocation.sessionId()),
-                                assignmentById.get(taAssignmentId)
-                        )))
-                .toList();
+                                        if (session == null || assignment == null) {
+                                            return null;
+                                        }
 
-        if (allocations.stream().anyMatch(
-                allocation -> allocation.getCourseSession() == null || allocation.getTaCourseAssignment() == null
-        )) {
-            return Result.error(ErrorCode.INTERNAL_SERVER_ERROR.toError(
-                    "Algorithm output referenced unknown session or TA assignment"));
-        }
+                                        return ScheduleSessionAllocation.of(
+                                                schedule,
+                                                session.timeInterval().getStart(),
+                                                session.timeInterval().getEnd(),
+                                                session.type(),
+                                                assignment
+                                        );
+                                    }))
+                            .toList();
 
-        TransactionalResult<List<ScheduleSessionAllocation>> savedAllocationsResult = scheduleSessionAllocationService
-                .replaceAllocations(courseId, allocations, currentUser.getUser());
-        if (!savedAllocationsResult.isSuccess()) {
-            return Result.error(savedAllocationsResult.getError());
-        }
+                    if (allocations.stream().anyMatch(java.util.Objects::isNull)) {
+                        return TransactionalResult.rollbackFor(INTERNAL_SERVER_ERROR.toError(
+                                "Algorithm output referenced unknown session or TA assignment"));
+                    }
 
-        return Result.ok(ScheduleResponse.of(
-                schedule,
-                savedAllocationsResult.getData().stream().map(ScheduleSessionAllocationResponse::of).toList()
+                    return scheduleSessionAllocationService
+                            .replaceAllocations(courseId, allocations, currentUser.getUser())
+                            .map(savedAllocations -> new SavedScheduleAllocations(
+                                    schedule,
+                                    savedAllocations
+                            ));
+                })
+        ).map(savedAllocations -> ScheduleResponse.of(
+                savedAllocations.schedule(),
+                savedAllocations.allocations().stream()
+                        .map(ScheduleSessionAllocationResponse::of)
+                        .toList()
         ));
     }
+
+    private record SavedScheduleAllocations(
+            Schedule schedule,
+            List<ScheduleSessionAllocation> allocations
+    ) {}
 }

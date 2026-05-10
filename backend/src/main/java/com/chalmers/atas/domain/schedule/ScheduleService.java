@@ -1,6 +1,5 @@
 package com.chalmers.atas.domain.schedule;
 
-import com.chalmers.atas.common.ErrorCode;
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
 import com.chalmers.atas.domain.course.Course;
@@ -14,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.chalmers.atas.common.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -49,18 +50,18 @@ public class ScheduleService {
         if (user.getUserType().equals(User.UserType.TA)) {
             return courseAuthorizationService.assertUserIsTaOfCourse(courseId, user);
         }
-        return Result.error(ErrorCode.USER_NOT_ALLOWED_FOR_COURSE_ACTION.toError());
+        return Result.errorFromCode(USER_NOT_ALLOWED_FOR_COURSE_ACTION);
     }
 
     private Result<Course> getCourseIfOwnedByCr(UUID courseId, User user) {
         Optional<Course> maybeCourse = courseRepository.findById(courseId);
         if (maybeCourse.isEmpty()) {
-            return Result.error(ErrorCode.COURSE_NOT_FOUND.toError());
+            return Result.errorFromCode(COURSE_NOT_FOUND);
         }
 
         Course course = maybeCourse.get();
         if (!course.getOwner().getUserId().equals(user.getUserId())) {
-            return Result.error(ErrorCode.USER_NOT_COURSE_RESPONSIBLE.toError());
+            return Result.errorFromCode(USER_NOT_COURSE_RESPONSIBLE);
         }
 
         return Result.ok(course);

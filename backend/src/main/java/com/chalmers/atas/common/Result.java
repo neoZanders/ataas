@@ -21,19 +21,19 @@ public class Result<T> {
         return new Result<>(true, null, null);
     }
 
-    private static <T> Result<T> error(Error error) {
+    public static <T> Result<T> error(Error error) {
         return new Result<>(false, null, error);
     }
 
-    public static <T> Result<T> error(ErrorCode errorCode) {
+    public static <T> Result<T> errorFromCode(ErrorCode errorCode) {
         return error(errorCode.toError());
     }
 
-    public static <T> Result<T> error(ErrorCode errorCode, String details) {
+    public static <T> Result<T> errorFromCode(ErrorCode errorCode, String details) {
         return error(errorCode.toError(details));
     }
 
-    private static <T> Result<T> ofOptional(Optional<T> maybeData, Error notFoundError) {
+    public static <T> Result<T> ofOptional(Optional<T> maybeData, Error notFoundError) {
         if (maybeData.isPresent()) {
             return new Result<>(true, maybeData.get(), null);
         } else {

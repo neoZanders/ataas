@@ -72,14 +72,14 @@ public class JwtService {
             String tokenType = claims.get("tokenType", String.class);
 
             if (!"refresh".equals(tokenType)) {
-                return Result.error(ErrorCode.INVALID_REFRESH_TOKEN, "Wrong token type");
+                return Result.errorFromCode(ErrorCode.INVALID_REFRESH_TOKEN, "Wrong token type");
             }
 
             return Result.ok(claims);
         } catch (ExpiredJwtException e) {
-            return Result.error(ErrorCode.REFRESH_TOKEN_EXPIRED);
+            return Result.errorFromCode(ErrorCode.REFRESH_TOKEN_EXPIRED);
         } catch (JwtException | IllegalArgumentException e) {
-            return Result.error(ErrorCode.INVALID_REFRESH_TOKEN);
+            return Result.errorFromCode(ErrorCode.INVALID_REFRESH_TOKEN);
         }
     }
 

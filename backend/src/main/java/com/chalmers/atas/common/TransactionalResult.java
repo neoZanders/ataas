@@ -22,7 +22,7 @@ public class TransactionalResult<T> extends Result<T> {
     }
 
     @RequiresTransaction
-    private static <T> TransactionalResult<T> rollbackFor(Error error) {
+    public static <T> TransactionalResult<T> rollbackFor(Error error) {
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             TransactionAspectSupport
                     .currentTransactionStatus()

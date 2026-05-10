@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @Transactional
-public abstract class IntegrationTestBase extends TACourseSessionConstraintIntegrationTestBase {
+public abstract class IntegrationTestBase extends ScheduleIntegrationTestBase {
 
     @Autowired
     protected MockMvc mockMvc;
