@@ -76,15 +76,19 @@ export function TAConstraintsPage2() {
         isCompactSchedule: null,
     });
 
-    const request: CourseAssignmentConstraintsRequest = {
-        minHours: form.minHours === "" ? 0 : Number(form.minHours),
-        maxHours: form.maxHours === "" ? 0 : Number(form.maxHours),
-        sessionTypePreference1: form.sessionTypePreference1,
-        sessionTypePreference2: form.sessionTypePreference2,
-        sessionTypePreference3: form.sessionTypePreference3,
-        sessionTypePreference4: form.sessionTypePreference4,
-        isCompactSchedule: form.isCompactSchedule,
-    };
+    function buildRequest(
+        formToSave: CourseAssignmentConstraintsForm
+    ): CourseAssignmentConstraintsRequest {
+        return {
+            minHours: formToSave.minHours === "" ? 0 : Number(formToSave.minHours),
+            maxHours: formToSave.maxHours === "" ? 0 : Number(formToSave.maxHours),
+            sessionTypePreference1: formToSave.sessionTypePreference1,
+            sessionTypePreference2: formToSave.sessionTypePreference2,
+            sessionTypePreference3: formToSave.sessionTypePreference3,
+            sessionTypePreference4: formToSave.sessionTypePreference4,
+            isCompactSchedule: formToSave.isCompactSchedule,
+        };
+    }
 
     function clearSaveStatus() {
         setSuccessSection(null);
@@ -209,10 +213,10 @@ export function TAConstraintsPage2() {
         rankedItems.sort((a, b) => a.rank - b.rank);
 
         return {
-            sessionTypePreference1: rankedItems[0]?.type ?? "LABORATION",
-            sessionTypePreference2: rankedItems[1]?.type ?? "GRADING",
-            sessionTypePreference3: rankedItems[2]?.type ?? "HELP",
-            sessionTypePreference4: rankedItems[3]?.type ?? "EXERCISE",
+            sessionTypePreference1: rankedItems[0]?.type ?? null,
+            sessionTypePreference2: rankedItems[1]?.type ?? null,
+            sessionTypePreference3: rankedItems[2]?.type ?? null,
+            sessionTypePreference4: rankedItems[3]?.type ?? null,
         };
     }
 
@@ -227,8 +231,20 @@ export function TAConstraintsPage2() {
         );
     }
 
+    const handleDeleteSchedulePreference = async () => {
+        const nextForm: CourseAssignmentConstraintsForm = {
+            ...form,
+            isCompactSchedule: null,
+        };
+
+        setForm(nextForm);
+        setHasAddedSchedulePreference(false)
+
+        await handleSaveConstraintsNotTimeslots("schedule", nextForm);
+    };
+
     function hasSavedSchedulePreference(response: CourseAssignmentConstraintsResponse) {
-        return response.isCompactSchedule !== null;
+        return response.isCompactSchedule === true || response.isCompactSchedule === false;
     }
 
     const removeHardTimeSlotRow = (id: string) => {
@@ -280,7 +296,8 @@ export function TAConstraintsPage2() {
     };
 
     const handleSaveConstraintsNotTimeslots = async (
-        section: "hours" | "ranking" | "schedule"
+        section: "hours" | "ranking" | "schedule",
+        formToSave: CourseAssignmentConstraintsForm = form
     ) => {
         if (!currentCourseId) {
             showSaveError(
@@ -305,7 +322,7 @@ export function TAConstraintsPage2() {
 
         try {
             const response = await createTAConstraintNotASession(
-                request,
+                buildRequest(formToSave),
                 currentCourseId,
                 user.id,
                 accessToken
@@ -314,11 +331,11 @@ export function TAConstraintsPage2() {
             setForm({
                 minHours: String(response.minHours ?? ""),
                 maxHours: String(response.maxHours ?? ""),
-                sessionTypePreference1: response.sessionTypePreference1,
-                sessionTypePreference2: response.sessionTypePreference2,
-                sessionTypePreference3: response.sessionTypePreference3,
-                sessionTypePreference4: response.sessionTypePreference4,
-                isCompactSchedule: response.isCompactSchedule,
+                sessionTypePreference1: response.sessionTypePreference1 ?? null,
+                sessionTypePreference2: response.sessionTypePreference2 ?? null,
+                sessionTypePreference3: response.sessionTypePreference3 ?? null,
+                sessionTypePreference4: response.sessionTypePreference4 ?? null,
+                isCompactSchedule: response.isCompactSchedule ?? null,
             });
 
             setHasAddedSchedulePreference(hasSavedSchedulePreference(response));
@@ -336,19 +353,13 @@ export function TAConstraintsPage2() {
     };
 
     const handleSaveRanking = async () => {
-        const success = await handleSaveConstraintsNotTimeslots("ranking");
+        await handleSaveConstraintsNotTimeslots("ranking");
 
-        if (success) {
-            setHasAddedRanking(true);
-        }
     };
 
     const handleSaveSchedulePreference = async () => {
-        const success = await handleSaveConstraintsNotTimeslots("schedule");
+        await handleSaveConstraintsNotTimeslots("schedule");
 
-        if (success) {
-            setHasAddedSchedulePreference(true);
-        }
     };
 
     const handleSaveConstraintsTimeSlots = async (
@@ -1021,15 +1032,17 @@ export function TAConstraintsPage2() {
 
                         <div className="mt-6 flex justify-end">
 
-                            <button
-                                className="mr-4 cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
-                                onClick={handleSaveSchedulePreference}
-                                disabled={savingSection === "schedule"}
-                            >
-                                {savingSection === "schedule"
-                                    ? "Saving..."
-                                    : "Save"}
-                            </button>
+                            {hasAddedSchedulePreference && (
+                                <button
+                                    className="mr-4 cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    onClick={handleSaveSchedulePreference}
+                                    disabled={savingSection === "schedule"}
+                                >
+                                    {savingSection === "schedule"
+                                        ? "Saving..."
+                                        : "Save"}
+                                </button>
+                            )}
 
                             {!hasAddedSchedulePreference && (
                                 <button
@@ -1051,14 +1064,7 @@ export function TAConstraintsPage2() {
                             {hasAddedSchedulePreference && (
                                 <button
                                     className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
-                                    onClick={() => {
-                                        setHasAddedSchedulePreference(false);
-
-                                        setForm((prev) => ({
-                                            ...prev,
-                                            isCompactSchedule: null,
-                                        }));
-                                    }}
+                                    onClick={handleDeleteSchedulePreference}
                                 >
                                     Delete
                                 </button>
