@@ -503,7 +503,7 @@ export function TAConstraintsPage2() {
 
                     <button
                         className="cursor-pointer mt-1 text-sm mb-4 text-slate-500 w-full flex items-center justify-center underline hover:text-slate-700"
-                        onClick={() => {setHasAddedHardDescription(true)}}
+                        onClick={() => {setHasAddedHardDescription((prev) => (!prev))}}
                     >
                         Description of hard constraints usage
                     </button>
@@ -585,7 +585,7 @@ export function TAConstraintsPage2() {
                             >
                                 {savingSection === "hours"
                                     ? "Saving..."
-                                    : "Save hours"}
+                                    : "Save"}
                             </button>
                         </div>
                     </section>
@@ -698,7 +698,6 @@ export function TAConstraintsPage2() {
                         </div>
 
                         <div className="mt-6 flex justify-end">
-                            {hardTimeSlots.length > 0 && (
                                 <button
                                     className="cursor-pointer mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() =>
@@ -712,7 +711,6 @@ export function TAConstraintsPage2() {
                                         ? "Saving..."
                                         : "Save"}
                                 </button>
-                            )}
 
                             <button
                                 className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
@@ -731,7 +729,7 @@ export function TAConstraintsPage2() {
 
                     <button
                         className="cursor-pointer mt-1 text-sm mb-4 text-slate-500 w-full flex items-center justify-center underline hover:text-slate-700"
-                        onClick={() => {setHasAddedSoftDescription(true)}}
+                        onClick={() => {setHasAddedSoftDescription((prev) => (!prev))}}
                     >
                         Description of soft constraints usage
                     </button>
@@ -850,7 +848,6 @@ export function TAConstraintsPage2() {
                         </div>
 
                         <div className="mt-6 flex justify-end">
-                            {softTimeSlots.length > 0 && (
                                 <button
                                     className="cursor-pointer mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() =>
@@ -864,7 +861,6 @@ export function TAConstraintsPage2() {
                                         ? "Saving..."
                                         : "Save"}
                                 </button>
-                            )}
 
                             <button
                                 className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
@@ -903,7 +899,19 @@ export function TAConstraintsPage2() {
                             />
                         )}
 
+
                         <div className="mt-6 flex justify-end">
+
+                            <button
+                                className="mr-4 cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                onClick={handleSaveRanking}
+                                disabled={savingSection === "ranking"}
+                            >
+                                {savingSection === "ranking"
+                                    ? "Saving..."
+                                    : "Save"}
+                            </button>
+
                             {!hasAddedRanking && (
                                 <button
                                     className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
@@ -933,7 +941,7 @@ export function TAConstraintsPage2() {
 
                             {hasAddedRanking && (
                                 <button
-                                    className="cursor-pointer mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() => {
                                         setHasAddedRanking(false);
 
@@ -950,17 +958,6 @@ export function TAConstraintsPage2() {
                                 </button>
                             )}
 
-                            {hasAddedRanking && (
-                                <button
-                                    className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
-                                    onClick={handleSaveRanking}
-                                    disabled={savingSection === "ranking"}
-                                >
-                                    {savingSection === "ranking"
-                                        ? "Saving..."
-                                        : "Save"}
-                                </button>
-                            )}
                         </div>
                     </section>
 
@@ -971,7 +968,7 @@ export function TAConstraintsPage2() {
 
                         <p className="mt-1 mb-4 text-sm text-slate-500">
                             {hasAddedSchedulePreference
-                                ? "Save or delete schedule?"
+                                ? "Compact: The algorithm will try to allocate you sessions which are close together (eg. on the same day), spread out: The algorithm will try to allocate you sessions which are evenly spread out. Save or delete schedule?"
                                 : "No choice selected yet, add preference for a compact schedule with more sessions during a single day or a spread out schedule over the week?"}
                         </p>
 
@@ -1023,6 +1020,17 @@ export function TAConstraintsPage2() {
                         )}
 
                         <div className="mt-6 flex justify-end">
+
+                            <button
+                                className="mr-4 cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                onClick={handleSaveSchedulePreference}
+                                disabled={savingSection === "schedule"}
+                            >
+                                {savingSection === "schedule"
+                                    ? "Saving..."
+                                    : "Save"}
+                            </button>
+
                             {!hasAddedSchedulePreference && (
                                 <button
                                     className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
@@ -1042,7 +1050,7 @@ export function TAConstraintsPage2() {
 
                             {hasAddedSchedulePreference && (
                                 <button
-                                    className="cursor-pointer mr-4 inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                                    className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                                     onClick={() => {
                                         setHasAddedSchedulePreference(false);
 
@@ -1056,17 +1064,6 @@ export function TAConstraintsPage2() {
                                 </button>
                             )}
 
-                            {hasAddedSchedulePreference && (
-                                <button
-                                    className="cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
-                                    onClick={handleSaveSchedulePreference}
-                                    disabled={savingSection === "schedule"}
-                                >
-                                    {savingSection === "schedule"
-                                        ? "Saving..."
-                                        : "Save"}
-                                </button>
-                            )}
                         </div>
                     </section>
                 </section>
