@@ -517,7 +517,7 @@ export function TAConstraintsPage2() {
 
                     <section className="rounded-3xl bg-red-50 p-6 shadow-sm ring-1 ring-slate-200">
                         <h2 className="text-lg font-semibold text-slate-900">
-                            Weekly working hours (Mandatory)
+                            Total course working hours (Mandatory)
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-500">
