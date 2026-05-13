@@ -289,7 +289,7 @@ public class ScheduleApplicationService {
                 assignment.getMinHours(),
                 assignment.getMaxHours(),
                 orderedPreferences(assignment),
-                Boolean.TRUE.equals(assignment.getIsCompactSchedule())
+                assignment.getIsCompactSchedule()
         );
     }
 
