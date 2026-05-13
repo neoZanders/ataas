@@ -33,6 +33,7 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
     protected final boolean shouldOptimize;
     protected final int compactScheduleViolationWeight = 1; // per hour
     protected final int sessionPreferenceViolationWeight = 10;
+    protected final int softSessionConstraintViolationWeight = 100;
 
     public ChocoNaiveAlgorithmService(
             @Value("${app.alg.timeout-ms}") long timeoutMs,
@@ -296,7 +297,7 @@ public class ChocoNaiveAlgorithmService implements AlgorithmService {
             for (int s = 0; s < sessions.size(); s++) {
                 if (constraint.timeInterval().isOverlappingWith(sessions.get(s).timeInterval())) {
                     penaltyBools.add(x[t][s]);
-                    penaltyWeights.add(constraint.weight());
+                    penaltyWeights.add(softSessionConstraintViolationWeight);
                 }
             }
         }
