@@ -22,6 +22,41 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
     }
 
     @Test
+    public void testAllocate__forcedPenalty__penaltyIsNonZero() {
+        AlgorithmRequest request = AlgorithmRequestGenerator.generate(
+                new AlgorithmRequestGenerator.Config(
+                        "forced_penalty",
+                        6L,
+                        LocalDate.of(2026, 1, 19),
+                        2,
+                        2,
+                        4,
+                        1,
+                        1,
+                        0,
+                        2,
+                        100
+                )
+        );
+
+        System.out.println("Scenario: forced_penalty");
+        runAndAssertAllAlgorithms(request);
+
+        Result<AlgorithmResult> greedyResult = greedy.runAlgorithm(request);
+        Result<AlgorithmResult> channelResult = schedulerChannel.runAlgorithm(request);
+        Result<AlgorithmResult> cpResult = cpScheduler.runAlgorithm(request);
+
+        assertTrue(
+                greedyResult.getData().totalPenalty() > 0,
+                "Expected non-zero penalty from Greedy but got 0"
+        );
+        assertTrue(
+                channelResult.getData().totalPenalty() > 0,
+                "Expected non-zero penalty from SchedulerChannel but got 0"
+        );
+    }
+
+    @Test
     public void testAllocate__smallGeneratedScenario__ok() {
         AlgorithmRequest request = AlgorithmRequestGenerator.generate(
                 new AlgorithmRequestGenerator.Config(
@@ -136,6 +171,7 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
     }
 
     private void runAndAssertAllAlgorithms(AlgorithmRequest request) {
+
         Result<AlgorithmResult> cpSchedulerResult = cpScheduler.runAlgorithm(request);
         Result<AlgorithmResult> greedyResult = greedy.runAlgorithm(request);
         Result<AlgorithmResult> schedulerChannelResult = schedulerChannel.runAlgorithm(request);
@@ -157,6 +193,10 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
             Result<AlgorithmResult> greedyResult,
             Result<AlgorithmResult> schedulerChannelResult
     ) {
+        System.out.println("CPScheduler penalty:      " + cpSchedulerResult.getData().totalPenalty());
+        System.out.println("Greedy penalty:           " + greedyResult.getData().totalPenalty());
+        System.out.println("SchedulerChannel penalty: " + schedulerChannelResult.getData().totalPenalty());
+
         Map<Integer, String> modelByPenalty = new HashMap<>();
 
         modelByPenalty.put(

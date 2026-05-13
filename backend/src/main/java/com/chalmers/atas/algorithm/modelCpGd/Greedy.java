@@ -214,7 +214,12 @@ public class Greedy implements AlgorithmService {
                         .filter(c -> c.timeInterval().isOverlappingWith(session.timeInterval()))
                         .mapToInt(AlgorithmSoftSessionConstraint::weight)
                         .sum();
+                AlgorithmTA ta = taById.get(taId);
+                if (ta != null) {
+                    int typeRank = ta.sessionTypePreferences().indexOf(session.type());
+                    if (typeRank > 0) total += typeRank * 10;}
             }
+
         }
         return total;
     }
