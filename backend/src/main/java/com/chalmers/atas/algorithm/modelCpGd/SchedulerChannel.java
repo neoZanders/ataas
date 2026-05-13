@@ -9,7 +9,7 @@ import com.chalmers.atas.common.Result;
 import java.util.*;
 
 public class SchedulerChannel implements AlgorithmService {
-    private final CPscheduler cPscheduler = new CPscheduler();
+    private final CPScheduler cPscheduler = new CPScheduler();
     private final Greedy greedy = new Greedy();
 
     @Override

@@ -10,7 +10,7 @@ import com.google.ortools.sat.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CPscheduler implements AlgorithmService {
+public class CPScheduler implements AlgorithmService {
 
     static {
         Loader.loadNativeLibraries();
