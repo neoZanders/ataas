@@ -172,9 +172,15 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
 
     private void runAndAssertAllAlgorithms(AlgorithmRequest request) {
 
+
         Result<AlgorithmResult> cpSchedulerResult = cpScheduler.runAlgorithm(request);
         Result<AlgorithmResult> greedyResult = greedy.runAlgorithm(request);
+
+        long channelStart = System.nanoTime();
         Result<AlgorithmResult> schedulerChannelResult = schedulerChannel.runAlgorithm(request);
+        long channelTime = (System.nanoTime() - channelStart) / 1_000_000; // convert to ms
+
+        System.out.println("SchedulerChannel: time=" + channelTime + "ms");
 
         assertAlgorithmResultOk(cpSchedulerResult);
         assertAlgorithmResultOk(greedyResult);
