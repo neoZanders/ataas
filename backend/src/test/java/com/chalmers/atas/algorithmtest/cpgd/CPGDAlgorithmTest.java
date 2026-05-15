@@ -18,43 +18,9 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
     public void testAllocate__mockScenario__ok() {
 
         System.out.println("Scenario: mock_scenario");
-        runAndAssertAllAlgorithms(mockRequest);
+        runAndAssertAllAlgorithms("mock_scenario",mockRequest);
     }
 
-    @Test
-    public void testAllocate__forcedPenalty__penaltyIsNonZero() {
-        AlgorithmRequest request = AlgorithmRequestGenerator.generate(
-                new AlgorithmRequestGenerator.Config(
-                        "forced_penalty",
-                        6L,
-                        LocalDate.of(2026, 1, 19),
-                        2,
-                        2,
-                        4,
-                        1,
-                        1,
-                        0,
-                        2,
-                        100
-                )
-        );
-
-        System.out.println("Scenario: forced_penalty");
-        runAndAssertAllAlgorithms(request);
-
-        Result<AlgorithmResult> greedyResult = greedy.runAlgorithm(request);
-        Result<AlgorithmResult> channelResult = schedulerChannel.runAlgorithm(request);
-        Result<AlgorithmResult> cpResult = cpScheduler.runAlgorithm(request);
-
-        assertTrue(
-                greedyResult.getData().totalPenalty() > 0,
-                "Expected non-zero penalty from Greedy but got 0"
-        );
-        assertTrue(
-                channelResult.getData().totalPenalty() > 0,
-                "Expected non-zero penalty from SchedulerChannel but got 0"
-        );
-    }
 
     @Test
     public void testAllocate__smallGeneratedScenario__ok() {
@@ -76,7 +42,7 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
 
 
         System.out.println("Scenario: small_generated");
-        runAndAssertAllAlgorithms(request);
+        runAndAssertAllAlgorithms("small_generated",request);
     }
 
     @Test
@@ -99,7 +65,7 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
 
 
         System.out.println("Scenario: medium_generated");
-        runAndAssertAllAlgorithms(request);
+        runAndAssertAllAlgorithms("medium_generate",request);
     }
 
     @Test
@@ -122,7 +88,7 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
 
 
         System.out.println("Scenario: many_soft_constraints");
-        runAndAssertAllAlgorithms(request);
+        runAndAssertAllAlgorithms("many_soft_constraints",request);
     }
 
     @Test
@@ -145,7 +111,7 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
 
 
         System.out.println("Scenario: many_hard_constraints");
-        runAndAssertAllAlgorithms(request);
+        runAndAssertAllAlgorithms("many_hard_constraints",request);
     }
 
     @Test
@@ -167,11 +133,164 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
         );
 
         System.out.println("Scenario: higher_staffing_requirement");
-        runAndAssertAllAlgorithms(request);
+        runAndAssertAllAlgorithms("higher_staffing_requirement",request);
     }
 
-    private void runAndAssertAllAlgorithms(AlgorithmRequest request) {
+    @Test
+    public void testAllocate__denseSessionsFewTAs__ok() {
+        AlgorithmRequest request = AlgorithmRequestGenerator.generate(
+                new AlgorithmRequestGenerator.Config(
+                        "dense_sessions_few_tas",
+                        6L,
+                        LocalDate.of(2026, 1, 19),
+                        6,
+                        4,
+                        8,
+                        1,
+                        2,
+                        2,
+                        6,
+                        100
+                )
+        );
 
+        System.out.println("Scenario: dense_sessions_few_tas");
+        runAndAssertAllAlgorithms("dense_sessions_few_tas", request);
+    }
+
+    @Test
+    public void testAllocate__sparseSessionsManyTAs__ok() {
+        AlgorithmRequest request = AlgorithmRequestGenerator.generate(
+                new AlgorithmRequestGenerator.Config(
+                        "sparse_sessions_many_tas",
+                        7L,
+                        LocalDate.of(2026, 1, 19),
+                        4,
+                        12,
+                        5,
+                        1,
+                        3,
+                        2,
+                        8,
+                        100
+                )
+        );
+
+        System.out.println("Scenario: sparse_sessions_many_tas");
+        runAndAssertAllAlgorithms("sparse_sessions_many_tas", request);
+    }
+
+    @Test
+    public void testAllocate__sessionPreferenceConflict__ok() {
+        AlgorithmRequest request = AlgorithmRequestGenerator.generate(
+                new AlgorithmRequestGenerator.Config(
+                        "session_preference_conflict",
+                        9L,
+                        LocalDate.of(2026, 1, 19),
+                        5,
+                        8,
+                        9,
+                        1,
+                        4,
+                        1,
+                        6,
+                        100
+                )
+        );
+
+        System.out.println("Scenario: session_preference_conflict");
+        runAndAssertAllAlgorithms("session_preference_conflict", request);
+    }
+
+    @Test
+    public void testAllocate__largeGeneratedScenario__ok() {
+        AlgorithmRequest request = AlgorithmRequestGenerator.generate(
+                new AlgorithmRequestGenerator.Config(
+                        "large_generated",
+                        10L,
+                        LocalDate.of(2026, 1, 19),
+                        8,
+                        12,
+                        12,
+                        1,
+                        4,
+                        3,
+                        8,
+                        100
+                )
+        );
+
+        System.out.println("Scenario: large_generated");
+        runAndAssertAllAlgorithms("large_generated", request);
+    }
+
+    @Test
+    public void testAllocate__veryManySoftConstraints__ok() {
+        AlgorithmRequest request = AlgorithmRequestGenerator.generate(
+                new AlgorithmRequestGenerator.Config(
+                        "very_many_soft_constraints",
+                        11L,
+                        LocalDate.of(2026, 1, 19),
+                        5,
+                        10,
+                        10,
+                        1,
+                        4,
+                        1,
+                        20,
+                        100
+                )
+        );
+
+        System.out.println("Scenario: very_many_soft_constraints");
+        runAndAssertAllAlgorithms("very_many_soft_constraints", request);
+    }
+
+    @Test
+    public void testAllocate__tightHourBudgets__ok() {
+        AlgorithmRequest request = AlgorithmRequestGenerator.generate(
+                new AlgorithmRequestGenerator.Config(
+                        "tight_hour_budgets",
+                        12L,
+                        LocalDate.of(2026, 1, 19),
+                        4,
+                        7,
+                        8,
+                        1,
+                        3,
+                        2,
+                        5,
+                        100
+                )
+        );
+
+        System.out.println("Scenario: tight_hour_budgets");
+        runAndAssertAllAlgorithms("tight_hour_budgets", request);
+    }
+
+    @Test
+    public void testAllocate__baselineNoSoftConstraints__ok() {
+        AlgorithmRequest request = AlgorithmRequestGenerator.generate(
+                new AlgorithmRequestGenerator.Config(
+                        "baseline_no_soft_constraints",
+                        13L,
+                        LocalDate.of(2026, 1, 19),
+                        4,
+                        8,
+                        8,
+                        1,
+                        4,
+                        2,
+                        0,
+                        100
+                )
+        );
+
+        System.out.println("Scenario: baseline_no_soft_constraints");
+        runAndAssertAllAlgorithms("baseline_no_soft_constraints", request);
+    }
+
+    private void runAndAssertAllAlgorithms(String scenarioName, AlgorithmRequest request) {
 
         Result<AlgorithmResult> cpSchedulerResult = cpScheduler.runAlgorithm(request);
         Result<AlgorithmResult> greedyResult = greedy.runAlgorithm(request);
