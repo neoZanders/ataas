@@ -1,5 +1,5 @@
 import { Link, useLocation, matchPath } from "react-router-dom";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import {
     Book,
     Users,
@@ -57,6 +57,7 @@ function SideTabNav() {
     const [createCourseOpen, setCreateCourseOpen] = useState(false);
     const [apiCourseOptions, setApiCourseOptions] = useState<CoursesSidePanelOption[]>([]);
     const [isLoadingCourses, setIsLoadingCourses] = useState(false);
+    const [invitedCoursesCount, setInvitedCoursesCount] = useState(0);
 
     const [joiningCourseId, setJoiningCourseId] = useState<string | null>(null);
 
@@ -77,11 +78,7 @@ function SideTabNav() {
         }
     }, [apiCourseOptions, currentCourseId, setCurrentCourseId]);
 
-    useEffect(() => {
-        loadCourses();
-    }, [accessToken, base]);
-
-    const loadCourses = async () => {
+    const loadCourses = useCallback(async () => {
         if (!accessToken) return;
 
         setIsLoadingCourses(true);
@@ -97,13 +94,21 @@ function SideTabNav() {
             }));
 
             setApiCourseOptions(mappedCourses);
+            setInvitedCoursesCount(
+                courses.filter((item) => item.assignmentStatus === "INVITED").length
+            );
         } catch (error) {
             console.error("Failed to load courses", error);
             setApiCourseOptions([]);
+            setInvitedCoursesCount(0);
         } finally {
             setIsLoadingCourses(false);
         }
-    };
+    }, [accessToken]);
+
+    useEffect(() => {
+        void loadCourses();
+    }, [loadCourses, base]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const staticCourseActionOptions: CoursesSidePanelOption[] = (user?.userType === "CR")
@@ -119,7 +124,7 @@ function SideTabNav() {
     const items: SidebarItem[] = user?.userType === "CR"
         ? [
             { id: "course", label: "Course", type: "link" , to: `${base}/course`, icon: <Book size={24} /> },
-            { id: "courses", label: "Courses", type: "action", icon: <BookCopy size={24} /> },
+            { id: "courses", label: "Courses", type: "action", icon: <BookCopy size={24}/>, badgeCount: invitedCoursesCount },
             { id: "calendar", label: "Calendar", type: "link" , to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
             { id: "ta list", label: "TA list", type: "link" , to: `${base}/talist`, icon: <Users size={24} /> },
             { id: "constraints", label: "Constraints", type: "link", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
@@ -128,7 +133,7 @@ function SideTabNav() {
         : user?.userType === "TA"
             ? [
                 { id: "course", label: "Course", type: "link" , to: `${base}/course`, icon: <Book size={24} /> },
-                { id: "courses", label: "Courses", type: "action", icon: <BookCopy size={24} /> },
+                { id: "courses", label: "Courses", type: "action", icon: <BookCopy size={24} />, badgeCount: invitedCoursesCount },
                 { id: "calendar", label: "Calendar", type: "link" , to: `${base}/calendar`, icon: <CalendarDays size={24} /> },
                 { id: "ta list", label: "TA list", type: "link" , to: `${base}/talist`, icon: <Users size={24} /> },
                 { id: "constraints", label: "Constraints", type: "link", to: `${base}/constraints`, icon: <Rows3 size={24} /> },
@@ -218,6 +223,12 @@ function SideTabNav() {
 
                                     <span className="relative inline-flex items-center justify-center">
                         {item.icon}
+
+                                        {typeof item.badgeCount === "number" && item.badgeCount > 0 && (
+                                            <span className="absolute -top-2 -right-4 min-w-[20px] h-5 px-1.5 rounded-full bg-white text-slate-800 border-2 border-[#003b5c] text-[11px] font-bold leading-none flex items-center justify-center">
+                            {item.badgeCount}
+                        </span>
+                                        )}
                     </span>
 
                                     <span className="text-[11px] leading-none font-medium text-center">
