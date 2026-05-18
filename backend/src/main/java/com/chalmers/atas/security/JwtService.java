@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class JwtService {
@@ -41,6 +42,7 @@ public class JwtService {
     public String generateRefreshToken(String subject) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("tokenType", "refresh");
+        claims.put("jti", UUID.randomUUID().toString());
         return buildToken(subject, claims, refreshTokenTtl);
     }
 
