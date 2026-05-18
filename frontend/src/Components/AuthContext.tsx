@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as authApi from "../api/authApi";
+import {
+    TOKEN_KEY,
+    USER_KEY,
+    setStoredAccessToken,
+    clearStoredAuth,
+} from "../api/authStorage";
 
 type AuthContextValue = {
     user: User | null;
@@ -19,9 +25,6 @@ export type User = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const TOKEN_KEY = "mtb_access_token";
-const USER_KEY = "mtb_user";
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -31,8 +34,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const savedToken = localStorage.getItem(TOKEN_KEY);
         const savedUser = localStorage.getItem(USER_KEY);
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        if (savedToken) setAccessToken(savedToken);
+        if (savedToken) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setAccessToken(savedToken);
+        }
 
         if (savedUser) {
             try {
@@ -54,35 +59,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
     };
 
+    const saveAuthData = (mappedUser: User, token: string) => {
+        setUser(mappedUser);
+        setAccessToken(token);
+        setStoredAccessToken(token);
+        localStorage.setItem(USER_KEY, JSON.stringify(mappedUser));
+    }
+
     const register = async (payload: authApi.RegisterRequest) => {
         const res = await authApi.register(payload);
-
         const mappedUser = mapUser(res.userResponse);
 
-        setUser(mappedUser);
-        setAccessToken(res.accessToken);
-
-        localStorage.setItem(TOKEN_KEY, res.accessToken);
-        localStorage.setItem(USER_KEY, JSON.stringify(mappedUser));
+        saveAuthData(mappedUser, res.accessToken);
     };
 
     const login = async (payload: authApi.LoginRequest) => {
         const res = await authApi.login(payload);
-
         const mappedUser = mapUser(res.userResponse);
 
-        setUser(mappedUser);
-        setAccessToken(res.accessToken);
-
-        localStorage.setItem(TOKEN_KEY, res.accessToken);
-        localStorage.setItem(USER_KEY, JSON.stringify(mappedUser));
+        saveAuthData(mappedUser, res.accessToken);
     };
 
     const logout = () => {
         setUser(null);
         setAccessToken(null);
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USER_KEY);
+        clearStoredAuth();
     };
 
     return (
