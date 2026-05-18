@@ -25,7 +25,10 @@ export async function fetchJson<T>(
     options: RequestInit = {}
 ): Promise<T> {
     const url = `${API_BASE_URL}${path}`;
-    const res = await fetch(url, options);
+    const res = await fetch(url, {
+        ...options,
+        credentials: "include",
+    });
 
     if (!res.ok) {
         const body = await tryReadJson(res);

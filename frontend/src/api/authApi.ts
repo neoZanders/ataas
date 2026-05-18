@@ -39,3 +39,9 @@ export async function login(req: LoginRequest): Promise<AuthResponse> {
         body: JSON.stringify(req),
     });
 }
+
+export async function refresh(): Promise<AuthResponse> {
+    return fetchJson<AuthResponse>(`/api/auth/refresh`, {
+        method: "POST",
+    })
+}
