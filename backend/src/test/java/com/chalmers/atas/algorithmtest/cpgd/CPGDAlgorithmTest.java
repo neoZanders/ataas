@@ -309,6 +309,8 @@ public class CPGDAlgorithmTest extends CPGDAlgorithmTestBase {
     }
 
     private void assertAlgorithmResultOk(Result<AlgorithmResult> result) {
+        System.out.println("  success=" + result.isSuccess()
+                + " feasible=" + (result.isSuccess() ? result.getData().feasible() : "n/a"));
         assertTrue(result.isSuccess());
         assertTrue(result.getData().feasible());
     }

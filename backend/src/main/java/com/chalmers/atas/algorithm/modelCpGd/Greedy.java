@@ -51,7 +51,7 @@ public class Greedy implements AlgorithmService {
             for(List<AlgorithmSession> group : groups){
                 group.sort((s1, s2) -> {
                     int r1 = s1.minTAs() - assignment.get(s1.sessionId()).size();
-                    int r2 = s2.maxTAs() - assignment.get(s2.sessionId()).size();
+                    int r2 = s2.minTAs() - assignment.get(s2.sessionId()).size();
                     return Integer.compare(r2,r1);
                 });
 
