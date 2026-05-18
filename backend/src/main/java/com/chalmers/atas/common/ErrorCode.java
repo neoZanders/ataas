@@ -31,6 +31,7 @@ public enum ErrorCode {
     REQUEST_TIMED_OUT("REQUEST_TIMED_OUT", "External API request timed out", HttpStatus.BAD_GATEWAY),
     SCHEDULE_GENERATION_TIMED_OUT("SCHEDULE_GENERATION_TIMED_OUT", "Schedule generation timed out before a feasible schedule could be found", HttpStatus.BAD_REQUEST),
     SCHEDULE_INFEASIBLE("SCHEDULE_INFEASIBLE", "Schedule for course under current constraints infeasible", HttpStatus.BAD_REQUEST),
+    SCHEDULE_NOT_FOUND("SCHEDULE_NOT_FOUND", "Schedule not found", HttpStatus.NOT_FOUND),
     START_AFTER_END("START_AFTER_END", "Start date time is after end date time", HttpStatus.BAD_REQUEST),
     TA_CONSTRAINT_NOT_FOUND("TA_CONSTRAINT_NOT_FOUND", "TA constraint not found", HttpStatus.NOT_FOUND),
     TIMEEDIT_AUTHENTICATION_FAILED("TIMEEDIT_AUTHENTICATION_FAILED", "Failed to authenticate with TimeEdit", HttpStatus.INTERNAL_SERVER_ERROR),

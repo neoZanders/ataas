@@ -41,7 +41,7 @@ export function CourseResponsibleMainPage() {
                     return;
                 }
 
-                setEvents(mapScheduleToEvents(schedule));
+                setEvents(mapScheduleToEvents(schedule, true));
             } catch (error) {
                 if (!isMounted) {
                     return;
@@ -82,7 +82,7 @@ export function CourseResponsibleMainPage() {
 
         try {
             const schedule = await createSchedule(currentCourseId, accessToken);
-            const scheduleEvents = mapScheduleToEvents(schedule);
+            const scheduleEvents = mapScheduleToEvents(schedule, true);
 
             setEvents(scheduleEvents);
 
