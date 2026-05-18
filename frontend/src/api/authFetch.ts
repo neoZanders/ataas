@@ -13,14 +13,15 @@ async function refreshAccessToken(): Promise<string | null> {
                 return res.accessToken;
             })
             .catch(() => {
-                clearStoredAuth()
+                clearStoredAuth();
                 return null;
             })
-        .finally(() => {
-            refreshPromise = null;
-        })
+            .finally(() => {
+                refreshPromise = null;
+            });
     }
-    return refreshPromise
+
+    return refreshPromise;
 }
 
 export async function authFetchJson<T>(
