@@ -17,11 +17,23 @@ function sessionTypeLabel(type: CourseSessionType) {
     }
 }
 
-export function mapScheduleToEvents(schedule: ScheduleResponse): EventInput[] {
-    return schedule.allocations.map((allocation) => ({
-        id: allocation.scheduleSessionAllocationId,
-        title: `Session: ${sessionTypeLabel(allocation.courseSessionType)}`,
-        start: allocation.startDateTime,
-        end: allocation.endDateTime,
-    }));
+export function mapScheduleToEvents(schedule: ScheduleResponse, isCR: boolean): EventInput[] {
+    if (schedule.canTAsSeeAllSchedules || isCR) {
+        return schedule.allocations.map((allocation) => ({
+            id: allocation.scheduleSessionAllocationId,
+            title: `${sessionTypeLabel(allocation.courseSessionType)}`,
+            start: allocation.startDateTime,
+            end: allocation.endDateTime,
+            extendedProps: {
+                ta: allocation.taName
+            }
+        }));
+    } else {
+        return schedule.allocations.map((allocation) => ({
+            id: allocation.scheduleSessionAllocationId,
+            title: `${sessionTypeLabel(allocation.courseSessionType)}`,
+            start: allocation.startDateTime,
+            end: allocation.endDateTime
+        }));
+    }
 }

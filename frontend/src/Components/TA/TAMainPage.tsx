@@ -37,7 +37,7 @@ export function TAMainPage() {
                     return;
                 }
 
-                setEvents(mapScheduleToEvents(schedule));
+                setEvents(mapScheduleToEvents(schedule, false));
             } catch (loadError) {
                 console.error("Failed to load TA schedule", loadError);
 

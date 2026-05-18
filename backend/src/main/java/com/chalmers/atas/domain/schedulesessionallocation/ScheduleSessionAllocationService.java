@@ -2,8 +2,6 @@ package com.chalmers.atas.domain.schedulesessionallocation;
 
 import com.chalmers.atas.common.Result;
 import com.chalmers.atas.common.TransactionalResult;
-import com.chalmers.atas.domain.course.Course;
-import com.chalmers.atas.domain.courseassignment.CourseAuthorizationService;
 import com.chalmers.atas.domain.schedule.Schedule;
 import com.chalmers.atas.domain.schedule.ScheduleRepository;
 import com.chalmers.atas.domain.user.User;
@@ -21,13 +19,18 @@ import static com.chalmers.atas.common.ErrorCode.*;
 @RequiredArgsConstructor
 public class ScheduleSessionAllocationService {
 
-    private final CourseAuthorizationService courseAuthorizationService;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleSessionAllocationRepository scheduleSessionAllocationRepository;
 
-    public Result<List<ScheduleSessionAllocation>> getAllocations(UUID courseId, User user) {
-        return getScheduleIfUserCanViewSchedule(courseId, user)
-                .map(scheduleSessionAllocationRepository::findBySchedule);
+    public Result<List<ScheduleSessionAllocation>> getAllocations(
+            Schedule schedule,
+            User user,
+            boolean canTAsSeeAllSchedules) {
+        if (user.getUserType().equals(User.UserType.CR) || canTAsSeeAllSchedules) {
+            return Result.ok(scheduleSessionAllocationRepository.findBySchedule(schedule));
+        } else {
+            return Result.ok(scheduleSessionAllocationRepository.findByScheduleAndTaCourseAssignmentTa(schedule, user));
+        }
     }
 
     @Transactional
@@ -72,26 +75,5 @@ public class ScheduleSessionAllocationService {
         }
 
         return Result.ok(schedule);
-    }
-
-    private Result<Schedule> getScheduleIfUserCanViewSchedule(UUID courseId, User user) {
-        Result<Course> maybeCourse;
-
-        if (user.getUserType().equals(User.UserType.CR)) {
-            maybeCourse = courseAuthorizationService.assertUserIsCrOfCourse(courseId, user);
-        } else if (user.getUserType().equals(User.UserType.TA)) {
-            maybeCourse = courseAuthorizationService.assertUserIsTaOfCourse(courseId, user);
-        } else {
-            return Result.errorFromCode(USER_NOT_ALLOWED_FOR_COURSE_ACTION);
-        }
-
-        if (!maybeCourse.isSuccess()) {
-            return Result.error(maybeCourse.getError());
-        }
-
-        return Result.ofOptional(
-                scheduleRepository.findFirstByCourse(maybeCourse.getData()),
-                NOT_FOUND,"Schedule not found"
-        );
     }
 }

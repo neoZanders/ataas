@@ -1,6 +1,7 @@
 package com.chalmers.atas.domain.schedulesessionallocation;
 
 import com.chalmers.atas.domain.schedule.Schedule;
+import com.chalmers.atas.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -10,4 +11,6 @@ public interface ScheduleSessionAllocationRepository extends JpaRepository<Sched
     List<ScheduleSessionAllocation> findBySchedule(Schedule schedule);
 
     void deleteBySchedule(Schedule schedule);
+
+    List<ScheduleSessionAllocation> findByScheduleAndTaCourseAssignmentTa(Schedule schedule, User taCourseAssignmentTa);
 }

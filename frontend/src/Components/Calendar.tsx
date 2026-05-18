@@ -37,6 +37,28 @@ export default function Calendar({ events = mockEvents }: CalendarProps) {
                 dayMaxEvents={true}
                 weekends={true}
                 height="auto"
+                eventContent={(eventInfo) => {
+                    const taName = eventInfo.event.extendedProps.ta as string | undefined;
+
+                    return (
+                        <div className="leading-tight">
+                            <div className="font-medium">
+                                {eventInfo.timeText && (
+                                    <span className="mr-1 font-semibold">
+                                        {eventInfo.timeText}
+                                    </span>
+                                )}
+                                <span>{eventInfo.event.title}</span>
+                            </div>
+
+                            {taName && (
+                                <div className="text-xs opacity-80">
+                                    TA: {taName}
+                                </div>
+                            )}
+                        </div>
+                    );
+                }}
             />
         </div>
     );

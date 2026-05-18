@@ -13,20 +13,20 @@ import java.util.UUID;
 public class ScheduleSessionAllocationResponse {
 
     private UUID scheduleSessionAllocationId;
-    private UUID scheduleId;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
     private CourseSession.CourseSessionType courseSessionType;
     private UUID taCourseAssignmentId;
+    private String taName;
 
     public static ScheduleSessionAllocationResponse of(ScheduleSessionAllocation allocation) {
         return new ScheduleSessionAllocationResponse(
                 allocation.getScheduleSessionAllocationId(),
-                allocation.getSchedule().getScheduleId(),
                 allocation.getStartDateTime(),
                 allocation.getEndDateTime(),
                 allocation.getCourseSessionType(),
-                allocation.getTaCourseAssignment().getTaCourseAssignmentId()
+                allocation.getTaCourseAssignment().getTaCourseAssignmentId(),
+                allocation.getTaCourseAssignment().getTa().getName()
         );
     }
 }

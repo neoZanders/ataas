@@ -3,16 +3,17 @@ import type { CourseSessionType } from "./courseSessionsApi.ts";
 
 export type ScheduleSessionAllocationResponse = {
     scheduleSessionAllocationId: string;
-    scheduleId: string;
     startDateTime: string;
     endDateTime: string;
     courseSessionType: CourseSessionType;
     taCourseAssignmentId: string;
+    taName: string;
 };
 
 export type ScheduleResponse = {
     scheduleId: string;
     courseId: string;
+    canTAsSeeAllSchedules: boolean;
     allocations: ScheduleSessionAllocationResponse[];
 };
 
