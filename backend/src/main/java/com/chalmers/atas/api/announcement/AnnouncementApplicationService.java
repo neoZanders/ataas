@@ -14,6 +14,7 @@ import com.chalmers.atas.domain.crcourseassignment.CRCourseAssignmentService;
 import com.chalmers.atas.domain.tacourseassignment.TACourseAssignmentService;
 import com.chalmers.atas.domain.user.CurrentUser;
 import com.chalmers.atas.domain.user.User;
+import static com.chalmers.atas.common.ErrorCode.*;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +40,13 @@ public class AnnouncementApplicationService {
     }
 
     public Result<AnnouncementResponse> createAnnouncement(UUID courseId, CreateAnnouncementRequest request, CurrentUser currentUser){
+        if(request.getTitle().length() > 100){
+            return Result.errorFromCode(CHARACTER_LIMIT_EXCEEDED);
+        }
+        if(request.getBody().length() <= 3000){
+            return Result.errorFromCode(CHARACTER_LIMIT_EXCEEDED);
+        }
+
         return courseService.getCourse(courseId).flatMap(course ->
                 assertUserCanCreateAnnouncements(course, currentUser.getUser())
                         .then(() ->

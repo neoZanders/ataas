@@ -10,6 +10,7 @@ public enum ErrorCode {
 
     // Alphabetical
     CANNOT_DELETE_COURSE_OWNER("CANNOT_DELETE_COURSE_OWNER", "Course owner cannot be deleted", HttpStatus.BAD_REQUEST),
+    CHARACTER_LIMIT_EXCEEDED("CHACTACTER_LIMIT_EXCEEDED", "Character limit exceeded", HttpStatus.BAD_REQUEST),
     COURSE_INVITE_NOT_FOUND("COURSE_INVITE_NOT_FOUND", "Course invite not found", HttpStatus.NOT_FOUND),
     COURSE_NOT_FOUND("COURSE_NOT_FOUND", "Course not found", HttpStatus.NOT_FOUND),
     COURSE_SESSION_NOT_FOUND("COURSE_SESSION_NOT_FOUND", "Course session not found", HttpStatus.NOT_FOUND),
@@ -19,8 +20,11 @@ public enum ErrorCode {
     EMAIL_TAKEN("EMAIL_TAKEN", "Email already taken", HttpStatus.BAD_REQUEST),
     INVALID_COURSE_ASSIGNMENT_STATUS("INVALID_COURSE_ASSIGNMENT_STATUS", "Invalid course assignment status", HttpStatus.BAD_REQUEST),
     INVALID_COURSE_CODE("INVALID_COURSE_CODE", "Course code format invalid", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL_FORMAT("INVALID_EMAIL_FORMAT","Email format invalid",HttpStatus.BAD_REQUEST),
     INVALID_HARD_CONSTRAINT_TA_REFERENCE("INVALID_HARD_CONSTRAINT_TA_REFERENCE", "Hard constraint references unknown TA assignment", HttpStatus.BAD_REQUEST),
     INVALID_MIN_MAX_HOURS("INVALID_MIN_MAX_HOURS", "Maximum hours cannot be less than minimum hours", HttpStatus.BAD_REQUEST),
+    INVALID_MIN_MAX_TA("INVALID_MIN_MAX_TA", "Maximum TAs cannot be less than minimum TAs",HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD_FORMAT("INVALID_PASSWORD_FORMAT", "Password format invalid",HttpStatus.BAD_REQUEST),
     INVALID_REFRESH_TOKEN("INVALID_REFRESH_TOKEN", "Invalid refresh token", HttpStatus.BAD_REQUEST),
     INVALID_SESSION_TA_RANGE("INVALID_SESSION_TA_RANGE", "Session minTAs cannot exceed maxTAs", HttpStatus.BAD_REQUEST),
     INVALID_SOFT_CONSTRAINT_TA_REFERENCE("INVALID_SOFT_CONSTRAINT_TA_REFERENCE", "Soft constraint references unknown TA assignment", HttpStatus.BAD_REQUEST),

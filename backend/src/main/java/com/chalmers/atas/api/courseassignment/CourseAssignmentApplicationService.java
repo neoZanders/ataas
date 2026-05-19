@@ -30,6 +30,7 @@ public class CourseAssignmentApplicationService {
     private final CRCourseAssignmentRepository crCourseAssignmentRepository;
     private final TACourseAssignmentRepository taCourseAssignmentRepository;
     private final UserRepository userRepository;
+    private final static String EMAIL_REGEX = "^[\\w.+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$";
 
     public Result<Void> joinCourse(UUID courseId, CurrentUser currentUser) {
         if (currentUser.getUser().getUserType().equals(User.UserType.CR)) {
@@ -54,6 +55,9 @@ public class CourseAssignmentApplicationService {
     }
 
     public Result<Void> inviteCR(UUID courseId, InviteCRRequest request, CurrentUser currentUser) {
+        if(!request.getCrEmail().matches(EMAIL_REGEX)){
+            return Result.errorFromCode(ErrorCode.INVALID_EMAIL_FORMAT);
+        }
         return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
                 .flatMap(course ->
                                 Result.ofOptional(
@@ -64,6 +68,9 @@ public class CourseAssignmentApplicationService {
     }
 
     public Result<Void> inviteTA(UUID courseId, InviteTARequest request, CurrentUser currentUser){
+        if(!request.getTaEmail().matches(EMAIL_REGEX)){
+            return Result.errorFromCode(ErrorCode.INVALID_EMAIL_FORMAT);
+        }
         return courseAuthorizationService.assertUserIsCrOfCourse(courseId, currentUser.getUser())
                 .flatMap(course ->
                                 Result.ofOptional(
@@ -131,6 +138,10 @@ public class CourseAssignmentApplicationService {
 
         if (!currentUser.getUser().getUserId().equals(taId)) {
             return Result.errorFromCode(ErrorCode.USER_NOT_ALLOWED_TO_UPDATE_ASSIGNMENT);
+        }
+
+        if(request.getMinHours() < 0 || request.getMaxHours() < 0 || request.getMinHours() > request.getMaxHours()){
+            return Result.errorFromCode(ErrorCode.INVALID_MIN_MAX_HOURS);
         }
 
         return resolveCourse(courseId).flatMap(course ->

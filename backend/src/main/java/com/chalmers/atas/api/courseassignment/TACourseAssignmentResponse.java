@@ -7,6 +7,7 @@ import com.chalmers.atas.domain.courseassignment.CourseAssignmentStatus;
 import com.chalmers.atas.domain.coursesession.CourseSession.CourseSessionType;
 import com.chalmers.atas.domain.tacourseassignment.TACourseAssignment;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -20,8 +21,9 @@ public class TACourseAssignmentResponse {
 
     private CourseAssignmentStatus status;
 
+    @NotNull
     private Integer minHours;
-
+    @NotNull
     private Integer maxHours;
 
     private CourseSessionType sessionTypePreference1;

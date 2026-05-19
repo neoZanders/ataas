@@ -18,6 +18,7 @@ import com.chalmers.atas.domain.user.User;
 
 import lombok.RequiredArgsConstructor;
 
+import static com.chalmers.atas.common.ErrorCode.START_AFTER_END;
 import static com.chalmers.atas.common.ErrorCode.USER_NOT_TEACHING_ASSISTANT;
 
 @Service
@@ -71,6 +72,9 @@ public class TAConstraintApplicationService {
     }
 
     public Result<Void> createTAConstraint(UUID courseId, CreateTAConstraintRequest request, CurrentUser currentUser){
+        if(request.getStartDateTime().isAfter(request.getEndDateTime())){
+            return Result.errorFromCode(START_AFTER_END);
+        }
         User user = currentUser.getUser();
         if (!user.getUserType().equals(User.UserType.TA)) {
             return Result.errorFromCode(USER_NOT_TEACHING_ASSISTANT);
@@ -100,7 +104,6 @@ public class TAConstraintApplicationService {
         if (!user.getUserType().equals(User.UserType.TA)) {
             return Result.errorFromCode(USER_NOT_TEACHING_ASSISTANT);
         }
-
         return courseAuthorizationService.assertUserIsTaOfCourse(courseId, user)
                 .flatMap(course ->
                         taCourseAssignmentService.getAssignment(user, course)
@@ -188,6 +191,9 @@ public class TAConstraintApplicationService {
             return Result.errorFromCode(USER_NOT_TEACHING_ASSISTANT);
         }
 
+        if(request.getStartDateTime().isAfter(request.getEndDateTime())){
+            return Result.errorFromCode(ErrorCode.START_AFTER_END);
+        }
         return taCourseSessionConstraintService.getConstraint(taCourseSessionConstraintId)
                 .flatMap(constraint -> {
                     if (!constraint.getTaCourseAssignment().getCourse().getCourseId().equals(courseId)) {
