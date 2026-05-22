@@ -4,48 +4,25 @@ import { useCurrentCourse } from "../CurrentCourseContext.tsx";
 import { useEffect, useMemo, useState } from "react";
 import { type CourseResponse, getCourseById } from "../../api/coursesApi.ts";
 import {
-    type CourseAssignmentConstraintsRequest,
-    type CourseAssignmentConstraintsResponse,
     createTAConstraintNotASession,
     getCourseAssignmentConstraints,
     getTAConstraintsTimeSlots,
     putTAConstraintsTimeSlots,
-    type PutTAConstraintsTimeSlotsRequest,
-    type TAConstraintsTimeSlotsResponse,
 } from "../../api/taConstraintsApi.ts";
 import { Trash2 } from "lucide-react";
-import SessionTypeRanker, { SessionType } from "./SessionRanking1to4.tsx";
-import type { CourseSessionType } from "../../api/courseSessionsApi.ts";
+import SessionTypeRanker from "./SessionRanking1to4.tsx";
+import type {
+    CourseAssignmentConstraintsForm,
+    SaveSection,
+    TimeSlot
+} from "../../types/taConstraintsPageTypes.ts";
+import {
+    buildRequest, hasSavedRanking, hasSavedSchedulePreference,
+    mapResponseToTimeSlot,
+    mapTimeSlotsToPutRequest,
+    preferencesToRanking, rankingToPreferences
+} from "../../utils/taConstraintsPageHelpers.ts";
 
-export type TimeSlot = {
-    id: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    constraintType: "SOFT" | "HARD";
-    backendId?: string;
-    isWeeklyRecurring: boolean;
-};
-
-export type CourseAssignmentConstraintsForm = {
-    minHours: string;
-    maxHours: string;
-    sessionTypePreference1: CourseSessionType | null;
-    sessionTypePreference2: CourseSessionType | null;
-    sessionTypePreference3: CourseSessionType | null;
-    sessionTypePreference4: CourseSessionType | null;
-    isCompactSchedule: boolean | null;
-};
-
-type RankingState = Record<SessionType, number | null>;
-
-type SaveSection =
-    | "hours"
-    | "hardTimeslots"
-    | "softTimeslots"
-    | "ranking"
-    | "schedule"
-    | null;
 
 export function TAConstraintsPage2() {
     const { accessToken, user } = useAuth();
@@ -76,26 +53,11 @@ export function TAConstraintsPage2() {
         isCompactSchedule: null,
     });
 
-    function buildRequest(
-        formToSave: CourseAssignmentConstraintsForm
-    ): CourseAssignmentConstraintsRequest {
-        return {
-            minHours: formToSave.minHours === "" ? 0 : Number(formToSave.minHours),
-            maxHours: formToSave.maxHours === "" ? 0 : Number(formToSave.maxHours),
-            sessionTypePreference1: formToSave.sessionTypePreference1,
-            sessionTypePreference2: formToSave.sessionTypePreference2,
-            sessionTypePreference3: formToSave.sessionTypePreference3,
-            sessionTypePreference4: formToSave.sessionTypePreference4,
-            isCompactSchedule: formToSave.isCompactSchedule,
-        };
-    }
-
     function clearSaveStatus() {
         setSuccessSection(null);
         setErrorSection(null);
         setSaveError(null);
     }
-
     function showSaveSuccess(section: SaveSection) {
         setSuccessSection(section);
         setErrorSection(null);
@@ -124,112 +86,7 @@ export function TAConstraintsPage2() {
         );
     }
 
-    function toLocalDateInputValue(dateTime: string): string {
-        return dateTime.slice(0, 10);
-    }
-
-    function toLocalTimeInputValue(dateTime: string): string {
-        return dateTime.slice(11, 16);
-    }
-
-    function combineDateAndTime(date: string, time: string): string {
-        return `${date}T${time}:00`;
-    }
-
-    function mapResponseToTimeSlot(slot: TAConstraintsTimeSlotsResponse): TimeSlot {
-        return {
-            id: slot.taCourseSessionConstraintId,
-            backendId: slot.taCourseSessionConstraintId,
-            constraintType: slot.constraintType,
-            date: toLocalDateInputValue(slot.startDateTime),
-            startTime: toLocalTimeInputValue(slot.startDateTime),
-            endTime: toLocalTimeInputValue(slot.endDateTime),
-            isWeeklyRecurring: slot.isWeeklyRecurring,
-        };
-    }
-
-    function mapTimeSlotsToPutRequest(
-        hardTimeSlots: TimeSlot[],
-        softTimeSlots: TimeSlot[]
-    ): PutTAConstraintsTimeSlotsRequest {
-        const allSlots = [...hardTimeSlots, ...softTimeSlots];
-
-        return {
-            requests: allSlots.map((slot) => ({
-                taCourseConstraintId: slot.backendId || undefined,
-                constraintType: slot.constraintType,
-                startDateTime: combineDateAndTime(slot.date, slot.startTime),
-                endDateTime: combineDateAndTime(slot.date, slot.endTime),
-                isWeeklyRecurring: slot.isWeeklyRecurring,
-            })),
-        };
-    }
-
-    function preferencesToRanking(form: CourseAssignmentConstraintsForm): RankingState {
-        const next: RankingState = {
-            [SessionType.grading]: null,
-            [SessionType.laboration]: null,
-            [SessionType.help]: null,
-            [SessionType.exercise]: null,
-        };
-
-        const prefMap = [
-            form.sessionTypePreference1,
-            form.sessionTypePreference2,
-            form.sessionTypePreference3,
-            form.sessionTypePreference4,
-        ];
-
-        prefMap.forEach((pref, index) => {
-            if (pref === null) return;
-
-            const key = pref.toLowerCase() as SessionType;
-            next[key] = index + 1;
-        });
-
-        return next;
-    }
-
-    function rankingToPreferences(ranking: RankingState): Pick<
-        CourseAssignmentConstraintsForm,
-        | "sessionTypePreference1"
-        | "sessionTypePreference2"
-        | "sessionTypePreference3"
-        | "sessionTypePreference4"
-    > {
-        const rankedItems: { type: CourseSessionType; rank: number }[] = [];
-
-        for (const type in ranking) {
-            const rank = ranking[type as SessionType];
-
-            if (rank !== null) {
-                rankedItems.push({
-                    type: type.toUpperCase() as CourseSessionType,
-                    rank,
-                });
-            }
-        }
-
-        rankedItems.sort((a, b) => a.rank - b.rank);
-
-        return {
-            sessionTypePreference1: rankedItems[0]?.type ?? null,
-            sessionTypePreference2: rankedItems[1]?.type ?? null,
-            sessionTypePreference3: rankedItems[2]?.type ?? null,
-            sessionTypePreference4: rankedItems[3]?.type ?? null,
-        };
-    }
-
     const ranking = useMemo(() => preferencesToRanking(form), [form]);
-
-    function hasSavedRanking(response: CourseAssignmentConstraintsResponse) {
-        return (
-            response.sessionTypePreference1 !== null &&
-            response.sessionTypePreference2 !== null &&
-            response.sessionTypePreference3 !== null &&
-            response.sessionTypePreference4 !== null
-        );
-    }
 
     const handleDeleteSchedulePreference = async () => {
         const nextForm: CourseAssignmentConstraintsForm = {
@@ -242,10 +99,6 @@ export function TAConstraintsPage2() {
 
         await handleSaveConstraintsNotTimeslots("schedule", nextForm);
     };
-
-    function hasSavedSchedulePreference(response: CourseAssignmentConstraintsResponse) {
-        return response.isCompactSchedule === true || response.isCompactSchedule === false;
-    }
 
     const removeHardTimeSlotRow = (id: string) => {
         setHardTimeSlots((prev) => prev.filter((slot) => slot.id !== id));
@@ -613,6 +466,19 @@ export function TAConstraintsPage2() {
                         </p>
 
                         <SaveStatus section="hardTimeslots" />
+
+                        <div className="relative inline-block group">
+                            <button
+                                type="button"
+                                className="mb-4 cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
+                            >
+                                Import unavailable timeslots from TimeEdit
+                        </button>
+                            <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-80 -translate-x-1/2 rounded-xl bg-slate-900 px-3 py-2 text-center text-xs text-white shadow-lg group-hover:block">
+                                Fetches your TimeEdit schedule and adds those times as hard constraints, so the algorithm will not schedule you when you already have classes. You can also delete these sessions after importing.
+                            </div>
+
+                        </div>
 
                         <div className="space-y-3">
                             {hardTimeSlots.map((slot) => (

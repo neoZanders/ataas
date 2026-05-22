@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, X, Trash2, ChevronDown } from "lucide-react";
 import SessionTypeRanker, { SessionType } from "./SessionRanking1to4.tsx";
 import type { CourseAssignmentConstraintsRequest } from "../../api/taConstraintsApi.ts";
+import type {TimeSlot} from "../../types/taConstraintsPageTypes.ts";
 
 type RankingState = Record<SessionType, number | null>;
 
@@ -10,16 +11,6 @@ type ConstraintKind =
     | "timeSlotsCantWorkSoft"
     | "sessionPreference"
     | "compactSchedule";
-
-export type TimeSlot = {
-    id: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    constraintType: "SOFT" | "HARD";
-    backendId?: string;
-    isWeeklyRecurring: boolean;
-};
 
 interface AddTAConstraintsPopUpProps {
     isOpen: boolean;
