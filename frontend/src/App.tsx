@@ -11,7 +11,6 @@ import {TAMainPage} from "./Components/TA/TAMainPage.tsx";
 import { CourseResponsibleAnnouncementPage } from "./Components/CR/CourseResponsibleAnnouncementPage.tsx";
 import { TAAnnouncementPage } from "./Components/TA/TAAnnouncementPage.tsx";
 import { TATaListPage} from "./Components/TA/TATaListPage.tsx";
-import {TAConstraintsPage} from "./Components/TA/TAConstraintsPage.tsx";
 import {CourseResponsibleCourse} from "./Components/CR/CourseResponsibleCourse.tsx";
 import {CurrentCourseProvider} from "./Components/CurrentCourseContext.tsx";
 import {TAConstraintsPage2} from "./Components/TA/TAConstraintsPage2.tsx";

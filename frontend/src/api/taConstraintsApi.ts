@@ -62,6 +62,25 @@ export type GetTAConstraintsTimeSlotResponse = {
     taConstraints: TAConstraintsTimeSlotsResponse[];
 }
 
+export type createCourseSessionFromTimeEditRequest = {
+    courseCode: string;
+}
+
+export async function createCourseSessionFromTimeEdit(
+    courseId: string,
+    req: createCourseSessionFromTimeEditRequest,
+    accessToken: string | null
+): Promise<TAConstraintsTimeSlotsResponse[]> {
+    return authFetchJson<TAConstraintsTimeSlotsResponse[]>(
+        `/api/courses/${courseId}/ta-constraints/import`,
+        accessToken,
+        {
+            method: "POST",
+            body: JSON.stringify(req),
+        }
+    );
+}
+
 export async function getAllTAConstraintsTimeSlots(
     courseId: string,
     accessToken: string | null
