@@ -30,3 +30,7 @@ export type SaveSection =
     | "ranking"
     | "schedule"
     | null;
+
+export type CourseCodeRequest = {
+    courseCode: string;
+}

@@ -1,7 +1,7 @@
 import SideTabNav from "../SideTabNav.tsx";
 import { useAuth } from "../AuthContext.tsx";
 import { useCurrentCourse } from "../CurrentCourseContext.tsx";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState} from "react";
 import { type CourseResponse, getCourseById } from "../../api/coursesApi.ts";
 import {
     createTAConstraintNotASession,
@@ -22,6 +22,7 @@ import {
     mapTimeSlotsToPutRequest,
     preferencesToRanking, rankingToPreferences
 } from "../../utils/taConstraintsPageHelpers.ts";
+import {ImportTimeEditCoursePopUp} from "./ImportTimeEditCoursePopUp.tsx";
 
 
 export function TAConstraintsPage2() {
@@ -42,6 +43,8 @@ export function TAConstraintsPage2() {
     const [hasAddedSchedulePreference, setHasAddedSchedulePreference] = useState<boolean>(false);
     const [hasAddedHardDescription, setHasAddedHardDescription] = useState<boolean>(false);
     const [hasAddedSoftDescription, setHasAddedSoftDescription] = useState<boolean>(false);
+
+    const [hasOpenedTimeEditPopup, setHasOpenedTimeEditPopup] = useState<boolean>(false);
 
     const [form, setForm] = useState<CourseAssignmentConstraintsForm>({
         minHours: "",
@@ -322,31 +325,31 @@ export function TAConstraintsPage2() {
         loadConstraints();
     }, [currentCourseId, accessToken, user?.id]);
 
+    const loadTimeSlotConstraints = async () => {
+        if (!currentCourseId || !accessToken || !user?.id) return;
+
+        try {
+            const response = await getTAConstraintsTimeSlots(
+                currentCourseId,
+                user.id,
+                accessToken
+            );
+
+            const mappedSlots = response.map(mapResponseToTimeSlot);
+
+            setHardTimeSlots(
+                mappedSlots.filter((slot) => slot.constraintType === "HARD")
+            );
+
+            setSoftTimeSlots(
+                mappedSlots.filter((slot) => slot.constraintType === "SOFT")
+            );
+        } catch (error) {
+            console.error("Failed to load timeslot constraints", error);
+        }
+    }
+
     useEffect(() => {
-        const loadTimeSlotConstraints = async () => {
-            if (!currentCourseId || !accessToken || !user?.id) return;
-
-            try {
-                const response = await getTAConstraintsTimeSlots(
-                    currentCourseId,
-                    user.id,
-                    accessToken
-                );
-
-                const mappedSlots = response.map(mapResponseToTimeSlot);
-
-                setHardTimeSlots(
-                    mappedSlots.filter((slot) => slot.constraintType === "HARD")
-                );
-
-                setSoftTimeSlots(
-                    mappedSlots.filter((slot) => slot.constraintType === "SOFT")
-                );
-            } catch (error) {
-                console.error("Failed to load timeslot constraints", error);
-            }
-        };
-
         loadTimeSlotConstraints();
     }, [currentCourseId, accessToken, user?.id]);
 
@@ -470,12 +473,13 @@ export function TAConstraintsPage2() {
                         <div className="relative inline-block group">
                             <button
                                 type="button"
+                                onClick={() => setHasOpenedTimeEditPopup(true)}
                                 className="mb-4 cursor-pointer inline-flex items-center justify-center rounded-2xl bg-[#003b5c] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#002f49] disabled:opacity-50"
                             >
-                                Import unavailable timeslots from TimeEdit
+                                Import course to get unavailable timeslots from TimeEdit
                         </button>
                             <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-80 -translate-x-1/2 rounded-xl bg-slate-900 px-3 py-2 text-center text-xs text-white shadow-lg group-hover:block">
-                                Fetches your TimeEdit schedule and adds those times as hard constraints, so the algorithm will not schedule you when you already have classes. You can also delete these sessions after importing.
+                                Fetches your TimeEdit schedule and adds those times as hard constraints, so the algorithm will not schedule you when you have classes. You can also delete these sessions after importing.
                             </div>
 
                         </div>
@@ -940,6 +944,21 @@ export function TAConstraintsPage2() {
                     </section>
                 </section>
             </main>
+
+            {currentCourseId && (
+                <ImportTimeEditCoursePopUp
+                    isOpen={hasOpenedTimeEditPopup}
+                    onClose={() => setHasOpenedTimeEditPopup(false)}
+                    accessToken={accessToken}
+                    currentCourseId={currentCourseId}
+                    onImportedTimeEditCourse={ async () => {
+                        setHasOpenedTimeEditPopup(false);
+                        await loadTimeSlotConstraints()
+                        showSaveSuccess("hardTimeslots")
+                    }}
+                />
+                )}
         </div>
+
     );
 }
