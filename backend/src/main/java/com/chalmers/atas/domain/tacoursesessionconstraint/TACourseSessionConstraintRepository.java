@@ -3,6 +3,7 @@ package com.chalmers.atas.domain.tacoursesessionconstraint;
 import java.util.List;
 import java.util.UUID;
 
+import com.chalmers.atas.domain.tacourseassignment.TACourseAssignment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.chalmers.atas.domain.course.Course;
@@ -16,4 +17,6 @@ public interface TACourseSessionConstraintRepository extends JpaRepository<TACou
     );
 
     List<TACourseSessionConstraint> findAllByTaCourseAssignmentCourseAndTaCourseAssignmentTaNameOrderByStartDateTime(Course course, String username);
+
+    List<TACourseSessionConstraint> findAllByTaCourseAssignment(TACourseAssignment taCourseAssignment);
 }
