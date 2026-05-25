@@ -74,7 +74,21 @@ public class TACourseSessionConstraintService {
 
     @Transactional
     public TransactionalResult<List<TACourseSessionConstraint>> createConstraints(TACourseAssignment taCourseAssignment, List<TAConstraintRequest> requests, Course course) {
-        List<TACourseSessionConstraint> constraints = normalize(requests, course.getStartDate(), course.getEndDate()).stream().map(request ->
+        requests.addAll(taCourseSessionConstraintRepository.findAllByTaCourseAssignment(taCourseAssignment).stream().map(
+                courseAssignment ->
+                        new TAConstraintRequest(
+                                courseAssignment.getConstraintType(),
+                                courseAssignment.getStartDateTime(),
+                                courseAssignment.getEndDateTime(),
+                                courseAssignment.isWeeklyRecurring())
+        ).toList());
+
+        List<TACourseSessionConstraint> constraints = normalize(
+                taCourseAssignment,
+                requests,
+                course.getStartDate(),
+                course.getEndDate()
+        ).stream().map(request ->
                 TACourseSessionConstraint.of(
                         taCourseAssignment,
                         request.constraintType(),
@@ -122,6 +136,7 @@ public class TACourseSessionConstraintService {
     }
 
     private List<TAConstraintRequest> normalize(
+            TACourseAssignment taCourseAssignment,
             List<TAConstraintRequest> requests,
             LocalDate courseStartDate,
             LocalDate courseEndDate
@@ -167,7 +182,19 @@ public class TACourseSessionConstraintService {
                 .filter(request -> request.constraintType() == TACourseSessionConstraint.ConstraintType.HARD)
                 .toList();
 
+        List<TACourseSessionConstraint> existing =
+                taCourseSessionConstraintRepository.findAllByTaCourseAssignment(taCourseAssignment);
+
         return compressed.stream()
+                .filter(request -> existing.stream()
+                        .map(existingConstraint ->
+                                new TAConstraintRequest(
+                                        existingConstraint.getConstraintType(),
+                                        existingConstraint.getStartDateTime(),
+                                        existingConstraint.getEndDateTime(),
+                                        existingConstraint.isWeeklyRecurring()
+                                )
+                        ).noneMatch(existingRequest -> existingRequest.equals(request)))
                 .filter(request ->
                         request.constraintType() == TACourseSessionConstraint.ConstraintType.HARD
                                 || hardConstraints.stream().noneMatch(hard -> hardCoversSoft(hard, request))
