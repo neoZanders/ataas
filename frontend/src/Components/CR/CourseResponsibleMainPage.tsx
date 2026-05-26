@@ -7,6 +7,7 @@ import { useAuth } from "../AuthContext.tsx";
 import Calendar from "../Calendar.tsx";
 import { useCurrentCourse } from "../CurrentCourseContext.tsx";
 import SideTabNav from "../SideTabNav.tsx";
+import {ScheduleOverWritePopUpProps} from "./ScheduleOverWritePopUp.tsx";
 
 export function CourseResponsibleMainPage() {
     const { accessToken } = useAuth();
@@ -17,6 +18,7 @@ export function CourseResponsibleMainPage() {
     const [isRunningAlgorithm, setIsRunningAlgorithm] = useState(false);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [hasOpenedWarningPopUp, setHasOpenedWarningPopUp] = useState(false);
 
     useEffect(() => {
         if (!currentCourseId || !accessToken) {
@@ -108,7 +110,7 @@ export function CourseResponsibleMainPage() {
                     <button
                         className="cursor-pointer rounded-2xl bg-[#003b5c] px-10 py-2 text-xl font-medium text-slate-50 hover:bg-[#002741] disabled:cursor-not-allowed disabled:opacity-60"
                         type="button"
-                        onClick={handleRunAlgorithm}
+                        onClick={() => setHasOpenedWarningPopUp(true)}
                         disabled={isRunningAlgorithm || isLoadingSchedule}
                     >
                         {isRunningAlgorithm ? "Running..." : "Run Algorithm"}
@@ -137,6 +139,14 @@ export function CourseResponsibleMainPage() {
                     )}
                 </div>
             </main>
+
+            <ScheduleOverWritePopUpProps
+                isOpen={hasOpenedWarningPopUp}
+                onClose={() => setHasOpenedWarningPopUp(false)}
+                onRunAlgorithm={ async () => {
+                    setHasOpenedWarningPopUp(false);
+                    await handleRunAlgorithm();
+                }} />
         </div>
     );
 }
