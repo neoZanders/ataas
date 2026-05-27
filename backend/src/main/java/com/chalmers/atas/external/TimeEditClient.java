@@ -53,6 +53,7 @@ public class TimeEditClient {
             LocalDate startDate,
             LocalDate endDate
     ) {
+        System.out.println("Fetching Reservations for Course Offering: " + courseOfferingId);
         List<ReservationResponse> allReservations = new ArrayList<>();
 
         for (int activityId : COURSE_ACTIVITY_IDS) {
@@ -65,6 +66,7 @@ public class TimeEditClient {
 
             allReservations.addAll(result.getData());
         }
+        System.out.println("Found " + allReservations.size() + " reservations: " + allReservations);
 
         return Result.ok(allReservations);
     }
