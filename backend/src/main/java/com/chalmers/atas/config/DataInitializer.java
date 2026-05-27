@@ -119,10 +119,10 @@ public class DataInitializer {
                 "VOL101",
                 dejana,
                 "This course is about volcano eruptions",
+                false,
                 true,
-                true,
-                LocalDate.of(2026, 1, 19),
-                LocalDate.of(2026, 3, 22)
+                LocalDate.of(2026, 4, 19),
+                LocalDate.of(2026, 6, 22)
         );
         courseRepository.save(vol101);
 
@@ -230,8 +230,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 1, 19, 8, 0),
-                LocalDateTime.of(2026, 1, 19, 10, 0),
+                LocalDateTime.of(2026, 4, 19, 8, 0),
+                LocalDateTime.of(2026, 4, 19, 10, 0),
                 CourseSession.CourseSessionType.LABORATION,
                 2,
                 3,
@@ -240,18 +240,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 1, 21, 13, 0),
-                LocalDateTime.of(2026, 1, 21, 15, 0),
-                CourseSession.CourseSessionType.LABORATION,
-                2,
-                4,
-                true
-        ));
-
-        courseSessionRepository.save(CourseSession.of(
-                vol101,
-                LocalDateTime.of(2026, 1, 23, 15, 0),
-                LocalDateTime.of(2026, 1, 23, 17, 0),
+                LocalDateTime.of(2026, 4, 21, 13, 0),
+                LocalDateTime.of(2026, 4, 21, 15, 0),
                 CourseSession.CourseSessionType.LABORATION,
                 2,
                 4,
@@ -260,8 +250,18 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 9, 8, 0),
-                LocalDateTime.of(2026, 2, 9, 10, 0),
+                LocalDateTime.of(2026, 4, 23, 15, 0),
+                LocalDateTime.of(2026, 4, 23, 17, 0),
+                CourseSession.CourseSessionType.LABORATION,
+                2,
+                4,
+                true
+        ));
+
+        courseSessionRepository.save(CourseSession.of(
+                vol101,
+                LocalDateTime.of(2026, 5, 9, 8, 0),
+                LocalDateTime.of(2026, 5, 9, 10, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -270,8 +270,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 9, 10, 0),
-                LocalDateTime.of(2026, 2, 9, 12, 0),
+                LocalDateTime.of(2026, 5, 9, 10, 0),
+                LocalDateTime.of(2026, 5, 9, 12, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -280,8 +280,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 9, 13, 0),
-                LocalDateTime.of(2026, 2, 9, 15, 0),
+                LocalDateTime.of(2026, 5, 9, 13, 0),
+                LocalDateTime.of(2026, 5, 9, 15, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -290,8 +290,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 9, 15, 0),
-                LocalDateTime.of(2026, 2, 9, 17, 0),
+                LocalDateTime.of(2026, 5, 9, 15, 0),
+                LocalDateTime.of(2026, 5, 9, 17, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -300,8 +300,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 10, 8, 0),
-                LocalDateTime.of(2026, 2, 10, 12, 0),
+                LocalDateTime.of(2026, 5, 10, 8, 0),
+                LocalDateTime.of(2026, 5, 10, 12, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 3,
@@ -310,8 +310,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 10, 13, 0),
-                LocalDateTime.of(2026, 2, 10, 17, 0),
+                LocalDateTime.of(2026, 5, 10, 13, 0),
+                LocalDateTime.of(2026, 5, 10, 17, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 3,
@@ -320,8 +320,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 23, 8, 0),
-                LocalDateTime.of(2026, 2, 23, 10, 0),
+                LocalDateTime.of(2026, 5, 23, 8, 0),
+                LocalDateTime.of(2026, 5, 23, 10, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -330,8 +330,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 23, 10, 0),
-                LocalDateTime.of(2026, 2, 23, 12, 0),
+                LocalDateTime.of(2026, 5, 23, 10, 0),
+                LocalDateTime.of(2026, 5, 23, 12, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -340,8 +340,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 23, 13, 0),
-                LocalDateTime.of(2026, 2, 23, 15, 0),
+                LocalDateTime.of(2026, 5, 23, 13, 0),
+                LocalDateTime.of(2026, 5, 23, 15, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -350,8 +350,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 23, 15, 0),
-                LocalDateTime.of(2026, 2, 23, 17, 0),
+                LocalDateTime.of(2026, 5, 23, 15, 0),
+                LocalDateTime.of(2026, 5, 23, 17, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -360,8 +360,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 24, 8, 0),
-                LocalDateTime.of(2026, 2, 24, 12, 0),
+                LocalDateTime.of(2026, 5, 24, 8, 0),
+                LocalDateTime.of(2026, 5, 24, 12, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 3,
@@ -370,8 +370,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 2, 24, 13, 0),
-                LocalDateTime.of(2026, 2, 24, 17, 0),
+                LocalDateTime.of(2026, 5, 24, 13, 0),
+                LocalDateTime.of(2026, 5, 24, 17, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 3,
@@ -380,8 +380,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 3, 9, 8, 0),
-                LocalDateTime.of(2026, 3, 9, 10, 0),
+                LocalDateTime.of(2026, 6, 9, 8, 0),
+                LocalDateTime.of(2026, 6, 9, 10, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -390,8 +390,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 3, 9, 10, 0),
-                LocalDateTime.of(2026, 3, 9, 12, 0),
+                LocalDateTime.of(2026, 6, 9, 10, 0),
+                LocalDateTime.of(2026, 6, 9, 12, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -400,8 +400,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 3, 9, 13, 0),
-                LocalDateTime.of(2026, 3, 9, 15, 0),
+                LocalDateTime.of(2026, 6, 9, 13, 0),
+                LocalDateTime.of(2026, 6, 9, 15, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -410,8 +410,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 3, 9, 15, 0),
-                LocalDateTime.of(2026, 3, 9, 17, 0),
+                LocalDateTime.of(2026, 6, 9, 15, 0),
+                LocalDateTime.of(2026, 6, 9, 17, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -420,8 +420,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 3, 10, 8, 0),
-                LocalDateTime.of(2026, 3, 10, 12, 0),
+                LocalDateTime.of(2026, 6, 10, 8, 0),
+                LocalDateTime.of(2026, 6, 10, 12, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 3,
@@ -430,8 +430,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 3, 10, 13, 0),
-                LocalDateTime.of(2026, 3, 10, 17, 0),
+                LocalDateTime.of(2026, 6, 10, 13, 0),
+                LocalDateTime.of(2026, 6, 10, 17, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 3,
@@ -440,8 +440,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 3, 19, 8, 0),
-                LocalDateTime.of(2026, 3, 19, 17, 0),
+                LocalDateTime.of(2026, 6, 19, 8, 0),
+                LocalDateTime.of(2026, 6, 19, 17, 0),
                 CourseSession.CourseSessionType.GRADING,
                 2,
                 6,
@@ -450,8 +450,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 3, 20, 8, 0),
-                LocalDateTime.of(2026, 3, 20, 17, 0),
+                LocalDateTime.of(2026, 6, 20, 8, 0),
+                LocalDateTime.of(2026, 6, 20, 17, 0),
                 CourseSession.CourseSessionType.GRADING,
                 1,
                 6,
@@ -460,8 +460,8 @@ public class DataInitializer {
 
         courseSessionRepository.save(CourseSession.of(
                 vol101,
-                LocalDateTime.of(2026, 3, 21, 8, 0),
-                LocalDateTime.of(2026, 3, 21, 17, 0),
+                LocalDateTime.of(2026, 6, 21, 8, 0),
+                LocalDateTime.of(2026, 6, 21, 17, 0),
                 CourseSession.CourseSessionType.GRADING,
                 2,
                 6,
@@ -473,398 +473,390 @@ public class DataInitializer {
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 sebTAAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 19, 10, 00),
-                LocalDateTime.of(2026, 01, 19, 15, 00),
+                LocalDateTime.of(2026, 04, 19, 10, 00),
+                LocalDateTime.of(2026, 04, 19, 15, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 sebTAAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 21, 10, 00),
-                LocalDateTime.of(2026, 01, 21, 15, 00),
+                LocalDateTime.of(2026, 04, 21, 10, 00),
+                LocalDateTime.of(2026, 04, 21, 15, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 sebTAAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 23, 10, 00),
-                LocalDateTime.of(2026, 01, 23, 15, 00),
+                LocalDateTime.of(2026, 04, 23, 10, 00),
+                LocalDateTime.of(2026, 04, 23, 15, 00),
                 true
+        ));
+        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
+                yakAssignment,
+                ConstraintType.HARD,
+                LocalDateTime.of(2026, 04, 19, 8, 00),
+                LocalDateTime.of(2026, 04, 19, 12, 00),
+                true
+        ));
+        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
+                yakAssignment,
+                ConstraintType.HARD,
+                LocalDateTime.of(2026, 04, 20, 8, 00),
+                LocalDateTime.of(2026, 04, 20, 12, 00),
+                true
+        ));
+        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
+                yakAssignment,
+                ConstraintType.HARD,
+                LocalDateTime.of(2026, 04, 21, 10, 00),
+                LocalDateTime.of(2026, 04, 21, 17, 00),
+                true
+        ));
+        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
+                yakAssignment,
+                ConstraintType.HARD,
+                LocalDateTime.of(2026, 04, 23, 8, 00),
+                LocalDateTime.of(2026, 04, 23, 12, 00),
+                true
+        ));
+        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
+                yakAssignment,
+                ConstraintType.HARD,
+                LocalDateTime.of(2026, 06, 16, 8, 00),
+                LocalDateTime.of(2026, 06, 21, 17, 00),
+                false
         ));
 
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
-                yakAssignment,
-                ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 19, 8, 00),
-                LocalDateTime.of(2026, 01, 19, 12, 00),
-                true
-        ));
-        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
-                yakAssignment,
-                ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 20, 8, 00),
-                LocalDateTime.of(2026, 01, 20, 12, 00),
-                true
-        ));
-        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
-                yakAssignment,
-                ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 21, 10, 00),
-                LocalDateTime.of(2026, 01, 21, 17, 00),
-                true
-        ));
-        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
-                yakAssignment,
-                ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 23, 8, 00),
-                LocalDateTime.of(2026, 01, 23, 12, 00),
-                true
-        ));
-        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
-                yakAssignment,
-                ConstraintType.HARD,
-                LocalDateTime.of(2026, 03, 16, 8, 00),
-                LocalDateTime.of(2026, 03, 21, 17, 00),
-                false
-        ));
-
-        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 19, 10, 00),
-                LocalDateTime.of(2026, 01, 19, 15, 00),
+                LocalDateTime.of(2026, 04, 19, 10, 00),
+                LocalDateTime.of(2026, 04, 19, 15, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 21, 13, 00),
-                LocalDateTime.of(2026, 01, 21, 15, 00),
-                true
-        ));
-        taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
-                levAssignment,
-                ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 22, 10, 00),
-                LocalDateTime.of(2026, 01, 22, 12, 00),
+                LocalDateTime.of(2026, 04, 22, 10, 00),
+                LocalDateTime.of(2026, 04, 22, 12, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 19, 8, 00),
-                LocalDateTime.of(2026, 01, 19, 10, 00),
+                LocalDateTime.of(2026, 04, 19, 8, 00),
+                LocalDateTime.of(2026, 04, 19, 10, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 20, 8, 00),
-                LocalDateTime.of(2026, 01, 20, 10, 00),
+                LocalDateTime.of(2026, 04, 20, 8, 00),
+                LocalDateTime.of(2026, 04, 20, 10, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 21, 8, 00),
-                LocalDateTime.of(2026, 01, 21, 10, 00),
+                LocalDateTime.of(2026, 04, 21, 8, 00),
+                LocalDateTime.of(2026, 04, 21, 10, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 22, 8, 00),
-                LocalDateTime.of(2026, 01, 22, 10, 00),
+                LocalDateTime.of(2026, 04, 22, 8, 00),
+                LocalDateTime.of(2026, 04, 22, 10, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 23, 8, 00),
-                LocalDateTime.of(2026, 01, 23, 10, 00),
+                LocalDateTime.of(2026, 04, 23, 8, 00),
+                LocalDateTime.of(2026, 04, 23, 10, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 16, 8, 00),
-                LocalDateTime.of(2026, 03, 16, 17, 00),
+                LocalDateTime.of(2026, 06, 16, 8, 00),
+                LocalDateTime.of(2026, 06, 16, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 17, 8, 00),
-                LocalDateTime.of(2026, 03, 17, 17, 00),
+                LocalDateTime.of(2026, 06, 17, 8, 00),
+                LocalDateTime.of(2026, 06, 17, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 18, 8, 00),
-                LocalDateTime.of(2026, 03, 18, 17, 00),
+                LocalDateTime.of(2026, 06, 18, 8, 00),
+                LocalDateTime.of(2026, 06, 18, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 19, 8, 00),
-                LocalDateTime.of(2026, 03, 19, 17, 00),
+                LocalDateTime.of(2026, 06, 19, 8, 00),
+                LocalDateTime.of(2026, 06, 19, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 20, 8, 00),
-                LocalDateTime.of(2026, 03, 20, 17, 00),
+                LocalDateTime.of(2026, 06, 20, 8, 00),
+                LocalDateTime.of(2026, 06, 20, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 levAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 21, 8, 00),
-                LocalDateTime.of(2026, 03, 21, 17, 00),
+                LocalDateTime.of(2026, 06, 21, 8, 00),
+                LocalDateTime.of(2026, 06, 21, 17, 00),
                 false
         ));
 
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 20, 8, 00),
-                LocalDateTime.of(2026, 01, 20, 10, 00),
+                LocalDateTime.of(2026, 04, 20, 8, 00),
+                LocalDateTime.of(2026, 04, 20, 10, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 21, 10, 00),
-                LocalDateTime.of(2026, 01, 21, 12, 00),
+                LocalDateTime.of(2026, 04, 21, 10, 00),
+                LocalDateTime.of(2026, 04, 21, 12, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 23, 8, 00),
-                LocalDateTime.of(2026, 01, 23, 10, 00),
+                LocalDateTime.of(2026, 04, 23, 8, 00),
+                LocalDateTime.of(2026, 04, 23, 10, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 30, 8, 00),
-                LocalDateTime.of(2026, 01, 30, 10, 00),
+                LocalDateTime.of(2026, 04, 30, 8, 00),
+                LocalDateTime.of(2026, 04, 30, 10, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 21, 13, 00),
-                LocalDateTime.of(2026, 01, 21, 15, 00),
+                LocalDateTime.of(2026, 04, 21, 13, 00),
+                LocalDateTime.of(2026, 04, 21, 15, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 19, 8, 00),
-                LocalDateTime.of(2026, 01, 19, 17, 00),
+                LocalDateTime.of(2026, 04, 19, 8, 00),
+                LocalDateTime.of(2026, 04, 19, 17, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 23, 13, 00),
-                LocalDateTime.of(2026, 01, 23, 17, 00),
+                LocalDateTime.of(2026, 04, 23, 13, 00),
+                LocalDateTime.of(2026, 04, 23, 17, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 16, 8, 00),
-                LocalDateTime.of(2026, 03, 16, 17, 00),
+                LocalDateTime.of(2026, 06, 16, 8, 00),
+                LocalDateTime.of(2026, 06, 16, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 17, 8, 00),
-                LocalDateTime.of(2026, 03, 17, 17, 00),
+                LocalDateTime.of(2026, 06, 17, 8, 00),
+                LocalDateTime.of(2026, 06, 17, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 18, 8, 00),
-                LocalDateTime.of(2026, 03, 18, 17, 00),
+                LocalDateTime.of(2026, 06, 18, 8, 00),
+                LocalDateTime.of(2026, 06, 18, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 03, 19, 8, 00),
-                LocalDateTime.of(2026, 03, 19, 17, 00),
+                LocalDateTime.of(2026, 06, 19, 8, 00),
+                LocalDateTime.of(2026, 06, 19, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 03, 20, 8, 00),
-                LocalDateTime.of(2026, 03, 20, 17, 00),
+                LocalDateTime.of(2026, 06, 20, 8, 00),
+                LocalDateTime.of(2026, 06, 20, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 albAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 21, 8, 00),
-                LocalDateTime.of(2026, 03, 21, 17, 00),
+                LocalDateTime.of(2026, 06, 21, 8, 00),
+                LocalDateTime.of(2026, 06, 21, 17, 00),
                 false
         ));
 
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 22, 15, 00),
-                LocalDateTime.of(2026, 01, 22, 17, 00),
+                LocalDateTime.of(2026, 04, 22, 15, 00),
+                LocalDateTime.of(2026, 04, 22, 17, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 23, 15, 00),
-                LocalDateTime.of(2026, 01, 23, 17, 00),
+                LocalDateTime.of(2026, 04, 23, 15, 00),
+                LocalDateTime.of(2026, 04, 23, 17, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 19, 13, 00),
-                LocalDateTime.of(2026, 01, 19, 15, 00),
+                LocalDateTime.of(2026, 04, 19, 13, 00),
+                LocalDateTime.of(2026, 04, 19, 15, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 20, 13, 00),
-                LocalDateTime.of(2026, 01, 20, 15, 00),
+                LocalDateTime.of(2026, 04, 20, 13, 00),
+                LocalDateTime.of(2026, 04, 20, 15, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 21, 13, 00),
-                LocalDateTime.of(2026, 01, 21, 15, 00),
+                LocalDateTime.of(2026, 04, 21, 13, 00),
+                LocalDateTime.of(2026, 04, 21, 15, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 23, 13, 00),
-                LocalDateTime.of(2026, 01, 23, 15, 00),
+                LocalDateTime.of(2026, 04, 23, 13, 00),
+                LocalDateTime.of(2026, 04, 23, 15, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 19, 15, 00),
-                LocalDateTime.of(2026, 01, 19, 17, 00),
+                LocalDateTime.of(2026, 04, 19, 15, 00),
+                LocalDateTime.of(2026, 04, 19, 17, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 20, 15, 00),
-                LocalDateTime.of(2026, 01, 20, 17, 00),
+                LocalDateTime.of(2026, 04, 20, 15, 00),
+                LocalDateTime.of(2026, 04, 20, 17, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 21, 15, 00),
-                LocalDateTime.of(2026, 01, 21, 17, 00),
+                LocalDateTime.of(2026, 04, 21, 15, 00),
+                LocalDateTime.of(2026, 04, 21, 17, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 22, 15, 00),
-                LocalDateTime.of(2026, 01, 22, 17, 00),
+                LocalDateTime.of(2026, 04, 22, 15, 00),
+                LocalDateTime.of(2026, 04, 22, 17, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 01, 23, 15, 00),
-                LocalDateTime.of(2026, 01, 23, 17, 00),
+                LocalDateTime.of(2026, 04, 23, 15, 00),
+                LocalDateTime.of(2026, 04, 23, 17, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 phoAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 03, 16, 8, 00),
-                LocalDateTime.of(2026, 03, 21, 17, 00),
+                LocalDateTime.of(2026, 06, 16, 8, 00),
+                LocalDateTime.of(2026, 06, 21, 17, 00),
                 false
         ));
 
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 noeAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 20, 8, 00),
-                LocalDateTime.of(2026, 01, 20, 12, 00),
+                LocalDateTime.of(2026, 04, 20, 8, 00),
+                LocalDateTime.of(2026, 04, 20, 12, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 noeAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 21, 8, 00),
-                LocalDateTime.of(2026, 01, 21, 10, 00),
+                LocalDateTime.of(2026, 04, 21, 8, 00),
+                LocalDateTime.of(2026, 04, 21, 10, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 noeAssignment,
                 ConstraintType.HARD,
-                LocalDateTime.of(2026, 01, 23, 8, 00),
-                LocalDateTime.of(2026, 01, 23, 12, 00),
+                LocalDateTime.of(2026, 04, 23, 8, 00),
+                LocalDateTime.of(2026, 04, 23, 12, 00),
                 true
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 noeAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 16, 8, 00),
-                LocalDateTime.of(2026, 03, 16, 17, 00),
+                LocalDateTime.of(2026, 06, 16, 8, 00),
+                LocalDateTime.of(2026, 06, 16, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 noeAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 17, 8, 00),
-                LocalDateTime.of(2026, 03, 17, 17, 00),
+                LocalDateTime.of(2026, 06, 17, 8, 00),
+                LocalDateTime.of(2026, 06, 17, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 noeAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 18, 8, 00),
-                LocalDateTime.of(2026, 03, 18, 17, 00),
+                LocalDateTime.of(2026, 06, 18, 8, 00),
+                LocalDateTime.of(2026, 06, 18, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 noeAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 19, 8, 00),
-                LocalDateTime.of(2026, 03, 19, 17, 00),
+                LocalDateTime.of(2026, 06, 19, 8, 00),
+                LocalDateTime.of(2026, 06, 19, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 noeAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 20, 8, 00),
-                LocalDateTime.of(2026, 03, 20, 17, 00),
+                LocalDateTime.of(2026, 06, 20, 8, 00),
+                LocalDateTime.of(2026, 06, 20, 17, 00),
                 false
         ));
         taCourseSessionConstraintRepository.save(TACourseSessionConstraint.of(
                 noeAssignment,
                 ConstraintType.SOFT,
-                LocalDateTime.of(2026, 03, 21, 8, 00),
-                LocalDateTime.of(2026, 03, 21, 17, 00),
+                LocalDateTime.of(2026, 06, 21, 8, 00),
+                LocalDateTime.of(2026, 06, 21, 17, 00),
                 false
         ));
 
