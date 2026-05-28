@@ -36,6 +36,8 @@ public class AuthApplicationService {
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
+    private final static String EMAIL_REGEX = "^[\\w.+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$";
+    private final static String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$";
 
     @Value("${app.jwt.refresh-ttl-seconds:90000}") long refreshTokenTtlSeconds;
 
@@ -46,6 +48,12 @@ public class AuthApplicationService {
     String refreshCookieSameSite;
 
     public Result<AuthResponse> register(AuthRegisterRequest request, HttpServletResponse servletResponse) {
+        if(!request.getEmail().matches(EMAIL_REGEX)){
+            return Result.errorFromCode(INVALID_EMAIL_FORMAT);
+        }
+        if(!request.getPassword().matches(PASSWORD_REGEX)){
+            return Result.errorFromCode(INVALID_PASSWORD_FORMAT);
+        }
         if (userRepository.existsByEmail(request.getEmail())) {
             return Result.errorFromCode(EMAIL_TAKEN);
         }

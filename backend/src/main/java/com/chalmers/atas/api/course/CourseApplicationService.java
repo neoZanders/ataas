@@ -15,6 +15,8 @@ import com.chalmers.atas.domain.user.CurrentUser;
 import com.chalmers.atas.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import static com.chalmers.atas.common.ErrorCode.*;
+
 
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +35,14 @@ public class CourseApplicationService {
     private final TACourseAssignmentRepository tACourseAssignmentRepository;
 
     public Result<CourseResponse> createCourse(CreateCourseRequest request, CurrentUser currentUser) {
-        return transactionHandler.executeInTransaction(() ->
+        if(request.getStartDate().isAfter(request.getEndDate())){
+            return Result.errorFromCode(START_AFTER_END);
+        }
+        if(!request.getCourseCode().matches(CourseService.COURSE_CODE_MATCHER)){
+            return Result.errorFromCode(INVALID_COURSE_CODE);
+        }
+
+            return transactionHandler.executeInTransaction(() ->
                 courseService.createCourse(
                         currentUser.getUser(),
                         request.getCourseCode(),
@@ -142,6 +151,9 @@ public class CourseApplicationService {
 
 
     public Result<CourseSessionResponse> createCourseSession(UUID courseId, CreateCourseSessionRequest request, CurrentUser currentUser) {
+        if(request.getMinTAs() < 0 || request.getMinTAs() > request.getMaxTAs()){
+            return Result.errorFromCode(INVALID_MIN_MAX_TA);
+        }
         if (request.getStartDateTime().isAfter(request.getEndDateTime())) {
             return Result.errorFromCode(ErrorCode.START_AFTER_END);
         }
