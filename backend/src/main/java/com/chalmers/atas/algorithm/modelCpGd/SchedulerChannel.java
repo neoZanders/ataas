@@ -9,7 +9,7 @@ import com.chalmers.atas.common.Result;
 import java.util.*;
 
 public class SchedulerChannel implements AlgorithmService {
-    private final CPscheduler cPscheduler = new CPscheduler();
+    private final CPScheduler cPscheduler = new CPScheduler();
     private final Greedy greedy = new Greedy();
 
     @Override
@@ -38,9 +38,6 @@ public class SchedulerChannel implements AlgorithmService {
             UUID taID = ta.taAssignmentId();
             emptyMinutes.put(taID, 0);
 
-
-            AlgorithmResult greedyOnly = greedy.fillingTheRest(request, emptyAssignment, emptyMinutes);
-            return Result.ok(greedyOnly);
         }
 
         AlgorithmResult cpResult = cpResultWrapper.getData();
@@ -61,7 +58,7 @@ public class SchedulerChannel implements AlgorithmService {
                 assignedMinutes.merge(taId, durationMinutes, Integer::sum);
             }
         }
-        AlgorithmResult greedyResult = greedy.fillingTheRest(request,cpAssignment,assignedMinutes);
+        AlgorithmResult greedyResult = greedy.fillingTheRest(request, cpAssignment, assignedMinutes);
         return Result.ok(greedyResult);
     }
 }
